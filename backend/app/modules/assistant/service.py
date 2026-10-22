@@ -1,4 +1,4 @@
-"""AI helpers for messy human input. The LLM only reads text; a person confirms; code does the maths.
+﻿"""AI helpers for messy human input. The LLM only reads text; a person confirms; code does the maths.
 
 - stock note  -> review rows (nothing is saved until a manager applies them)
 - new item    -> shelf-life / storage / unit suggestion (nothing is saved until the item is added)
@@ -10,7 +10,6 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.ai import llm
-from app.config import settings
 from app.core.activity import log_action
 from app.core.clock import now_kl
 from app.core.today import get_today
@@ -111,7 +110,7 @@ def parse_stock_note(db: Session, user: User, note: str) -> NoteOut:
 
     rows = [_review_row(n, r, ingredients, stock, today) for n, r in enumerate(result["rows"])]
     suggestion = AISuggestion(
-        tenant_id=user.tenant_id, kind="stock_note", input_text=note, status="pending", model=settings.llm_model,
+        tenant_id=user.tenant_id, kind="stock_note", input_text=note, status="pending", model=llm.active_model(),
         payload={"rows": [r.model_dump(mode="json") for r in rows]}, created_at=now_kl(),
     )
     db.add(suggestion)
@@ -121,7 +120,7 @@ def parse_stock_note(db: Session, user: User, note: str) -> NoteOut:
         {"rows": len(rows), "matched": sum(r.ingredient_id is not None for r in rows)},
     )
     db.commit()
-    return NoteOut(suggestion_id=suggestion.id, model=settings.llm_model, rows=rows)
+    return NoteOut(suggestion_id=suggestion.id, model=llm.active_model(), rows=rows)
 
 
 def apply_stock_note(db: Session, user: User, suggestion_id: int, body: ApplyIn) -> ApplyOut:
@@ -179,7 +178,7 @@ def suggest_shelf_life(db: Session, user: User, body: ShelfLifeIn) -> ShelfLifeO
         raise HTTPException(503, UNAVAILABLE)
     suggestion = AISuggestion(
         tenant_id=user.tenant_id, kind="shelf_life", input_text=body.name, payload=result, status="pending",
-        model=settings.llm_model, created_at=now_kl(),
+        model=llm.active_model(), created_at=now_kl(),
     )
     db.add(suggestion)
     db.flush()

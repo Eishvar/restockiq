@@ -1,4 +1,4 @@
-# Deploying RestockIQ on Replit
+﻿# Deploying RestockIQ on Replit
 
 Replit is compulsory for this hackathon (hosting + PostgreSQL + the Replit-managed Claude integration).
 One process serves everything: FastAPI answers `/api/*` and serves the built web app at `/`.
@@ -8,34 +8,36 @@ One process serves everything: FastAPI answers `/api/*` and serves the built web
 
 ## 1. Import the repository
 
-1. On replit.com choose **Create App → Import from GitHub** and pick this repo (it can stay private while you set up).
+1. On replit.com choose **Create App â†’ Import from GitHub** and pick this repo (it can stay private while you set up).
 2. Replit reads `.replit`: Python 3.11, Node 20, PostgreSQL 16.
-3. In the workspace **Tools → Shell**, run `python --version`. It must say 3.11.x. (The author's laptop uses 3.13;
+3. In the workspace **Tools â†’ Shell**, run `python --version`. It must say 3.11.x. (The author's laptop uses 3.13;
    the code works on both, but Replit should be 3.11 to match the declaration.)
 
 ## 2. Add the database
 
-1. **Tools → Database → PostgreSQL** (create it). Replit sets `DATABASE_URL` for you.
+1. **Tools â†’ Database â†’ PostgreSQL** (create it). Replit sets `DATABASE_URL` for you.
 2. Nothing else is needed: the app creates its tables on start and `python -m app.seed.load --if-empty` loads the
    synthetic demo data the first time (about 10 seconds, it also measures the safety buffers).
 
-## 3. Secrets (**Tools → Secrets**)
+## 3. Secrets (**Tools â†’ Secrets**)
 
 Set these in the workspace **and again in the Deployment** (Deployment secrets are separate):
 
 | Secret | Value |
 |---|---|
-| `TODAY` | optional. `2026-10-22` pins the demo date. Leave it out and use **Settings → Demo date** instead. |
+| `TODAY` | optional. `2026-10-22` pins the demo date. Leave it out and use **Settings â†’ Demo date** instead. |
 | `LLM_MODEL` | optional. Defaults to `claude-haiku-5-5`. |
-| `ANTHROPIC_API_KEY` | optional. Only if you do **not** use the Replit AI integration (step 4). |
+| `OPENROUTER_API_KEY` | optional. Your OpenRouter key, if you use OpenRouter for the AI (step 4). Never paste it in chat or in the repo. |
+| `OPENROUTER_MODEL` | optional. An OpenRouter model id. Defaults to `anthropic/claude-haiku-4.5`. |
+| `ANTHROPIC_API_KEY` | optional. Only if you want to call Claude directly instead. |
 
 Never put a real key in the repo. `.env.example` lists the names only.
 
-## 4. AI (Claude via Replit)
+## 4. AI (which model answers)
 
-1. **Tools → AI Integrations → Anthropic**, approve it. Replit then provides `AI_INTEGRATIONS_ANTHROPIC_API_KEY`
+1. **Tools â†’ AI Integrations â†’ Anthropic**, approve it. Replit then provides `AI_INTEGRATIONS_ANTHROPIC_API_KEY`
    and `AI_INTEGRATIONS_ANTHROPIC_BASE_URL` to the app, which `backend/app/ai/llm.py` reads first.
-2. Check: sign in as Siti (manager), **Inventory → ⚡ Quick add from a note → Use the example → Read my note**.
+2. Check: sign in as Siti (manager), **Inventory â†’ âš¡ Quick add from a note â†’ Use the example â†’ Read my note**.
    If it says "AI unavailable, enter manually", the integration is not approved in this environment
    (workspace vs deployment) or the model name is not allowed. The rest of the app keeps working without AI.
 
@@ -46,7 +48,7 @@ seeds the database if empty and starts `uvicorn` on `$PORT`. Open the preview an
 
 ## 6. Publish (Autoscale deployment)
 
-1. **Publish → Autoscale**. Build command and run command come from `.replit`:
+1. **Publish â†’ Autoscale**. Build command and run command come from `.replit`:
    - build: `cd frontend && npm ci && npm run build && cd ../backend && pip install -r requirements.txt`
    - run: `cd backend && python -m app.seed.load --if-empty && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
 2. Add the deployment secrets (step 3) and publish.
@@ -56,8 +58,8 @@ seeds the database if empty and starts `uvicorn` on `$PORT`. Open the preview an
 
 ## 7. Journey check (about 3 minutes)
 
-As **Ah Hock (Owner)** confirm the one-time stock setup → as **Siti (Manager)** Plan purchases → 3 days → Generate →
-Submit → as **Ah Hock** Approve → Send via WhatsApp → as **Siti** Mark received → **Activity** shows every step →
+As **Ah Hock (Owner)** confirm the one-time stock setup â†’ as **Siti (Manager)** Plan purchases â†’ 3 days â†’ Generate â†’
+Submit â†’ as **Ah Hock** Approve â†’ Send via WhatsApp â†’ as **Siti** Mark received â†’ **Activity** shows every step â†’
 **Dashboard** shows time saved and the 13% vs 28% accuracy card.
 
 ## 8. For the submission
@@ -68,7 +70,7 @@ Submit → as **Ah Hock** Approve → Send via WhatsApp → as **Siti** Mark rec
 
 ## Resetting the demo
 
-**Settings → Reset demo data** (owner) wipes and reloads the synthetic data, including the opening stock.
+**Settings â†’ Reset demo data** (owner) wipes and reloads the synthetic data, including the opening stock.
 From a shell: `cd backend && python -m app.seed.load --reset`.
 
 ## Troubleshooting
