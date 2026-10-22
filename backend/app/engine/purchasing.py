@@ -1,4 +1,4 @@
-"""Shelf-life-aware purchasing: what to buy, when, from whom, and why.
+﻿"""Shelf-life-aware purchasing: what to buy, when, from whom, and why.
 
 Per ingredient, from today (today's expected use is included because today's sales consume stock before
 tomorrow) to the end of the horizon:
@@ -108,7 +108,7 @@ def plan_purchases(
             expiry = (bought_on + timedelta(days=shelf)) if bought_on else today + timedelta(days=shelf)
             if expiry <= today:
                 discard.append(
-                    {"ingredient_id": g, "name": ing.name, "qty_base": round(qty, 3), "expired_on": expiry.isoformat(),
+                    {"ingredient_id": g, "name": ing.name, "base_uom": ing.base_uom, "qty_base": round(qty, 3), "expired_on": expiry.isoformat(),
                      "days_ago": (today - expiry).days}
                 )
             else:
@@ -129,7 +129,7 @@ def plan_purchases(
             available = sum(l.qty for l in lots)
             if n > EPS and available + EPS < n:
                 if i == 0:
-                    out_exceptions.append({"type": "short_today", "ingredient_id": g, "name": ing.name,
+                    out_exceptions.append({"type": "short_today", "ingredient_id": g, "name": ing.name, "base_uom": ing.base_uom,
                                            "short_base": round(n - available, 3)})
                 else:
                     last = min(i + shelf - 1, len(days) - 1)
@@ -167,7 +167,7 @@ def plan_purchases(
         total_need = sum(need.get(d, 0.0) for d in days[1:])
         if not trips:
             if total_need > EPS:
-                covered.append({"ingredient_id": g, "name": ing.name, "need_base": round(total_need, 3),
+                covered.append({"ingredient_id": g, "name": ing.name, "base_uom": ing.base_uom, "need_base": round(total_need, 3),
                                 "stock_base": stock_info["qty_base"], "expired": stock_info["expired"]})
             continue
 

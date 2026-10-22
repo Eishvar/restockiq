@@ -1,0 +1,85 @@
+import { useState } from 'react'
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts'
+import { Button, Card, Chip, Table } from '../../components/ui'
+import type { Drivers, Plan } from './api'
+import { fmtDay, fmtShort, num, prettyState, weekdayLong } from './format'
+
+const signed = (factor: number) => `${factor >= 1 ? '+' : '−'}${Math.abs(Math.round((factor - 1) * 100))}%`
+
+/** Why this day is busy or quiet, as small tags. */
+export function driverChips(date: string, d: Drivers): { text: string; hint: string }[] {
+  const chips = [{ text: weekdayLong(date), hint: `${weekdayLong(date)}s are ${d.weekday_factor >= 1 ? 'busier' : 'quieter'} than average (x${num(d.weekday_factor)})` }]
+  if (d.state !== 'normal') chips.push({ text: prettyState(d.state), hint: 'A period you set in the Calendar that changes how busy you are' })
+  d.names.forEach((n) => chips.push({ text: n, hint: 'Holiday or event from your Calendar' }))
+  if (d.holiday_effect !== 1) chips.push({ text: `Holiday ${signed(d.holiday_effect)}`, hint: 'How holidays changed your sales in the past' })
+  if (d.event_effect !== 1) chips.push({ text: `Event ${signed(d.event_effect)}`, hint: 'How local events changed your sales in the past' })
+  if (d.cold_start) chips.push({ text: 'Rough estimate', hint: 'Not enough sales history yet, so this is a simple average' })
+  return chips
+}
+
+export default function ForecastCard({ plan }: { plan: Plan }) {
+  const [showAll, setShowAll] = useState(false)
+  const { days, dishes, history } = plan.forecast
+  const chart = [
+    ...history.map((h) => ({ label: fmtShort(h.date), actual: h.total })),
+    ...days.map((d) => ({ label: fmtShort(d.date), forecast: Math.round(d.total) })),
+  ]
+  const shown = showAll ? dishes : dishes.slice(0, 12)
+
+  return (
+    <Card title="What we expect you to sell">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {days.map((d) => (
+          <div key={d.date} className="rounded-lg border border-slate-200 p-3">
+            <div className="text-xs font-medium uppercase text-slate-500">{d.is_today ? 'Today (so far)' : fmtDay(d.date)}</div>
+            <div className="mt-1 text-2xl font-semibold">{num(Math.round(d.total), 0)}</div>
+            <div className="text-xs text-slate-500">dishes</div>
+            <div className="mt-2 flex flex-wrap gap-1">
+              {driverChips(d.date, d.drivers).map((c) => (
+                <span key={c.text} title={c.hint}>
+                  <Chip>{c.text}</Chip>
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 h-56 w-full" aria-label="Dishes sold per day: last 4 weeks and forecast">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chart} margin={{ top: 5, right: 8, bottom: 0, left: -12 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={24} tick={{ fontSize: 11 }} />
+            <YAxis tick={{ fontSize: 11 }} />
+            <ChartTooltip />
+            <Legend />
+            <Line name="Sold (last 4 weeks)" dataKey="actual" stroke="#475569" dot={false} strokeWidth={2} connectNulls={false} />
+            <Line name="Forecast" dataKey="forecast" stroke="#059669" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3 }} connectNulls={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <details className="mt-3">
+        <summary className="cursor-pointer text-sm font-medium text-emerald-700">See the forecast for each dish</summary>
+        <div className="mt-2">
+          <Table head={['Dish', ...days.map((d) => (d.is_today ? 'Today' : fmtDay(d.date))), 'Total']}>
+            {shown.map((dish) => (
+              <tr key={dish.menu_item_id}>
+                <td className="font-medium">{dish.name}</td>
+                {dish.qty.map((q, i) => (
+                  <td key={i} className="tabular-nums">{num(q, 0)}</td>
+                ))}
+                <td className="font-medium tabular-nums">{num(dish.total, 0)}</td>
+              </tr>
+            ))}
+          </Table>
+          {dishes.length > 12 && (
+            <Button variant="ghost" className="mt-2" onClick={() => setShowAll((v) => !v)}>
+              {showAll ? 'Show fewer' : `Show all ${dishes.length} dishes`}
+            </Button>
+          )}
+        </div>
+      </details>
+    </Card>
+  )
+}

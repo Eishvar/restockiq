@@ -97,6 +97,7 @@ def test_edit_line_updates_totals_and_logs_before_and_after(client, db, users, l
     edited = next(l for l in got["lines"] if l["id"] == line["id"])
     assert edited["final_packs"] == new and edited["suggested_packs"] == line["suggested_packs"]
     assert edited["line_total_rm"] == pytest.approx(new * line["pack_price_rm"])
+    assert edited["leftover_base"] == pytest.approx(line["leftover_base"] + 2 * line["pack_size_base"])  # 2 extra packs
     assert got["total_rm"] == pytest.approx(sum(l["line_total_rm"] for l in got["lines"]))
     log = db.scalars(select(ActivityLog).where(ActivityLog.action == "po_line_edited")).one()
     assert log.details["before"]["final_packs"] == line["suggested_packs"] and log.details["after"]["final_packs"] == new
@@ -182,6 +183,28 @@ def test_full_journey_with_roles_inventory_and_activity_log(client, db, users, l
     # and the manager can read them through the API
     api = client.get("/api/activity", headers=as_user(users["manager"])).json()
     assert [a["action"] for a in api][0] == "po_received"
+
+
+def test_receiving_does_not_make_expired_stock_look_fresh(client, db, users, loaded):
+    plan = make_plan(client, users, 5)
+    expired_ids = {d["ingredient_id"] for d in plan["discard"]}
+    order, line = next(
+        (o, l) for o in plan["orders"] for l in o["lines"] if l["ingredient_id"] in expired_ids
+    )  # a delivery of something whose old stock has already expired
+    inv = db.scalars(select(InventoryItem).where(InventoryItem.ingredient_id == line["ingredient_id"])).one()
+    old_qty = inv.qty_base
+    assert old_qty > 0
+    act(client, users["manager"], order["id"], "submit")
+    act(client, users["owner"], order["id"], "approve")
+    act(client, users["owner"], order["id"], "send")
+    assert act(client, users["manager"], order["id"], "receive").status_code == 200
+    db.refresh(inv)
+    assert inv.qty_base == pytest.approx(line["final_packs"] * line["pack_size_base"])  # old expired stock is gone
+    reasons = [m.reason for m in db.scalars(select(InventoryMovement).where(
+        InventoryMovement.ingredient_id == line["ingredient_id"]).order_by(InventoryMovement.id))]
+    assert reasons[-2:] == ["discard_expired", "received"]
+    log = db.scalars(select(ActivityLog).where(ActivityLog.action == "po_received")).one()
+    assert any(x["qty_base"] == old_qty for x in log.details["discarded_expired"])
 
 
 def test_reject_needs_a_reason_and_is_final(client, db, users, loaded):

@@ -21,6 +21,7 @@ from app.engine.purchasing import plan_purchases
 from app.engine.requirements import requirements
 from app.modules.catalog.models import Ingredient, MenuItem, Supplier
 from app.modules.inventory.models import InventoryItem, InventoryMovement
+from app.modules.inventory.service import compute_status
 from app.modules.planning.data import load_frames, load_safety
 from app.modules.planning.models import ForecastLine, ForecastQuality, PlanRun, POLine, PurchaseOrder
 from app.modules.planning.schemas import (
@@ -137,6 +138,12 @@ def generate_plan(db: Session, user: User, horizon_days: int, today: date | None
 
 
 # ---------- read ----------
+def context(db: Session, user: User) -> dict:
+    last = db.scalars(select(PlanRun).where(PlanRun.tenant_id == user.tenant_id).order_by(PlanRun.id.desc())).first()
+    return {"today": get_today(db, user.tenant_id).isoformat(), "last_plan_id": last.id if last else None}
+
+
+
 def _orders_out(db: Session, tenant_id: int, orders: list[PurchaseOrder]) -> list[OrderOut]:
     if not orders:
         return []
@@ -274,12 +281,14 @@ def edit_line(db: Session, user: User, order_id: int, line_id: int, final_packs:
     if line is None or line.po_id != po.id:
         raise HTTPException(404, "Line not found")
     if final_packs != line.final_packs:
+        ing = db.get(Ingredient, line.ingredient_id)
         before = {"final_packs": line.final_packs, "line_total_rm": line.line_total_rm}
+        # extra packs end up on the shelf; fewer packs leave less over (never below zero)
+        line.leftover_base = round(max(0.0, line.leftover_base + (final_packs - line.final_packs) * ing.pack_size_base), 3)
         line.final_packs = final_packs
         line.line_total_rm = round(final_packs * line.pack_price_rm, 2)
         db.flush()
         po.total_rm = round(sum(l.line_total_rm for l in _lines(db, po)), 2)
-        ing = db.get(Ingredient, line.ingredient_id)
         log_action(
             db, user, "po_line_edited", "purchase_order", po.id,
             {"line_id": line.id, "item": ing.name, "before": before,
@@ -346,7 +355,7 @@ def receive(db: Session, user: User, order_id: int) -> OrderOut:
     po = _order(db, user, order_id)
     _require_status(po, "sent")
     today = get_today(db, user.tenant_id)
-    added = []
+    added, discarded = [], []
     for l in _lines(db, po):
         if l.final_packs <= 0:
             continue
@@ -358,6 +367,15 @@ def receive(db: Session, user: User, order_id: int) -> OrderOut:
         if inv is None:
             inv = InventoryItem(tenant_id=user.tenant_id, ingredient_id=ing.id, qty_base=0)
             db.add(inv)
+        # The shelf has one purchase date, so old expired stock must go before fresh stock arrives;
+        # otherwise the new date would make the expired stock look fresh again.
+        if inv.qty_base > 0 and compute_status(inv.last_purchased_on, ing.shelf_life_days, inv.qty_base, today)[2] == "expired":
+            db.add(InventoryMovement(
+                tenant_id=user.tenant_id, ingredient_id=ing.id, date=today, change_base=-inv.qty_base,
+                reason="discard_expired", user_id=user.id, note=f"Expired stock thrown away on delivery (order #{po.id})",
+            ))
+            discarded.append({"item": ing.name, "qty_base": inv.qty_base})
+            inv.qty_base = 0
         inv.qty_base += qty
         inv.last_purchased_on, inv.updated_at, inv.updated_by = today, now_kl(), user.id
         db.add(InventoryMovement(
@@ -366,6 +384,7 @@ def receive(db: Session, user: User, order_id: int) -> OrderOut:
         ))
         added.append({"item": ing.name, "packs": l.final_packs, "qty_base": qty})
     po.status, po.received_at = "received", now_kl()
-    log_action(db, user, "po_received", "purchase_order", po.id, {"lines": added, "total_rm": po.total_rm})
+    log_action(db, user, "po_received", "purchase_order", po.id,
+               {"lines": added, "discarded_expired": discarded, "total_rm": po.total_rm})
     db.commit()
     return get_order(db, user, order_id)

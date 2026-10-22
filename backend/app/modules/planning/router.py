@@ -10,6 +10,12 @@ from app.modules.settings.models import User
 router = APIRouter(prefix="/planning", tags=["planning"])
 
 
+@router.get("/context")
+def context(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """What the Plan purchases page needs before anything is generated: today's date and the latest plan."""
+    return service.context(db, user)
+
+
 @router.post("/plans", response_model=PlanDetail, status_code=201)
 def create_plan(body: PlanCreate, user: User = Depends(require_role("manager")), db: Session = Depends(get_db)):
     """Manager+: forecast, work out what to buy, and save one draft order per supplier."""

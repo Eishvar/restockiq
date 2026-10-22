@@ -60,7 +60,7 @@ def test_expired_stock_is_excluded_and_listed_for_discarding():
     # 500 g bought 10 days ago with a 3-day shelf life: expired, must not count as stock
     res = plan([0, 100, 100], stock=500, bought=d(-10), shelf=3, pack=1000)
     assert res["discard"] == [
-        {"ingredient_id": "X", "name": "Test item", "qty_base": 500.0, "expired_on": d(-7).isoformat(), "days_ago": 7}
+        {"ingredient_id": "X", "name": "Test item", "base_uom": "g", "qty_base": 500.0, "expired_on": d(-7).isoformat(), "days_ago": 7}
     ]
     line = only_line(res)
     assert line["usable_stock_base"] == 0 and line["suggested_packs"] == 1
