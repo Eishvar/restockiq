@@ -1,0 +1,4 @@
+supplier_id,name,category,delivery_days,lead_time_days,min_order_rm,whatsapp
+SUP-FRZ,Utara Frozen Supply,Frozen & chilled,"Mon,Thu",1,150,+60100000001
+SUP-DRY,Sinar Borong Dry Goods,Dry goods & beverage,"Mon,Tue,Wed,Thu,Fri,Sat",1,100,+60100000002
+SUP-FRS,Pasar Borong Fresh Produce,"Fresh produce, bakery & ice",Daily,0,0,+60100000003

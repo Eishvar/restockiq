@@ -1,0 +1,30 @@
+type,label,start_date,end_date,name
+period,break,2025-08-01,2025-11-01,Semester break
+period,intake,2025-10-06,2025-10-31,October intake
+period,semester,2025-11-02,2026-02-28,Semester
+period,break,2026-03-01,2026-04-04,March break
+period,semester,2026-04-05,2026-07-31,Semester
+period,intake,2026-07-06,2026-07-31,July intake
+period,break,2026-08-01,2026-11-01,Semester break
+period,intake,2026-09-07,2026-09-25,September intake
+period,intake,2026-10-05,2026-10-31,October intake
+period,semester,2026-11-02,2027-02-27,Semester
+public_holiday,public_holiday,2025-10-20,2025-10-20,Deepavali
+public_holiday,public_holiday,2025-12-25,2025-12-25,Christmas
+public_holiday,public_holiday,2026-01-01,2026-01-01,New Year
+public_holiday,public_holiday,2026-02-17,2026-02-18,Chinese New Year
+public_holiday,public_holiday,2026-03-20,2026-03-21,Hari Raya Aidilfitri
+public_holiday,public_holiday,2026-05-01,2026-05-01,Labour Day
+public_holiday,public_holiday,2026-05-27,2026-05-28,Hari Raya Haji
+public_holiday,public_holiday,2026-05-31,2026-06-01,Wesak / Agong's Birthday
+public_holiday,public_holiday,2026-06-17,2026-06-17,Awal Muharram
+public_holiday,public_holiday,2026-08-26,2026-08-26,Maulidur Rasul
+public_holiday,public_holiday,2026-08-31,2026-08-31,Merdeka Day
+public_holiday,public_holiday,2026-09-16,2026-09-16,Malaysia Day
+public_holiday,public_holiday,2026-11-08,2026-11-08,Deepavali
+public_holiday,public_holiday,2026-12-25,2026-12-25,Christmas
+local_event,local_event,2025-11-07,2025-11-07,Deepavali night
+local_event,local_event,2026-01-09,2026-01-09,Year-end party
+local_event,local_event,2026-02-27,2026-02-27,CNY celebration
+local_event,local_event,2026-04-10,2026-04-10,Raya open house
+local_event,local_event,2026-11-20,2026-11-20,Deepavali night

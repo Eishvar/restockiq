@@ -1,0 +1,559 @@
+item_id,item_name,ingredient_id,qty_per_serving,base_uom
+M001,White rice,RICE,90,g
+M002,Telur Dadar,EGG,1,pcs
+M002,Telur Dadar,COOKING_OIL,10,g
+M003,Telur Mata,EGG,1,pcs
+M003,Telur Mata,COOKING_OIL,10,g
+M004,Tomyam Soup Ayam,TOMYAM_PASTE,30.0,g
+M004,Tomyam Soup Ayam,MIXED_VEG,30.0,g
+M004,Tomyam Soup Ayam,LIME,10.0,g
+M004,Tomyam Soup Ayam,CHICKEN_BREAST,100.0,g
+M005,Kangkung Belacan,KANGKUNG,200,g
+M005,Kangkung Belacan,SAMBAL_PASTE,15,g
+M005,Kangkung Belacan,GARLIC,5,g
+M005,Kangkung Belacan,COOKING_OIL,15,g
+M006,Sambal Chicken 香辣鸡丁,CHICKEN_BREAST,120.0,g
+M006,Sambal Chicken 香辣鸡丁,COOKING_OIL,20.0,g
+M006,Sambal Chicken 香辣鸡丁,SAMBAL_PASTE,30.0,g
+M006,Sambal Chicken 香辣鸡丁,ONION,15.0,g
+M007,Chicken Chop,CHICKEN_CHOP,1.0,pcs
+M007,Chicken Chop,COOKING_OIL,5.0,g
+M008,Tomyam Soup Seafood,TOMYAM_PASTE,30.0,g
+M008,Tomyam Soup Seafood,MIXED_VEG,30.0,g
+M008,Tomyam Soup Seafood,LIME,10.0,g
+M008,Tomyam Soup Seafood,SHRIMP,60.0,g
+M008,Tomyam Soup Seafood,TILAPIA,60.0,g
+M009,Sayur Campur,MIXED_VEG,200,g
+M009,Sayur Campur,GARLIC,5,g
+M009,Sayur Campur,OYSTER_SAUCE,10,g
+M009,Sayur Campur,COOKING_OIL,15,g
+M010,Waffle,WAFFLE_MIX,80.0,g
+M010,Waffle,EGG,0.5,pcs
+M010,Waffle,FRESH_MILK,60.0,ml
+M011,Toast,BREAD,2.0,pcs
+M011,Toast,CONDENSED_MILK,15.0,g
+M012,Waffle Premium,WAFFLE_MIX,80.0,g
+M012,Waffle Premium,EGG,0.5,pcs
+M012,Waffle Premium,FRESH_MILK,60.0,ml
+M012,Waffle Premium,CHOCOLATE_POWDER,15.0,g
+M012,Waffle Premium,OREO,15.0,g
+M013,Waffle + Ice Cream (1 Scoop),WAFFLE_MIX,80.0,g
+M013,Waffle + Ice Cream (1 Scoop),EGG,0.5,pcs
+M013,Waffle + Ice Cream (1 Scoop),FRESH_MILK,60.0,ml
+M013,Waffle + Ice Cream (1 Scoop),ICE_CREAM,60.0,ml
+M014,Egg Sandwich,BREAD,2.0,pcs
+M014,Egg Sandwich,EGG,1.0,pcs
+M015,Waffle + Ice cream (2scoop),WAFFLE_MIX,80.0,g
+M015,Waffle + Ice cream (2scoop),EGG,0.5,pcs
+M015,Waffle + Ice cream (2scoop),FRESH_MILK,60.0,ml
+M015,Waffle + Ice cream (2scoop),ICE_CREAM,120.0,ml
+M016,Waffle Premium Ice Cream (1 Scoop),WAFFLE_MIX,80.0,g
+M016,Waffle Premium Ice Cream (1 Scoop),EGG,0.5,pcs
+M016,Waffle Premium Ice Cream (1 Scoop),FRESH_MILK,60.0,ml
+M016,Waffle Premium Ice Cream (1 Scoop),CHOCOLATE_POWDER,15.0,g
+M016,Waffle Premium Ice Cream (1 Scoop),OREO,15.0,g
+M016,Waffle Premium Ice Cream (1 Scoop),ICE_CREAM,60.0,ml
+M017,Sambal Chicken Rice 香辣鸡丁饭,CHICKEN_BREAST,120.0,g
+M017,Sambal Chicken Rice 香辣鸡丁饭,COOKING_OIL,20.0,g
+M017,Sambal Chicken Rice 香辣鸡丁饭,SAMBAL_PASTE,30.0,g
+M017,Sambal Chicken Rice 香辣鸡丁饭,ONION,15.0,g
+M017,Sambal Chicken Rice 香辣鸡丁饭,RICE,90.0,g
+M018,Salted Egg Chicken Rice 咸蛋鸡丁饭,CHICKEN_BREAST,120.0,g
+M018,Salted Egg Chicken Rice 咸蛋鸡丁饭,COOKING_OIL,20.0,g
+M018,Salted Egg Chicken Rice 咸蛋鸡丁饭,SALTED_EGG_POWDER,15.0,g
+M018,Salted Egg Chicken Rice 咸蛋鸡丁饭,COOKING_CREAM,15.0,ml
+M018,Salted Egg Chicken Rice 咸蛋鸡丁饭,RICE,90.0,g
+M019,Creamy Sauce Chicken Rice 奶油鸡丁饭,CHICKEN_BREAST,120.0,g
+M019,Creamy Sauce Chicken Rice 奶油鸡丁饭,COOKING_OIL,20.0,g
+M019,Creamy Sauce Chicken Rice 奶油鸡丁饭,COOKING_CREAM,40.0,ml
+M019,Creamy Sauce Chicken Rice 奶油鸡丁饭,RICE,90.0,g
+M020,Sweet Sour Chicken Rice 酸甜鸡丁饭,CHICKEN_BREAST,120.0,g
+M020,Sweet Sour Chicken Rice 酸甜鸡丁饭,COOKING_OIL,20.0,g
+M020,Sweet Sour Chicken Rice 酸甜鸡丁饭,TOMATO_SAUCE,30.0,g
+M020,Sweet Sour Chicken Rice 酸甜鸡丁饭,ONION,15.0,g
+M020,Sweet Sour Chicken Rice 酸甜鸡丁饭,PINEAPPLE,20.0,g
+M020,Sweet Sour Chicken Rice 酸甜鸡丁饭,RICE,90.0,g
+M021,Mushroom Sauce Chicken Rice 蘑菇汁鸡丁饭,CHICKEN_BREAST,120.0,g
+M021,Mushroom Sauce Chicken Rice 蘑菇汁鸡丁饭,COOKING_OIL,20.0,g
+M021,Mushroom Sauce Chicken Rice 蘑菇汁鸡丁饭,MUSHROOM,40.0,g
+M021,Mushroom Sauce Chicken Rice 蘑菇汁鸡丁饭,COOKING_CREAM,20.0,ml
+M021,Mushroom Sauce Chicken Rice 蘑菇汁鸡丁饭,RICE,90.0,g
+M022,Sambal Prawns with Rice 香辣虾饭,SHRIMP,80.0,g
+M022,Sambal Prawns with Rice 香辣虾饭,COOKING_OIL,20.0,g
+M022,Sambal Prawns with Rice 香辣虾饭,SAMBAL_PASTE,30.0,g
+M022,Sambal Prawns with Rice 香辣虾饭,ONION,15.0,g
+M022,Sambal Prawns with Rice 香辣虾饭,RICE,90.0,g
+M023,Sambal Fish Fillet Rice 香辣鱼片饭,TILAPIA,130.0,g
+M023,Sambal Fish Fillet Rice 香辣鱼片饭,COOKING_OIL,20.0,g
+M023,Sambal Fish Fillet Rice 香辣鱼片饭,SAMBAL_PASTE,30.0,g
+M023,Sambal Fish Fillet Rice 香辣鱼片饭,ONION,15.0,g
+M023,Sambal Fish Fillet Rice 香辣鱼片饭,RICE,90.0,g
+M024,Seaweed Egg Soup 紫菜汤,SEAWEED,5,g
+M024,Seaweed Egg Soup 紫菜汤,EGG,1,pcs
+M024,Seaweed Egg Soup 紫菜汤,RICE,90,g
+M025,Black Sauce Chicken Rice 黑酱鸡丁饭,CHICKEN_BREAST,120.0,g
+M025,Black Sauce Chicken Rice 黑酱鸡丁饭,COOKING_OIL,20.0,g
+M025,Black Sauce Chicken Rice 黑酱鸡丁饭,DARK_SOY,15.0,ml
+M025,Black Sauce Chicken Rice 黑酱鸡丁饭,OYSTER_SAUCE,10.0,g
+M025,Black Sauce Chicken Rice 黑酱鸡丁饭,RICE,90.0,g
+M026,Chicken Porridge 鸡粥,RICE,60,g
+M026,Chicken Porridge 鸡粥,ONION,10,g
+M026,Chicken Porridge 鸡粥,CHICKEN_BREAST,80,g
+M027,Thai Sauce Chicken Rice,CHICKEN_BREAST,120.0,g
+M027,Thai Sauce Chicken Rice,COOKING_OIL,20.0,g
+M027,Thai Sauce Chicken Rice,SWEET_CHILI,30.0,g
+M027,Thai Sauce Chicken Rice,RICE,90.0,g
+M028,Thai Sauce Fish,TILAPIA,130.0,g
+M028,Thai Sauce Fish,COOKING_OIL,20.0,g
+M028,Thai Sauce Fish,SWEET_CHILI,30.0,g
+M028,Thai Sauce Fish,RICE,90.0,g
+M029,Salted Egg Fish Fillet Rice 咸蛋鱼片饭,TILAPIA,130.0,g
+M029,Salted Egg Fish Fillet Rice 咸蛋鱼片饭,COOKING_OIL,20.0,g
+M029,Salted Egg Fish Fillet Rice 咸蛋鱼片饭,SALTED_EGG_POWDER,15.0,g
+M029,Salted Egg Fish Fillet Rice 咸蛋鱼片饭,COOKING_CREAM,15.0,ml
+M029,Salted Egg Fish Fillet Rice 咸蛋鱼片饭,RICE,90.0,g
+M030,Creamy Fish Fillet Rice 奶油鱼片饭,TILAPIA,130.0,g
+M030,Creamy Fish Fillet Rice 奶油鱼片饭,COOKING_OIL,20.0,g
+M030,Creamy Fish Fillet Rice 奶油鱼片饭,COOKING_CREAM,40.0,ml
+M030,Creamy Fish Fillet Rice 奶油鱼片饭,RICE,90.0,g
+M031,Sweet Sour Fish Fillet Rice 酸甜鱼片饭,TILAPIA,130.0,g
+M031,Sweet Sour Fish Fillet Rice 酸甜鱼片饭,COOKING_OIL,20.0,g
+M031,Sweet Sour Fish Fillet Rice 酸甜鱼片饭,TOMATO_SAUCE,30.0,g
+M031,Sweet Sour Fish Fillet Rice 酸甜鱼片饭,ONION,15.0,g
+M031,Sweet Sour Fish Fillet Rice 酸甜鱼片饭,PINEAPPLE,20.0,g
+M031,Sweet Sour Fish Fillet Rice 酸甜鱼片饭,RICE,90.0,g
+M032,Fish Porridge 鱼粥,RICE,60,g
+M032,Fish Porridge 鱼粥,ONION,10,g
+M032,Fish Porridge 鱼粥,TILAPIA,100,g
+M033,Mushroom fish,CHICKEN_BREAST,120.0,g
+M033,Mushroom fish,COOKING_OIL,20.0,g
+M033,Mushroom fish,MUSHROOM,40.0,g
+M033,Mushroom fish,COOKING_CREAM,20.0,ml
+M033,Mushroom fish,RICE,90.0,g
+M034,Green Tea 绿茶 (Cold),GREEN_TEA_POWDER,15.0,g
+M034,Green Tea 绿茶 (Cold),SUGAR,15.0,g
+M034,Green Tea 绿茶 (Cold),ICE,200.0,g
+M035,Watermelon Juice 西瓜汁,WATERMELON,350.0,g
+M035,Watermelon Juice 西瓜汁,SUGAR,10.0,g
+M035,Watermelon Juice 西瓜汁,ICE,200.0,g
+M036,Orange Juice 橙汁,ORANGE,450.0,g
+M036,Orange Juice 橙汁,ICE,200.0,g
+M037,Teh O 茶乌 (Cold),TEA_DUST,10.0,g
+M037,Teh O 茶乌 (Cold),SUGAR,15.0,g
+M037,Teh O 茶乌 (Cold),ICE,200.0,g
+M038,Milk Tea 奶茶 (Cold),TEA_DUST,10.0,g
+M038,Milk Tea 奶茶 (Cold),CONDENSED_MILK,30.0,g
+M038,Milk Tea 奶茶 (Cold),ICE,200.0,g
+M039,Milo 美禄 (Cold),MILO,30.0,g
+M039,Milo 美禄 (Cold),CONDENSED_MILK,20.0,g
+M039,Milo 美禄 (Cold),ICE,200.0,g
+M040,Honey Lemon 蜜糖柠檬 (Cold),HONEY,25.0,g
+M040,Honey Lemon 蜜糖柠檬 (Cold),LEMON,30.0,g
+M040,Honey Lemon 蜜糖柠檬 (Cold),ICE,200.0,g
+M041,Apple Juice 苹果汁,APPLE,350.0,g
+M041,Apple Juice 苹果汁,SUGAR,10.0,g
+M041,Apple Juice 苹果汁,ICE,200.0,g
+M042,White Coffee 白咖啡 (Cold),WHITE_COFFEE,25.0,g
+M042,White Coffee 白咖啡 (Cold),CONDENSED_MILK,20.0,g
+M042,White Coffee 白咖啡 (Cold),ICE,200.0,g
+M043,Carrot Milk 萝卜汁,CARROT,200.0,g
+M043,Carrot Milk 萝卜汁,FRESH_MILK,100.0,ml
+M043,Carrot Milk 萝卜汁,CONDENSED_MILK,15.0,g
+M043,Carrot Milk 萝卜汁,ICE,200.0,g
+M044,Lemon Tea 柠檬茶 (Cold),TEA_DUST,10.0,g
+M044,Lemon Tea 柠檬茶 (Cold),SUGAR,15.0,g
+M044,Lemon Tea 柠檬茶 (Cold),LEMON,30.0,g
+M044,Lemon Tea 柠檬茶 (Cold),ICE,200.0,g
+M045,Teh O Limau 酸柑茶 (Cold),TEA_DUST,10.0,g
+M045,Teh O Limau 酸柑茶 (Cold),SUGAR,15.0,g
+M045,Teh O Limau 酸柑茶 (Cold),LIME,15.0,g
+M045,Teh O Limau 酸柑茶 (Cold),ICE,200.0,g
+M046,Honeydew 蜜瓜汁,HONEYDEW,350.0,g
+M046,Honeydew 蜜瓜汁,SUGAR,10.0,g
+M046,Honeydew 蜜瓜汁,ICE,200.0,g
+M047,Bandung 玫瑰露加奶,ROSE_SYRUP,30.0,ml
+M047,Bandung 玫瑰露加奶,CONDENSED_MILK,30.0,g
+M047,Bandung 玫瑰露加奶,ICE,200.0,g
+M048,Honey Lemon 蜜糖柠檬 (Hot),HONEY,25.0,g
+M048,Honey Lemon 蜜糖柠檬 (Hot),LEMON,30.0,g
+M049,Lemon Ribena (Cold),RIBENA,30.0,ml
+M049,Lemon Ribena (Cold),LEMON,30.0,g
+M049,Lemon Ribena (Cold),ICE,200.0,g
+M050,Mango Blended 芒果奶昔,MANGO,200.0,g
+M050,Mango Blended 芒果奶昔,FRESH_MILK,100.0,ml
+M050,Mango Blended 芒果奶昔,BLENDED_PREMIX,20.0,g
+M050,Mango Blended 芒果奶昔,ICE,300.0,g
+M051,Chocolate Ice Blended 巧克力奶昔,CHOCOLATE_POWDER,30.0,g
+M051,Chocolate Ice Blended 巧克力奶昔,BLENDED_PREMIX,20.0,g
+M051,Chocolate Ice Blended 巧克力奶昔,FRESH_MILK,100.0,ml
+M051,Chocolate Ice Blended 巧克力奶昔,ICE,300.0,g
+M052,Sour Plum Juice 桔子酸梅汁,SOUR_PLUM,15.0,g
+M052,Sour Plum Juice 桔子酸梅汁,LIME,15.0,g
+M052,Sour Plum Juice 桔子酸梅汁,SUGAR,15.0,g
+M052,Sour Plum Juice 桔子酸梅汁,ICE,200.0,g
+M053,Sirap 玫瑰露,ROSE_SYRUP,35.0,ml
+M053,Sirap 玫瑰露,ICE,200.0,g
+M054,Kopi 咖啡 (Cold),COFFEE_POWDER,12.0,g
+M054,Kopi 咖啡 (Cold),CONDENSED_MILK,25.0,g
+M054,Kopi 咖啡 (Cold),ICE,200.0,g
+M055,Ribena Lychee,RIBENA,30.0,ml
+M055,Ribena Lychee,LYCHEE,60.0,g
+M055,Ribena Lychee,ICE,200.0,g
+M056,Coconut Juice (Cold),COCONUT,1.0,pcs
+M056,Coconut Juice (Cold),ICE,200.0,g
+M057,Oreo blended,OREO,30.0,g
+M057,Oreo blended,BLENDED_PREMIX,20.0,g
+M057,Oreo blended,FRESH_MILK,100.0,ml
+M057,Oreo blended,ICE,300.0,g
+M058,Pineapple Juice 黄梨汁,APPLE,350.0,g
+M058,Pineapple Juice 黄梨汁,SUGAR,10.0,g
+M058,Pineapple Juice 黄梨汁,ICE,200.0,g
+M059,White Coffee 白咖啡 (Hot),WHITE_COFFEE,25.0,g
+M059,White Coffee 白咖啡 (Hot),CONDENSED_MILK,20.0,g
+M060,Milk Tea 奶茶 (Hot),TEA_DUST,10.0,g
+M060,Milk Tea 奶茶 (Hot),CONDENSED_MILK,30.0,g
+M061,Limau (Cold),LIME,30.0,g
+M061,Limau (Cold),SUGAR,15.0,g
+M061,Limau (Cold),ICE,200.0,g
+M062,Teh O 茶乌 (Hot),TEA_DUST,10.0,g
+M062,Teh O 茶乌 (Hot),SUGAR,15.0,g
+M063,Milo Blended,MILO,40.0,g
+M063,Milo Blended,CONDENSED_MILK,25.0,g
+M063,Milo Blended,BLENDED_PREMIX,20.0,g
+M063,Milo Blended,ICE,300.0,g
+M064,Cappucino Ice Blended 卡布奇诺奶昔,COFFEE_POWDER,10.0,g
+M064,Cappucino Ice Blended 卡布奇诺奶昔,CHOCOLATE_POWDER,5.0,g
+M064,Cappucino Ice Blended 卡布奇诺奶昔,BLENDED_PREMIX,20.0,g
+M064,Cappucino Ice Blended 卡布奇诺奶昔,FRESH_MILK,100.0,ml
+M064,Cappucino Ice Blended 卡布奇诺奶昔,ICE,300.0,g
+M065,Milo 美禄 (Hot),MILO,30.0,g
+M065,Milo 美禄 (Hot),CONDENSED_MILK,20.0,g
+M066,Lemon Ice,LEMON,40.0,g
+M066,Lemon Ice,SUGAR,15.0,g
+M066,Lemon Ice,ICE,200.0,g
+M067,Mocha Ice Blended 摩卡奶昔,COFFEE_POWDER,8.0,g
+M067,Mocha Ice Blended 摩卡奶昔,CHOCOLATE_POWDER,20.0,g
+M067,Mocha Ice Blended 摩卡奶昔,BLENDED_PREMIX,20.0,g
+M067,Mocha Ice Blended 摩卡奶昔,FRESH_MILK,100.0,ml
+M067,Mocha Ice Blended 摩卡奶昔,ICE,300.0,g
+M068,Pistachio blended,PISTACHIO_PASTE,25.0,g
+M068,Pistachio blended,BLENDED_PREMIX,20.0,g
+M068,Pistachio blended,FRESH_MILK,100.0,ml
+M068,Pistachio blended,ICE,300.0,g
+M069,Strawberry Ice Blended 草莓奶昔,STRAWBERRY_SYRUP,30.0,ml
+M069,Strawberry Ice Blended 草莓奶昔,BLENDED_PREMIX,20.0,g
+M069,Strawberry Ice Blended 草莓奶昔,FRESH_MILK,100.0,ml
+M069,Strawberry Ice Blended 草莓奶昔,ICE,300.0,g
+M070,Kopi 咖啡 (Hot),COFFEE_POWDER,12.0,g
+M070,Kopi 咖啡 (Hot),CONDENSED_MILK,25.0,g
+M071,Lemon Tea 柠檬茶 (Hot),TEA_DUST,10.0,g
+M071,Lemon Tea 柠檬茶 (Hot),SUGAR,15.0,g
+M071,Lemon Tea 柠檬茶 (Hot),LEMON,30.0,g
+M072,Teh O Limau 酸柑茶 (Hot),TEA_DUST,10.0,g
+M072,Teh O Limau 酸柑茶 (Hot),SUGAR,15.0,g
+M072,Teh O Limau 酸柑茶 (Hot),LIME,15.0,g
+M073,Green Tea Blended,GREEN_TEA_POWDER,20.0,g
+M073,Green Tea Blended,BLENDED_PREMIX,20.0,g
+M073,Green Tea Blended,FRESH_MILK,100.0,ml
+M073,Green Tea Blended,ICE,300.0,g
+M074,Full Cream Ice Blended 牛奶奶昔,FRESH_MILK,200.0,ml
+M074,Full Cream Ice Blended 牛奶奶昔,BLENDED_PREMIX,25.0,g
+M074,Full Cream Ice Blended 牛奶奶昔,CONDENSED_MILK,15.0,g
+M074,Full Cream Ice Blended 牛奶奶昔,ICE,300.0,g
+M075,Avocado Milk Blended 牛油果奶昔,AVOCADO,150.0,g
+M075,Avocado Milk Blended 牛油果奶昔,FRESH_MILK,150.0,ml
+M075,Avocado Milk Blended 牛油果奶昔,CONDENSED_MILK,20.0,g
+M075,Avocado Milk Blended 牛油果奶昔,ICE,300.0,g
+M076,Green Tea 绿茶 (Hot),GREEN_TEA_POWDER,15.0,g
+M076,Green Tea 绿茶 (Hot),SUGAR,15.0,g
+M077,Coconut Blended,COCONUT,1.0,pcs
+M077,Coconut Blended,BLENDED_PREMIX,20.0,g
+M077,Coconut Blended,FRESH_MILK,80.0,ml
+M077,Coconut Blended,ICE,300.0,g
+M078,Kopi O (Cold),COFFEE_POWDER,12.0,g
+M078,Kopi O (Cold),SUGAR,15.0,g
+M078,Kopi O (Cold),ICE,200.0,g
+M079,Nescafe (Cold),COFFEE_POWDER,8.0,g
+M079,Nescafe (Cold),CONDENSED_MILK,20.0,g
+M079,Nescafe (Cold),ICE,200.0,g
+M080,Orange Carrot 橙萝卜汁,ORANGE,250.0,g
+M080,Orange Carrot 橙萝卜汁,CARROT,150.0,g
+M080,Orange Carrot 橙萝卜汁,ICE,200.0,g
+M081,Honeydew Blended,HONEYDEW,200.0,g
+M081,Honeydew Blended,BLENDED_PREMIX,20.0,g
+M081,Honeydew Blended,FRESH_MILK,80.0,ml
+M081,Honeydew Blended,ICE,300.0,g
+M082,Nescafe (Hot),COFFEE_POWDER,8.0,g
+M082,Nescafe (Hot),CONDENSED_MILK,20.0,g
+M083,Nasi Goreng Tomyam 东炎炒饭,RICE,100.0,g
+M083,Nasi Goreng Tomyam 东炎炒饭,EGG,1.0,pcs
+M083,Nasi Goreng Tomyam 东炎炒饭,COOKING_OIL,15.0,g
+M083,Nasi Goreng Tomyam 东炎炒饭,ONION,10.0,g
+M083,Nasi Goreng Tomyam 东炎炒饭,GARLIC,5.0,g
+M083,Nasi Goreng Tomyam 东炎炒饭,TOMYAM_PASTE,20.0,g
+M083,Nasi Goreng Tomyam 东炎炒饭,SHRIMP,20.0,g
+M083,Nasi Goreng Tomyam 东炎炒饭,CHICKEN_BREAST,30.0,g
+M084,Nasi Goreng Kampung 马来家乡炒饭,RICE,100.0,g
+M084,Nasi Goreng Kampung 马来家乡炒饭,EGG,1.0,pcs
+M084,Nasi Goreng Kampung 马来家乡炒饭,COOKING_OIL,15.0,g
+M084,Nasi Goreng Kampung 马来家乡炒饭,ONION,10.0,g
+M084,Nasi Goreng Kampung 马来家乡炒饭,GARLIC,5.0,g
+M084,Nasi Goreng Kampung 马来家乡炒饭,CHILI,10.0,g
+M084,Nasi Goreng Kampung 马来家乡炒饭,KANGKUNG,20.0,g
+M085,Nasi Goreng Pattaya 蛋包饭,RICE,100.0,g
+M085,Nasi Goreng Pattaya 蛋包饭,EGG,2.0,pcs
+M085,Nasi Goreng Pattaya 蛋包饭,COOKING_OIL,15.0,g
+M085,Nasi Goreng Pattaya 蛋包饭,ONION,10.0,g
+M085,Nasi Goreng Pattaya 蛋包饭,GARLIC,5.0,g
+M085,Nasi Goreng Pattaya 蛋包饭,CHICKEN_BREAST,40.0,g
+M085,Nasi Goreng Pattaya 蛋包饭,TOMATO_SAUCE,15.0,g
+M086,Tomyam Ayam Soup,TOMYAM_PASTE,30.0,g
+M086,Tomyam Ayam Soup,MIXED_VEG,30.0,g
+M086,Tomyam Ayam Soup,LIME,10.0,g
+M086,Tomyam Ayam Soup,CHICKEN_BREAST,100.0,g
+M086,Tomyam Ayam Soup,RICE,90.0,g
+M087,Nasi Goreng Cina 扬州炒饭,RICE,100.0,g
+M087,Nasi Goreng Cina 扬州炒饭,EGG,1.0,pcs
+M087,Nasi Goreng Cina 扬州炒饭,COOKING_OIL,15.0,g
+M087,Nasi Goreng Cina 扬州炒饭,ONION,10.0,g
+M087,Nasi Goreng Cina 扬州炒饭,GARLIC,5.0,g
+M087,Nasi Goreng Cina 扬州炒饭,CHICKEN_BREAST,30.0,g
+M087,Nasi Goreng Cina 扬州炒饭,MIXED_VEG,20.0,g
+M088,Nasi Paprik Ayam 甜辣鸡丁饭,RICE,90.0,g
+M088,Nasi Paprik Ayam 甜辣鸡丁饭,CHICKEN_BREAST,120.0,g
+M088,Nasi Paprik Ayam 甜辣鸡丁饭,TOMATO_SAUCE,25.0,g
+M088,Nasi Paprik Ayam 甜辣鸡丁饭,ONION,20.0,g
+M088,Nasi Paprik Ayam 甜辣鸡丁饭,MIXED_VEG,30.0,g
+M088,Nasi Paprik Ayam 甜辣鸡丁饭,COOKING_OIL,20.0,g
+M089,Nasi Goreng Thai 泰式炒饭,RICE,100.0,g
+M089,Nasi Goreng Thai 泰式炒饭,EGG,1.0,pcs
+M089,Nasi Goreng Thai 泰式炒饭,COOKING_OIL,15.0,g
+M089,Nasi Goreng Thai 泰式炒饭,ONION,10.0,g
+M089,Nasi Goreng Thai 泰式炒饭,GARLIC,5.0,g
+M089,Nasi Goreng Thai 泰式炒饭,SWEET_CHILI,15.0,g
+M089,Nasi Goreng Thai 泰式炒饭,CHICKEN_BREAST,30.0,g
+M090,Nasi Tomato Ayam Merah,RICE,100.0,g
+M090,Nasi Tomato Ayam Merah,TOMATO,40.0,g
+M090,Nasi Tomato Ayam Merah,CHICKEN_LEG,250.0,g
+M090,Nasi Tomato Ayam Merah,TOMATO_SAUCE,30.0,g
+M090,Nasi Tomato Ayam Merah,CHILI,10.0,g
+M090,Nasi Tomato Ayam Merah,COOKING_OIL,20.0,g
+M091,Teriyaki Fried Rice 照烧酱炒饭,RICE,100.0,g
+M091,Teriyaki Fried Rice 照烧酱炒饭,EGG,1.0,pcs
+M091,Teriyaki Fried Rice 照烧酱炒饭,COOKING_OIL,15.0,g
+M091,Teriyaki Fried Rice 照烧酱炒饭,ONION,10.0,g
+M091,Teriyaki Fried Rice 照烧酱炒饭,GARLIC,5.0,g
+M091,Teriyaki Fried Rice 照烧酱炒饭,TERIYAKI,20.0,ml
+M091,Teriyaki Fried Rice 照烧酱炒饭,CHICKEN_BREAST,40.0,g
+M092,Tomyam Seafood Soup,TOMYAM_PASTE,30.0,g
+M092,Tomyam Seafood Soup,MIXED_VEG,30.0,g
+M092,Tomyam Seafood Soup,LIME,10.0,g
+M092,Tomyam Seafood Soup,SHRIMP,60.0,g
+M092,Tomyam Seafood Soup,TILAPIA,60.0,g
+M092,Tomyam Seafood Soup,RICE,90.0,g
+M093,Nasi Goreng Nenas 黄梨炒饭,RICE,100.0,g
+M093,Nasi Goreng Nenas 黄梨炒饭,EGG,1.0,pcs
+M093,Nasi Goreng Nenas 黄梨炒饭,COOKING_OIL,15.0,g
+M093,Nasi Goreng Nenas 黄梨炒饭,ONION,10.0,g
+M093,Nasi Goreng Nenas 黄梨炒饭,GARLIC,5.0,g
+M093,Nasi Goreng Nenas 黄梨炒饭,PINEAPPLE,40.0,g
+M093,Nasi Goreng Nenas 黄梨炒饭,SHRIMP,20.0,g
+M094,Nasi Ayam Fried Rice,RICE,100.0,g
+M094,Nasi Ayam Fried Rice,EGG,1.0,pcs
+M094,Nasi Ayam Fried Rice,COOKING_OIL,15.0,g
+M094,Nasi Ayam Fried Rice,ONION,10.0,g
+M094,Nasi Ayam Fried Rice,GARLIC,5.0,g
+M094,Nasi Ayam Fried Rice,CHICKEN_LEG,250.0,g
+M095,WATERMELON,WATERMELON,250,g
+M096,MANGO,MANGO,250,g
+M097,JAMBU,JAMBU,250,g
+M098,DRAGON FRUIT,DRAGON_FRUIT,250,g
+M099,Honeydew,HONEYDEW,250,g
+M100,PINEAPPLE,PINEAPPLE,250,g
+M101,Noodle Goreng,YELLOW_NOODLES,180.0,g
+M101,Noodle Goreng,EGG,1.0,pcs
+M101,Noodle Goreng,COOKING_OIL,15.0,g
+M101,Noodle Goreng,MIXED_VEG,30.0,g
+M101,Noodle Goreng,CHICKEN_BREAST,40.0,g
+M102,Noodle Tomyam Goreng,YELLOW_NOODLES,180.0,g
+M102,Noodle Tomyam Goreng,EGG,1.0,pcs
+M102,Noodle Tomyam Goreng,COOKING_OIL,15.0,g
+M102,Noodle Tomyam Goreng,MIXED_VEG,30.0,g
+M102,Noodle Tomyam Goreng,CHICKEN_BREAST,40.0,g
+M102,Noodle Tomyam Goreng,TOMYAM_PASTE,25.0,g
+M102,Noodle Tomyam Goreng,SHRIMP,30.0,g
+M103,Tomyam Soup Noodle,YELLOW_NOODLES,180.0,g
+M103,Tomyam Soup Noodle,EGG,1.0,pcs
+M103,Tomyam Soup Noodle,COOKING_OIL,15.0,g
+M103,Tomyam Soup Noodle,MIXED_VEG,30.0,g
+M103,Tomyam Soup Noodle,CHICKEN_BREAST,40.0,g
+M103,Tomyam Soup Noodle,TOMYAM_PASTE,25.0,g
+M103,Tomyam Soup Noodle,SHRIMP,30.0,g
+M104,Noodle Goreng Pattaya,YELLOW_NOODLES,180.0,g
+M104,Noodle Goreng Pattaya,EGG,2.0,pcs
+M104,Noodle Goreng Pattaya,COOKING_OIL,15.0,g
+M104,Noodle Goreng Pattaya,MIXED_VEG,30.0,g
+M104,Noodle Goreng Pattaya,CHICKEN_BREAST,40.0,g
+M104,Noodle Goreng Pattaya,TOMATO_SAUCE,15.0,g
+M105,Carbonara Spaghetti,SPAGHETTI,120.0,g
+M105,Carbonara Spaghetti,COOKING_CREAM,80.0,ml
+M105,Carbonara Spaghetti,MUSHROOM,20.0,g
+M105,Carbonara Spaghetti,CHICKEN_BREAST,40.0,g
+M106,Tomyam Spaghetti,SPAGHETTI,120.0,g
+M106,Tomyam Spaghetti,TOMYAM_PASTE,25.0,g
+M106,Tomyam Spaghetti,SHRIMP,30.0,g
+M106,Tomyam Spaghetti,CHICKEN_BREAST,30.0,g
+M106,Tomyam Spaghetti,COOKING_CREAM,30.0,ml
+M107,Aglio-Olio Spaghetti,SPAGHETTI,120.0,g
+M107,Aglio-Olio Spaghetti,GARLIC,15.0,g
+M107,Aglio-Olio Spaghetti,COOKING_OIL,20.0,g
+M107,Aglio-Olio Spaghetti,CHILI,5.0,g
+M107,Aglio-Olio Spaghetti,SHRIMP,30.0,g
+M108,Bolognese Spaghetti,SPAGHETTI,120.0,g
+M108,Bolognese Spaghetti,TOMATO_SAUCE,80.0,g
+M108,Bolognese Spaghetti,CHICKEN_BREAST,50.0,g
+M108,Bolognese Spaghetti,ONION,15.0,g
+M109,Chicken Chop with Carbonara Spaghetti,SPAGHETTI,120.0,g
+M109,Chicken Chop with Carbonara Spaghetti,COOKING_CREAM,80.0,ml
+M109,Chicken Chop with Carbonara Spaghetti,MUSHROOM,20.0,g
+M109,Chicken Chop with Carbonara Spaghetti,CHICKEN_BREAST,40.0,g
+M109,Chicken Chop with Carbonara Spaghetti,CHICKEN_CHOP,1.0,pcs
+M110,Salted Egg Spaghetti,SPAGHETTI,120.0,g
+M110,Salted Egg Spaghetti,SALTED_EGG_POWDER,20.0,g
+M110,Salted Egg Spaghetti,COOKING_CREAM,30.0,ml
+M110,Salted Egg Spaghetti,CHICKEN_BREAST,40.0,g
+M111,Chicken Chop with Bolognese Spaghetti,SPAGHETTI,120.0,g
+M111,Chicken Chop with Bolognese Spaghetti,TOMATO_SAUCE,80.0,g
+M111,Chicken Chop with Bolognese Spaghetti,CHICKEN_BREAST,50.0,g
+M111,Chicken Chop with Bolognese Spaghetti,ONION,15.0,g
+M111,Chicken Chop with Bolognese Spaghetti,CHICKEN_CHOP,1.0,pcs
+M112,Chicken Chop with Tomyam Spaghetti,SPAGHETTI,120.0,g
+M112,Chicken Chop with Tomyam Spaghetti,TOMYAM_PASTE,25.0,g
+M112,Chicken Chop with Tomyam Spaghetti,SHRIMP,30.0,g
+M112,Chicken Chop with Tomyam Spaghetti,CHICKEN_BREAST,30.0,g
+M112,Chicken Chop with Tomyam Spaghetti,COOKING_CREAM,30.0,ml
+M112,Chicken Chop with Tomyam Spaghetti,CHICKEN_CHOP,1.0,pcs
+M113,Chicken Chop with Aglio-Olio Spaghetti,SPAGHETTI,120.0,g
+M113,Chicken Chop with Aglio-Olio Spaghetti,GARLIC,15.0,g
+M113,Chicken Chop with Aglio-Olio Spaghetti,COOKING_OIL,20.0,g
+M113,Chicken Chop with Aglio-Olio Spaghetti,CHILI,5.0,g
+M113,Chicken Chop with Aglio-Olio Spaghetti,SHRIMP,30.0,g
+M113,Chicken Chop with Aglio-Olio Spaghetti,CHICKEN_CHOP,1.0,pcs
+M114,Chicken Chop with Salted Egg Spaghetti,SPAGHETTI,120.0,g
+M114,Chicken Chop with Salted Egg Spaghetti,SALTED_EGG_POWDER,20.0,g
+M114,Chicken Chop with Salted Egg Spaghetti,COOKING_CREAM,30.0,ml
+M114,Chicken Chop with Salted Egg Spaghetti,CHICKEN_BREAST,40.0,g
+M114,Chicken Chop with Salted Egg Spaghetti,CHICKEN_CHOP,1.0,pcs
+M115,Chicken Nugget,NUGGET,150.0,g
+M115,Chicken Nugget,COOKING_OIL,20.0,g
+M115,Chicken Nugget,SWEET_CHILI,15.0,g
+M116,French Fries 炸薯条,SHOESTRING,180.0,g
+M116,French Fries 炸薯条,COOKING_OIL,20.0,g
+M116,French Fries 炸薯条,SWEET_CHILI,15.0,g
+M117,Curly Fries 卷卷薯条,CURLY_FRIES,180.0,g
+M117,Curly Fries 卷卷薯条,COOKING_OIL,20.0,g
+M117,Curly Fries 卷卷薯条,SWEET_CHILI,15.0,g
+M118,Chicken Popcorn,POPCORN_CHICKEN,150.0,g
+M118,Chicken Popcorn,COOKING_OIL,20.0,g
+M118,Chicken Popcorn,SWEET_CHILI,15.0,g
+M119,Onion Ring,ONION_RING,150.0,g
+M119,Onion Ring,COOKING_OIL,20.0,g
+M119,Onion Ring,SWEET_CHILI,15.0,g
+M120,Fried Sausage 炸热肠 (6pcs),HOTDOG,6.0,pcs
+M120,Fried Sausage 炸热肠 (6pcs),COOKING_OIL,20.0,g
+M120,Fried Sausage 炸热肠 (6pcs),SWEET_CHILI,15.0,g
+M121,Pandan Chicken 炸香兰叶鸡 (6pcs),PANDAN_CHICKEN,6.0,pcs
+M121,Pandan Chicken 炸香兰叶鸡 (6pcs),COOKING_OIL,20.0,g
+M121,Pandan Chicken 炸香兰叶鸡 (6pcs),SWEET_CHILI,15.0,g
+M122,Fried Mantou 炸馒头 (6pcs),MANTOU,6.0,pcs
+M122,Fried Mantou 炸馒头 (6pcs),CONDENSED_MILK,20.0,g
+M122,Fried Mantou 炸馒头 (6pcs),COOKING_OIL,20.0,g
+M122,Fried Mantou 炸馒头 (6pcs),SWEET_CHILI,15.0,g
+M123,Fried Wanton 炸云吞 (6pcs),WANTON,6.0,pcs
+M123,Fried Wanton 炸云吞 (6pcs),COOKING_OIL,20.0,g
+M123,Fried Wanton 炸云吞 (6pcs),SWEET_CHILI,15.0,g
+M124,Fish Finger (6pcs),FISH_FINGER,6.0,pcs
+M124,Fish Finger (6pcs),COOKING_OIL,20.0,g
+M124,Fish Finger (6pcs),SWEET_CHILI,15.0,g
+M125,Waffle Fries,WAFFLE_FRIES,180.0,g
+M125,Waffle Fries,COOKING_OIL,20.0,g
+M125,Waffle Fries,SWEET_CHILI,15.0,g
+M126,Prawn Roll (6pcs),PRAWN_ROLL,6.0,pcs
+M126,Prawn Roll (6pcs),COOKING_OIL,20.0,g
+M126,Prawn Roll (6pcs),SWEET_CHILI,15.0,g
+M127,Ayam Gepuk,CHICKEN_LEG,250.0,g
+M127,Ayam Gepuk,RICE,90.0,g
+M127,Ayam Gepuk,SAMBAL_PASTE,30.0,g
+M127,Ayam Gepuk,CHILI,15.0,g
+M127,Ayam Gepuk,MIXED_VEG,30.0,g
+M127,Ayam Gepuk,COOKING_OIL,40.0,g
+M128,Ayam Penyet,CHICKEN_LEG,250.0,g
+M128,Ayam Penyet,RICE,90.0,g
+M128,Ayam Penyet,SAMBAL_PASTE,30.0,g
+M128,Ayam Penyet,CHILI,15.0,g
+M128,Ayam Penyet,MIXED_VEG,30.0,g
+M128,Ayam Penyet,COOKING_OIL,40.0,g
+M129,Nasi Tomato Ayam Masak Merah,RICE,100.0,g
+M129,Nasi Tomato Ayam Masak Merah,TOMATO,40.0,g
+M129,Nasi Tomato Ayam Masak Merah,CHICKEN_LEG,250.0,g
+M129,Nasi Tomato Ayam Masak Merah,TOMATO_SAUCE,30.0,g
+M129,Nasi Tomato Ayam Masak Merah,CHILI,10.0,g
+M129,Nasi Tomato Ayam Masak Merah,COOKING_OIL,20.0,g
+M130,Vege Nasi Goreng,RICE,100.0,g
+M130,Vege Nasi Goreng,EGG,1.0,pcs
+M130,Vege Nasi Goreng,COOKING_OIL,15.0,g
+M130,Vege Nasi Goreng,ONION,10.0,g
+M130,Vege Nasi Goreng,GARLIC,5.0,g
+M130,Vege Nasi Goreng,MIXED_VEG,60.0,g
+M131,Vege Noodle Goreng,YELLOW_NOODLES,180.0,g
+M131,Vege Noodle Goreng,EGG,1.0,pcs
+M131,Vege Noodle Goreng,COOKING_OIL,15.0,g
+M131,Vege Noodle Goreng,MIXED_VEG,70.0,g
+M132,Vege Carbonara Spaghetti,SPAGHETTI,120.0,g
+M132,Vege Carbonara Spaghetti,COOKING_CREAM,80.0,ml
+M132,Vege Carbonara Spaghetti,MUSHROOM,20.0,g
+M132,Vege Carbonara Spaghetti,MIXED_VEG,60.0,g
+M133,Vege Bolognese Spaghetti,SPAGHETTI,120.0,g
+M133,Vege Bolognese Spaghetti,TOMATO_SAUCE,80.0,g
+M133,Vege Bolognese Spaghetti,ONION,15.0,g
+M133,Vege Bolognese Spaghetti,MIXED_VEG,60.0,g
+M134,Vege Aglio-Olio Spaghetti,SPAGHETTI,120.0,g
+M134,Vege Aglio-Olio Spaghetti,GARLIC,15.0,g
+M134,Vege Aglio-Olio Spaghetti,COOKING_OIL,20.0,g
+M134,Vege Aglio-Olio Spaghetti,CHILI,5.0,g
+M134,Vege Aglio-Olio Spaghetti,MIXED_VEG,60.0,g
+M135,Fried Chicken Chop with Rice 炸鸡扒饭,CHICKEN_CHOP,1.0,pcs
+M135,Fried Chicken Chop with Rice 炸鸡扒饭,COOKING_OIL,25.0,g
+M135,Fried Chicken Chop with Rice 炸鸡扒饭,RICE,90.0,g
+M136,Fried Chicken Chop 炸鸡扒,CHICKEN_CHOP,1.0,pcs
+M136,Fried Chicken Chop 炸鸡扒,COOKING_OIL,25.0,g
+M136,Fried Chicken Chop 炸鸡扒,SHOESTRING,100.0,g
+M136,Fried Chicken Chop 炸鸡扒,MIXED_VEG,50.0,g
+M137,Grilled Chicken Chop with Rice 烤鸡扒饭,CHICKEN_CHOP,1.0,pcs
+M137,Grilled Chicken Chop with Rice 烤鸡扒饭,COOKING_OIL,5.0,g
+M137,Grilled Chicken Chop with Rice 烤鸡扒饭,RICE,90.0,g
+M138,Thai Style Chicken Chop with Rice 泰式鸡扒饭,CHICKEN_CHOP,1.0,pcs
+M138,Thai Style Chicken Chop with Rice 泰式鸡扒饭,COOKING_OIL,5.0,g
+M138,Thai Style Chicken Chop with Rice 泰式鸡扒饭,RICE,90.0,g
+M138,Thai Style Chicken Chop with Rice 泰式鸡扒饭,SWEET_CHILI,30.0,g
+M139,Fish & Chips 鱼扒,TILAPIA,150,g
+M139,Fish & Chips 鱼扒,SHOESTRING,120,g
+M139,Fish & Chips 鱼扒,MIXED_VEG,40,g
+M139,Fish & Chips 鱼扒,COOKING_OIL,30,g
+M140,Salted Egg Chicken Chop with Rice 咸蛋鸡扒饭,CHICKEN_CHOP,1.0,pcs
+M140,Salted Egg Chicken Chop with Rice 咸蛋鸡扒饭,COOKING_OIL,5.0,g
+M140,Salted Egg Chicken Chop with Rice 咸蛋鸡扒饭,RICE,90.0,g
+M140,Salted Egg Chicken Chop with Rice 咸蛋鸡扒饭,SALTED_EGG_POWDER,15.0,g
+M140,Salted Egg Chicken Chop with Rice 咸蛋鸡扒饭,COOKING_CREAM,15.0,ml
+M141,Teriyaki Chicken Chop + Egg Rice 照烧汁鸡扒饭,CHICKEN_CHOP,1.0,pcs
+M141,Teriyaki Chicken Chop + Egg Rice 照烧汁鸡扒饭,COOKING_OIL,5.0,g
+M141,Teriyaki Chicken Chop + Egg Rice 照烧汁鸡扒饭,RICE,90.0,g
+M141,Teriyaki Chicken Chop + Egg Rice 照烧汁鸡扒饭,EGG,1.0,pcs
+M141,Teriyaki Chicken Chop + Egg Rice 照烧汁鸡扒饭,TERIYAKI,25.0,ml
+M142,Grilled Chicken Chop 烤鸡扒,CHICKEN_CHOP,1.0,pcs
+M142,Grilled Chicken Chop 烤鸡扒,COOKING_OIL,5.0,g
+M142,Grilled Chicken Chop 烤鸡扒,SHOESTRING,100.0,g
+M142,Grilled Chicken Chop 烤鸡扒,MIXED_VEG,50.0,g
+M143,Mushroom Soup 蘑菇汤,MUSHROOM,60,g
+M143,Mushroom Soup 蘑菇汤,COOKING_CREAM,60,ml
+M143,Mushroom Soup 蘑菇汤,BREAD,1,pcs
