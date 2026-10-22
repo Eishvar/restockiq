@@ -8,7 +8,6 @@ the users, so a signed-in browser stays signed in after "Reset demo data".
 """
 import argparse
 import csv
-import importlib.util
 from datetime import date, datetime
 from pathlib import Path
 
@@ -21,6 +20,7 @@ from app.db import Base, SessionLocal, engine, import_all_models, init_db
 from app.modules.calendar.models import CalendarEvent
 from app.modules.catalog.models import Ingredient, MenuItem, Recipe, Supplier
 from app.modules.inventory.models import InventoryItem, InventoryMovement
+from app.modules.planning.quality import recompute_safety
 from app.modules.sales.models import SalesDaily
 from app.modules.settings.models import Tenant, User
 from app.seed.demo import ensure_demo_tenant
@@ -63,8 +63,11 @@ def is_empty(db: Session) -> bool:
     return (db.scalar(select(func.count()).select_from(MenuItem)) or 0) == 0
 
 
-def load_demo_data(db: Session, data_dir: Path | None = None) -> dict[str, int]:
-    """Insert tenant settings, catalog, sales, calendar and opening inventory. Returns row counts."""
+def load_demo_data(db: Session, data_dir: Path | None = None, compute_safety: bool = True) -> dict[str, int]:
+    """Insert tenant settings, catalog, sales, calendar and opening inventory. Returns row counts.
+
+    `compute_safety` runs the backtest that fills safety buffers (a few seconds); tests switch it off.
+    """
     data_dir = data_dir or settings.data_dir
     tenant = ensure_demo_tenant(db)
     tid = tenant.id
@@ -213,28 +216,20 @@ def load_demo_data(db: Session, data_dir: Path | None = None) -> dict[str, int]:
     )
     db.commit()
 
-    _recompute_safety_if_available(db, tenant)
+    if compute_safety:
+        recompute_safety(db, tenant)
+        db.commit()
     return table_counts(db, tid)
 
 
-def _recompute_safety_if_available(db: Session, tenant: Tenant) -> None:
-    """Fill safety profiles once the M4 engine exists; a no-op before that."""
-    if importlib.util.find_spec("app.modules.planning.quality") is None:
-        return
-    from app.modules.planning.quality import recompute_safety
-
-    recompute_safety(db, tenant)
-    db.commit()
-
-
-def reset_demo_data(db: Session) -> dict[str, int]:
+def reset_demo_data(db: Session, compute_safety: bool = True) -> dict[str, int]:
     """Delete all data except tenants and users, then reload the demo data."""
     import_all_models()
     for table in reversed(Base.metadata.sorted_tables):
         if table.name not in KEEP_ON_RESET:
             db.execute(delete(table))
     db.commit()
-    return load_demo_data(db)
+    return load_demo_data(db, compute_safety=compute_safety)
 
 
 def main() -> None:

@@ -29,10 +29,13 @@ def users(db):
 
 @pytest.fixture()
 def loaded(db):
-    """Demo data (catalog, sales, inventory) loaded; returns the row counts."""
+    """Demo data (catalog, sales, inventory) loaded; returns the row counts.
+
+    Safety buffers are not computed here (it takes seconds); tests that need them call recompute_safety.
+    """
     from app.seed.load import load_demo_data
 
-    return load_demo_data(db)
+    return load_demo_data(db, compute_safety=False)
 
 
 @pytest.fixture()

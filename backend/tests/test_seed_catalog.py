@@ -67,7 +67,7 @@ def test_reset_reloads_and_keeps_users(db, users, loaded):
     before = loaded
     db.add(ActivityLog(tenant_id=1, ts=datetime.now(), action="noise"))
     db.commit()
-    after = reset_demo_data(db)
+    after = reset_demo_data(db, compute_safety=False)
     assert after == before  # same data, no duplicates
     assert db.scalar(select(func.count()).select_from(ActivityLog)) == 0  # log cleared
     assert {u.id for u in users.values()} == {1, 2, 3}  # users untouched
