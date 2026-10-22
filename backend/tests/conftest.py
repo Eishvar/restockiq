@@ -28,6 +28,14 @@ def users(db):
 
 
 @pytest.fixture()
+def loaded(db):
+    """Demo data (catalog, sales, inventory) loaded; returns the row counts."""
+    from app.seed.load import load_demo_data
+
+    return load_demo_data(db)
+
+
+@pytest.fixture()
 def client(db):
     app.dependency_overrides[get_db] = lambda: db
     yield TestClient(app)  # no `with`: skips the startup hook that would touch the real database

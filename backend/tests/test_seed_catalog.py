@@ -1,4 +1,4 @@
-import csv
+﻿import csv
 from datetime import datetime
 
 import pytest
@@ -17,11 +17,6 @@ from tests.conftest import as_user
 def csv_rows(name):
     with open(settings.data_dir / name, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
-
-
-@pytest.fixture()
-def loaded(db):
-    return load_demo_data(db)
 
 
 def test_row_counts_match_csv_files(loaded):
