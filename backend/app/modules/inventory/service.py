@@ -10,6 +10,7 @@ from app.core.activity import log_action
 from app.core.clock import now_kl
 from app.core.today import get_today
 from app.core.units import format_qty
+from app.modules.assistant.models import AISuggestion
 from app.modules.catalog.models import Ingredient, Supplier
 from app.modules.inventory.models import InventoryItem, InventoryMovement
 from app.modules.inventory.schemas import InventoryRow, ItemCreate, ItemPatch, MovementOut
@@ -152,11 +153,22 @@ def add_item(db: Session, user: User, body: ItemCreate) -> InventoryRow:
         db, user, "inventory_item_added", "inventory", ing.id,
         {"name": ing.name, "qty_base": body.qty_base, "shelf_life_days": ing.shelf_life_days},
     )
+    if body.suggestion_id is not None:  # the person used an AI shelf-life suggestion for this item
+        suggestion = db.get(AISuggestion, body.suggestion_id)
+        if suggestion and suggestion.tenant_id == user.tenant_id and suggestion.kind == "shelf_life" and suggestion.status == "pending":
+            suggestion.status, suggestion.decided_by = "applied", user.id
+            log_action(
+                db, user, "ai_suggestion_applied", "ai_suggestion", suggestion.id,
+                {"kind": "shelf_life", "item": ing.name, "suggested_days": suggestion.payload["shelf_life_days"],
+                 "final_days": ing.shelf_life_days},
+            )
     db.commit()
     return _row(ing, inv, db.get(Supplier, ing.supplier_id).name if ing.supplier_id else None, today)
 
 
-def edit_item(db: Session, user: User, ingredient_id: int, body: ItemPatch) -> InventoryRow:
+def edit_item(
+    db: Session, user: User, ingredient_id: int, body: ItemPatch, note: str = "Edited on Inventory page"
+) -> InventoryRow:
     sent = body.model_fields_set
     if user.role == "staff" and sent - {"qty_base"}:
         raise HTTPException(403, "Staff can update quantities only; ask a manager to change dates or shelf life")
@@ -172,7 +184,7 @@ def edit_item(db: Session, user: User, ingredient_id: int, body: ItemPatch) -> I
         "pack_price_rm": ing.pack_price_rm,
     }
     if "qty_base" in sent and body.qty_base is not None and body.qty_base != inv.qty_base:
-        _move(db, user, ingredient_id, body.qty_base - inv.qty_base, "adjust", today, "Edited on Inventory page")
+        _move(db, user, ingredient_id, body.qty_base - inv.qty_base, "adjust", today, note)
         inv.qty_base = body.qty_base
     if "last_purchased_on" in sent:
         inv.last_purchased_on = body.last_purchased_on

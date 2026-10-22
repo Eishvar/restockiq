@@ -10,6 +10,7 @@ import {
   type ItemPatch,
   type Status,
 } from './api'
+import QuickNoteModal from '../assistant/QuickNoteModal'
 import AddItemModal from './AddItemModal'
 import HistoryModal from './HistoryModal'
 import OnboardingWizard from './OnboardingWizard'
@@ -152,6 +153,7 @@ export default function InventoryPage() {
   const [filter, setFilter] = useState<Filter>('all')
   const [storage, setStorage] = useState('')
   const [adding, setAdding] = useState(false)
+  const [noting, setNoting] = useState(false)
   const [history, setHistory] = useState<InventoryRow | null>(null)
 
   if (isLoading) return <p className="text-sm text-slate-500">Loading your stock…</p>
@@ -194,7 +196,10 @@ export default function InventoryPage() {
           <h1 className="text-xl font-semibold">Inventory</h1>
           <p className="text-sm text-slate-600">What you have now, as of {fmtDate(data.today)}.</p>
         </div>
-        {canEditAll ? addButton : <Tooltip text="Only managers and owners can add items">{addButton}</Tooltip>}
+        <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" onClick={() => setNoting(true)}>⚡ Quick add from a note</Button>
+          {canEditAll ? addButton : <Tooltip text="Only managers and owners can add items">{addButton}</Tooltip>}
+        </div>
       </div>
 
       {!data.onboarded && (
@@ -261,6 +266,7 @@ export default function InventoryPage() {
       </Card>
 
       <AddItemModal open={adding} today={data.today} onClose={() => setAdding(false)} />
+      <QuickNoteModal open={noting} data={data} onClose={() => setNoting(false)} />
       <HistoryModal ingredientId={history?.ingredient_id ?? null} name={history?.name ?? ''} onClose={() => setHistory(null)} />
     </div>
   )

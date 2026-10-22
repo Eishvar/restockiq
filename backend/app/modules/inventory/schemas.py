@@ -41,6 +41,7 @@ class ItemCreate(BaseModel):
     shelf_life_days: int = Field(ge=1, le=3650)
     qty_base: float = Field(default=0, ge=0)
     last_purchased_on: date | None = None
+    suggestion_id: int | None = None  # set when the shelf life came from the AI "Suggest" button
 
 
 class ItemPatch(BaseModel):

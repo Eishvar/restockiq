@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Badge, Button, Card, Table, useToast } from '../../components/ui'
 import { useConfirmOnboarding, usePatchItem, type InventoryList, type ItemPatch } from './api'
+import QuickNoteModal from '../assistant/QuickNoteModal'
 import AddItemModal from './AddItemModal'
 import QtyInput, { inputCls } from './QtyInput'
 import { StatusBadge, STORAGE_LABEL, STORAGE_ORDER, fmtDate } from './shared'
@@ -9,6 +10,7 @@ import { StatusBadge, STORAGE_LABEL, STORAGE_ORDER, fmtDate } from './shared'
 export default function OnboardingWizard({ data }: { data: InventoryList }) {
   const [edits, setEdits] = useState<Record<number, ItemPatch>>({})
   const [adding, setAdding] = useState(false)
+  const [noting, setNoting] = useState(false)
   const [busy, setBusy] = useState(false)
   const patch = usePatchItem()
   const confirm = useConfirmOnboarding()
@@ -86,6 +88,9 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
 
       <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
         <div className="flex items-center gap-3 text-sm text-slate-600">
+          <Button variant="secondary" onClick={() => setNoting(true)}>
+            ⚡ Quick add from a note
+          </Button>
           <Button variant="secondary" onClick={() => setAdding(true)}>
             + Add item
           </Button>
@@ -98,6 +103,7 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
       </div>
 
       <AddItemModal open={adding} today={data.today} onClose={() => setAdding(false)} />
+      <QuickNoteModal open={noting} data={data} onClose={() => setNoting(false)} />
     </div>
   )
 }

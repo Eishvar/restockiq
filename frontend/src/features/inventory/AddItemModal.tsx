@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { Button, Modal, useToast } from '../../components/ui'
+import { ApiError } from '../../api/client'
+import { Button, Modal, Tooltip, useToast } from '../../components/ui'
+import { UNAVAILABLE_TEXT, useAiStatus, useSuggestShelfLife } from '../assistant/api'
 import { useAddItem, useSuppliers } from './api'
 import QtyInput, { inputCls } from './QtyInput'
 import { plainUnits, toBase } from './units'
@@ -40,7 +42,35 @@ export default function AddItemModal({ open, today, onClose }: Props) {
   const packSizeBase = toBase(parseFloat(packSize) || 0, packUnits[Math.min(packUnitIdx, packUnits.length - 1)])
   const valid = name.trim() && packName.trim() && packSizeBase > 0 && price !== '' && parseInt(shelfLife) >= 1
 
+  // "Suggest": the AI proposes shelf life, storage and unit; the person can change all of it before adding.
+  const status = useAiStatus()
+  const suggesting = useSuggestShelfLife()
+  const [suggestionId, setSuggestionId] = useState<number | null>(null)
+  const [suggestMsg, setSuggestMsg] = useState('')
+  const [suggestFailed, setSuggestFailed] = useState(false)
+  const aiOff = status.data?.available === false || suggestFailed
+
+  async function suggest() {
+    setSuggestFailed(false)
+    try {
+      const s = await suggesting.mutateAsync({ name: name.trim() })
+      setShelfLife(String(s.shelf_life_days))
+      setStorage(s.storage)
+      setBaseUom(s.base_uom)
+      setPackUnitIdx(0)
+      setSuggestionId(s.suggestion_id)
+      setSuggestMsg(`Suggested: ${s.shelf_life_days} days. ${s.rationale} Change it if you know better.`)
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 503) {
+        setSuggestFailed(true)
+        setSuggestMsg(`${UNAVAILABLE_TEXT}.`)
+      } else toast(err instanceof Error ? err.message : 'Could not get a suggestion', 'error')
+    }
+  }
+
   function reset() {
+    setSuggestionId(null)
+    setSuggestMsg('')
     setName('')
     setPackName('')
     setPackSize('')
@@ -65,6 +95,7 @@ export default function AddItemModal({ open, today, onClose }: Props) {
         shelf_life_days: parseInt(shelfLife),
         qty_base: qty,
         last_purchased_on: qty > 0 ? bought || today : null,
+        suggestion_id: suggestionId,
       })
       toast(`${name.trim()} added to your stock`, 'success')
       reset()
@@ -144,8 +175,19 @@ export default function AddItemModal({ open, today, onClose }: Props) {
           <Field label="Price per pack (RM)">
             <input required type="number" min={0} step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} className={`${inputCls} w-full`} />
           </Field>
-          <Field label="Shelf life (days)" hint="How long it stays good after you buy it">
-            <input required type="number" min={1} value={shelfLife} onChange={(e) => setShelfLife(e.target.value)} className={`${inputCls} w-full`} />
+          <Field label="Shelf life (days)" hint={suggestMsg || 'How long it stays good after you buy it'}>
+            <span className="flex gap-1">
+              <input required type="number" min={1} value={shelfLife} onChange={(e) => setShelfLife(e.target.value)} className={`${inputCls} w-full`} />
+              {aiOff ? (
+                <Tooltip text={UNAVAILABLE_TEXT}>
+                  <Button type="button" variant="secondary" disabled>⚡ Suggest</Button>
+                </Tooltip>
+              ) : (
+                <Button type="button" variant="secondary" onClick={suggest} disabled={!name.trim() || suggesting.isPending}>
+                  {suggesting.isPending ? '…' : '⚡ Suggest'}
+                </Button>
+              )}
+            </span>
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-3">

@@ -43,6 +43,7 @@ export type NewItem = {
   shelf_life_days: number
   qty_base: number
   last_purchased_on: string | null
+  suggestion_id?: number | null
 }
 
 export type Movement = {
