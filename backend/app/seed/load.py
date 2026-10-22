@@ -74,6 +74,7 @@ def load_demo_data(db: Session, data_dir: Path | None = None, compute_safety: bo
     tenant.risk_profile = "balanced"
     tenant.manual_planning_hours = 16
     tenant.onboarded_at = None  # so the first-time inventory setup shows in the demo
+    tenant.today_override = None
 
     _bulk(
         db,

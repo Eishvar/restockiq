@@ -1,7 +1,7 @@
 """RestockIQ API. One process: the API lives under /api, the built frontend at /."""
 from contextlib import asynccontextmanager
 
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -40,6 +40,8 @@ if _dist.is_dir():
 
     @app.get("/{path:path}", include_in_schema=False)
     def spa(path: str) -> FileResponse:
+        if path == "api" or path.startswith("api/"):  # an unknown API route is a 404, not the web page
+            raise HTTPException(404, "Not found")
         candidate = _dist / path
         if path and candidate.is_file() and _dist in candidate.resolve().parents:
             return FileResponse(candidate)

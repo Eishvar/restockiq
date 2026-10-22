@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from app.core.activity import log_action
 from app.core.auth import current_user, require_role
 from app.db import get_db
+from app.modules.settings import service
+from app.modules.settings.schemas import SettingsOut, SettingsPatch, SupplierPatch, SupplierSettings
 from app.seed.load import reset_demo_data
 from app.modules.settings.models import Tenant, User
 from app.modules.settings.schemas import MeOut, UserOut
@@ -25,6 +27,23 @@ def reset_demo(user: User = Depends(require_role("owner")), db: Session = Depend
     log_action(db, user, "demo_data_reset", "tenant", user.tenant_id, {"rows": counts})
     db.commit()
     return {"status": "reset", "rows": counts}
+
+
+@router.get("/settings", response_model=SettingsOut)
+def read_settings(user: User = Depends(require_role("owner")), db: Session = Depends(get_db)):
+    return service.get_settings(db, user)
+
+
+@router.patch("/settings", response_model=SettingsOut)
+def change_settings(body: SettingsPatch, user: User = Depends(require_role("owner")), db: Session = Depends(get_db)):
+    """Owner: risk profile (recomputes the safety buffers, a few seconds), planning-hours baseline, demo date."""
+    return service.update_settings(db, user, body)
+
+
+@router.patch("/settings/suppliers/{supplier_id}", response_model=SupplierSettings)
+def change_supplier(supplier_id: int, body: SupplierPatch, user: User = Depends(require_role("owner")),
+                    db: Session = Depends(get_db)):
+    return service.update_supplier(db, user, supplier_id, body)
 
 
 @router.get("/users", response_model=list[UserOut])

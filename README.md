@@ -20,7 +20,8 @@ npm ci
 npm run dev
 ```
 
-Copy `.env.example` to `.env` for local settings. Tests: `cd backend && pytest -q`.
+Copy `.env.example` to `.env` for local settings. Load the demo data once with `cd backend && python -m app.seed.load --reset`.
+Tests: `cd backend && pytest -q`. To deploy on Replit, follow [DEPLOY.md](DEPLOY.md).
 
 ## License
 

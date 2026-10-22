@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, String
+from sqlalchemy import Date, DateTime, Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -16,6 +16,8 @@ class Tenant(Base):
     risk_profile: Mapped[str] = mapped_column(String(20), default="balanced")
     manual_planning_hours: Mapped[float] = mapped_column(Float, default=16)
     onboarded_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    # Demo override of "today" (Settings). Wins over the TODAY env var and the sales-derived date.
+    today_override: Mapped[date | None] = mapped_column(Date, default=None)
 
 
 class User(Base):

@@ -124,13 +124,19 @@ export const usePlanContext = () =>
 export const usePlan = (id: number | null) =>
   useQuery({ queryKey: ['plan', id], queryFn: () => api<Plan>(`/planning/plans/${id}`), enabled: id !== null })
 
+export const useOrders = (status: string) =>
+  useQuery({
+    queryKey: ['orders', status],
+    queryFn: () => api<Order[]>(`/planning/orders${status ? `?status=${status}` : ''}`),
+  })
+
 /** Writes refresh the plan, the dashboard, the activity log and (for receiving) the inventory. */
 function useWrite<TVars, TOut>(fn: (v: TVars) => Promise<TOut>) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: fn,
     onSuccess: () => {
-      for (const key of ['plan', 'planning-context', 'dashboard', 'activity', 'inventory'])
+      for (const key of ['plan', 'orders', 'planning-context', 'dashboard', 'activity', 'inventory'])
         qc.invalidateQueries({ queryKey: [key] })
     },
   })
