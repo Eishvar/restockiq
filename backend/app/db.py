@@ -25,9 +25,14 @@ class Base(DeclarativeBase):
 
 
 def _normalise_url(url: str) -> str:
-    # Some hosts hand out "postgres://", which SQLAlchemy 2.0 no longer accepts.
-    if url.startswith("postgres://"):
-        return "postgresql://" + url[len("postgres://") :]
+    """Make a host-provided database URL point at the driver we install (psycopg2).
+
+    Hosts hand out "postgres://" or "postgresql://". SQLAlchemy 2.0 rejects the first, and 2.1 picks the
+    newer `psycopg` driver for the second, which is not installed, so name psycopg2 explicitly.
+    """
+    for prefix in ("postgres://", "postgresql://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg2://" + url[len(prefix) :]
     return url
 
 
