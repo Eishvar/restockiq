@@ -74,9 +74,12 @@ class PurchaseOrder(Base):
     status: Mapped[str] = mapped_column(String(20), default="draft")
     total_rm: Mapped[float] = mapped_column(Float, default=0)
     reject_reason: Mapped[str | None] = mapped_column(String(300), default=None)
+    created_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     approved_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None)
     approved_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    received_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
 
 
 class POLine(Base):
