@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getHealth } from '../api/client'
+import RoleSwitcher from '../features/auth/RoleSwitcher'
 
 export const NAV = [
   { path: '/plan', label: 'Plan purchases' },
@@ -62,9 +63,12 @@ export default function AppShell() {
             ☰
           </button>
           <span className="hidden text-sm text-slate-500 md:block">Smart purchase planning for your kitchen</span>
-          <span className="text-xs text-slate-500" title="Backend connection">
-            API: {health.isLoading ? '…' : health.data?.status === 'ok' ? 'connected' : 'offline'}
-          </span>
+          <div className="flex items-center gap-3">
+            <RoleSwitcher />
+            <span className="text-xs text-slate-500" title="Backend connection">
+              {health.isLoading ? '…' : health.data?.status === 'ok' ? '● online' : '○ offline'}
+            </span>
+          </div>
         </header>
         <main className="flex-1 p-4 md:p-6">
           <Outlet />

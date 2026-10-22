@@ -1,12 +1,25 @@
 """RestockIQ API. One process: the API lives under /api, the built frontend at /."""
+from contextlib import asynccontextmanager
+
 from fastapi import APIRouter, FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.config import APP_NAME, settings
+from app.db import SessionLocal, init_db
 from app.modules import ROUTERS
+from app.seed.demo import ensure_demo_tenant
 
-app = FastAPI(title=APP_NAME)
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    init_db()  # create_all: adds missing tables, never alters existing ones
+    with SessionLocal() as db:
+        ensure_demo_tenant(db)
+    yield
+
+
+app = FastAPI(title=APP_NAME, lifespan=lifespan)
 
 api = APIRouter(prefix="/api")
 
