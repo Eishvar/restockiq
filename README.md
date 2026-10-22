@@ -1,4 +1,4 @@
-# RestockIQ
+# RestockAI
 
 Smart purchase planning for restaurants and cafés: from ~2 days of manual calculation to a few minutes.
 Built for the SDC Hackathon 2026 (XMUM), Domain 2 "Orbyte Smart SME Challenge".
