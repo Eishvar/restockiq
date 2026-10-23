@@ -350,9 +350,9 @@ def send(db: Session, user: User, order_id: int) -> SendOut:
 
 
 def receive(db: Session, user: User, order_id: int) -> OrderOut:
-    """Sent -> received: add the packs to stock as a new batch dated today."""
+    """Approved or sent -> received: add the packs to stock as a new batch dated today."""
     po = _order(db, user, order_id)
-    _require_status(po, "sent")
+    _require_status(po, "approved", "sent")
     today = get_today(db, user.tenant_id)
     added = []
     for l in _lines(db, po):

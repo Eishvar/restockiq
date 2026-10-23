@@ -5,7 +5,7 @@ import { useGeneratePlan, usePlan, usePlanContext, type Plan } from './api'
 import ForecastCard from './ForecastCard'
 import { fmtDay, fmtDayYear, formatQty, num, rm } from './format'
 import GatedButton, { useRole } from './GatedButton'
-import SupplierCard from './SupplierCard'
+import SupplierOrdersBoard from './SupplierOrdersBoard'
 
 const HORIZONS = [1, 2, 3, 4, 5, 6, 7].map((n) => ({ value: n, label: String(n) }))
 
@@ -131,17 +131,14 @@ export default function PlanPage() {
           <ForecastCard plan={p} />
           <Attention plan={p} />
           <DiscardList plan={p} />
-          {p.orders.length === 0 ? (
-            <EmptyState title="Nothing to buy" hint="Your current stock covers everything for these days." />
-          ) : (
-            p.orders.map((o) => <SupplierCard key={o.id} order={o} />)
-          )}
+          {p.orders.length === 0 && <EmptyState title="Nothing to buy" hint="Your current stock covers everything for these days." />}
           {p.covered.length > 0 && (
             <details className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
               <summary className="cursor-pointer font-medium">Nothing to buy for {p.covered.length} items (your stock already covers them)</summary>
               <p className="mt-2 text-slate-600">{p.covered.map((c) => c.name).join(', ')}</p>
             </details>
           )}
+          <SupplierOrdersBoard />
         </>
       )}
 

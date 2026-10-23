@@ -213,6 +213,26 @@ def test_receiving_adds_a_new_batch_and_keeps_expired_stock_separate(client, db,
     assert inv.qty_base == pytest.approx(old_qty + line["final_packs"] * line["pack_size_base"])
 
 
+def test_receiving_an_approved_order_does_not_require_a_whatsapp_send(client, db, users, loaded):
+    plan = make_plan(client, users, 3)
+    order = plan["orders"][0]
+    line = order["lines"][0]
+    assert act(client, users["manager"], order["id"], "submit").status_code == 200
+    assert act(client, users["owner"], order["id"], "approve").status_code == 200
+
+    received = act(client, users["manager"], order["id"], "receive")
+    assert received.status_code == 200 and received.json()["status"] == "received"
+
+    batches = db.scalars(
+        select(InventoryBatch).where(InventoryBatch.ingredient_id == line["ingredient_id"])
+    ).all()
+    assert any(
+        batch.procured_on == date(2026, 10, 22)
+        and batch.qty_base == pytest.approx(line["final_packs"] * line["pack_size_base"])
+        for batch in batches
+    )
+
+
 def test_reject_needs_a_reason_and_is_final(client, db, users, loaded):
     oid = make_plan(client, users, 3)["orders"][0]["id"]
     act(client, users["manager"], oid, "submit")
@@ -237,7 +257,6 @@ def test_invalid_transitions_are_409(client, users, loaded):
     assert act(client, users["manager"], oid, "receive").status_code == 409
     act(client, users["owner"], oid, "approve")
     assert act(client, users["owner"], oid, "approve").status_code == 409
-    assert act(client, users["manager"], oid, "receive").status_code == 409  # approved but not sent
     assert act(client, users["owner"], oid, "reject", reason="x").status_code == 409
 
 
