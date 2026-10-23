@@ -83,7 +83,7 @@ function SupplierGroup({ supplier, orders }: { supplier: Supplier; orders: Order
         onClick={() => setExpanded((open) => !open)}
       >
         <span className="flex min-w-0 items-center gap-2">
-          <span aria-hidden="true" className="w-4 text-lg text-slate-500">{expanded ? '⌄' : '›'}</span>
+          <span aria-hidden="true" className="w-4 shrink-0 text-xs text-black">{expanded ? '▼' : '▶'}</span>
           <span className="truncate font-semibold text-slate-900">{supplier.name}</span>
         </span>
         <span className="shrink-0 text-xs text-slate-500">
