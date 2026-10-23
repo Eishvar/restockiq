@@ -1,4 +1,4 @@
-"""RestockIQ API. One process: the API lives under /api, the built frontend at /."""
+"""RestockAI API. One process: the API lives under /api, the built frontend at /."""
 from contextlib import asynccontextmanager
 
 from fastapi import APIRouter, FastAPI, HTTPException
@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from app.config import APP_NAME, settings
 from app.db import SessionLocal, init_db
 from app.modules import ROUTERS
+from app.modules.inventory.service import backfill_batches
 from app.seed.demo import ensure_demo_tenant
 
 
@@ -16,6 +17,7 @@ async def lifespan(_: FastAPI):
     init_db()  # create_all: adds missing tables, never alters existing ones
     with SessionLocal() as db:
         ensure_demo_tenant(db)
+        backfill_batches(db)  # stock saved before batches existed becomes one batch per item
     yield
 
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.modules.calendar.models import CalendarEvent
 from app.modules.catalog.models import Ingredient, MenuItem, Recipe, Supplier
-from app.modules.inventory.models import InventoryItem
+from app.modules.inventory.models import InventoryBatch
 from app.modules.planning.models import SafetyProfile
 from app.modules.sales.models import SalesDaily
 
@@ -62,9 +62,12 @@ def load_frames(db: Session, tenant_id: int) -> dict[str, pd.DataFrame]:
     )
     inventory = _frame(
         db,
-        select(InventoryItem.ingredient_id, InventoryItem.qty_base, InventoryItem.last_purchased_on).where(
-            InventoryItem.tenant_id == tenant_id
-        ),
+        select(
+            InventoryBatch.ingredient_id,
+            InventoryBatch.qty_base,
+            InventoryBatch.procured_on.label("last_purchased_on"),
+            InventoryBatch.shelf_life_days,
+        ).where(InventoryBatch.tenant_id == tenant_id, InventoryBatch.qty_base > 0),
     )
     return dict(
         sales=sales, menu=menu, calendar=calendar, recipes=recipes,

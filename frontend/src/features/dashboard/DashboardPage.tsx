@@ -44,7 +44,7 @@ function Accuracy({ d }: { d: Dashboard }) {
   const a = d.accuracy
   if (!a) return <EmptyState title="Forecast accuracy is not measured yet" hint="It is worked out from your own sales history." />
   const bars = [
-    { label: 'RestockIQ forecast', value: a.wape_total, color: 'bg-emerald-600' },
+    { label: 'RestockAI forecast', value: a.wape_total, color: 'bg-emerald-600' },
     ...(a.baseline_naive_wape !== null ? [{ label: "Same day last week", value: a.baseline_naive_wape, color: 'bg-slate-400' }] : []),
     ...(a.baseline_flat_wape !== null ? [{ label: 'Average of the last 4 weeks', value: a.baseline_flat_wape, color: 'bg-slate-400' }] : []),
   ]
@@ -80,7 +80,7 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-6xl space-y-4">
       <div>
         <h1 className="text-xl font-semibold">Dashboard</h1>
-        <p className="text-sm text-slate-600">How RestockIQ is helping, as of {fmtDay(d.today)}.</p>
+        <p className="text-sm text-slate-600">How RestockAI is helping, as of {fmtDay(d.today)}.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

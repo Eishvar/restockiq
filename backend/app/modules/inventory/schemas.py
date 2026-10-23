@@ -4,6 +4,22 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 
+class BatchRow(BaseModel):
+    """One purchase of an item. Expires on procured_on + shelf_life_days."""
+
+    id: int
+    ingredient_id: int
+    procured_on: date
+    qty_base: float
+    display_qty: str
+    shelf_life_days: int
+    pack_price_rm: float  # price per pack paid for this batch
+    value_rm: float  # what the remaining quantity of this batch cost
+    expires_on: date
+    days_left: int
+    status: Literal["ok", "expiring_soon", "expired"]
+
+
 class InventoryRow(BaseModel):
     ingredient_id: int
     code: str
@@ -21,7 +37,10 @@ class InventoryRow(BaseModel):
     shelf_life_days: int
     expires_on: date | None
     days_left: int | None
-    status: Literal["ok", "expiring_soon", "expired"]
+    status: Literal["ok", "expiring_soon", "expired"]  # the worst status of its batches
+    expired_qty_base: float = 0
+    stock_value_rm: float = 0
+    batches: list[BatchRow] = []
 
 
 class InventoryList(BaseModel):
@@ -51,6 +70,29 @@ class ItemPatch(BaseModel):
     last_purchased_on: date | None = None
     shelf_life_days: int | None = Field(default=None, ge=1, le=3650)
     pack_price_rm: float | None = Field(default=None, ge=0)
+
+
+class BatchCreate(BaseModel):
+    """Add stock bought on one day. Missing fields default: today, the item's shelf life and pack price."""
+
+    qty_base: float = Field(gt=0)
+    procured_on: date | None = None
+    shelf_life_days: int | None = Field(default=None, ge=1, le=3650)
+    pack_price_rm: float | None = Field(default=None, ge=0)
+
+
+class BatchPatch(BaseModel):
+    """Only the fields that are sent are changed. Staff may change `qty_base` only. qty 0 removes the batch."""
+
+    qty_base: float | None = Field(default=None, ge=0)
+    procured_on: date | None = None
+    shelf_life_days: int | None = Field(default=None, ge=1, le=3650)
+    pack_price_rm: float | None = Field(default=None, ge=0)
+
+
+class DiscardResult(BaseModel):
+    discarded: list[str]  # item names
+    batches: int
 
 
 class MovementOut(BaseModel):

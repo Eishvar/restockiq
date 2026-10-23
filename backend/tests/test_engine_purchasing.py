@@ -189,7 +189,7 @@ def test_explanation_carries_everything_the_why_sentence_needs():
     ex = only_line(plan([600, 100, 100, 100], stock=700, bought=d(-5), shelf=60, pack=1000, buffer=0.25))["explanation"]
     assert {"daily_need", "stock", "trips", "service_level", "n_samples", "method", "leftover_base"} <= ex.keys()
     assert ex["stock"] == {"qty_base": 700.0, "expires_on": d(55).isoformat(), "expired": False,
-                           "purchase_date_unknown": False}
+                           "expired_base": 0.0, "purchase_date_unknown": False}
     assert ex["service_level"] == 0.9 and ex["n_samples"] == 40 and len(ex["daily_need"]) == 4
 
 

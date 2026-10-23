@@ -71,7 +71,9 @@ def plan_purchases(
     """Build the purchase plan.
 
     need_df:        date, ingredient_id, need_base   (forecast use, from today to today + horizon)
-    inventory_df:   ingredient_id, qty_base, last_purchased_on
+    inventory_df:   one row per stock batch: ingredient_id, qty_base, last_purchased_on (procurement date) and
+                    optionally shelf_life_days (the batch's own; the ingredient's is used when it is missing).
+                    An ingredient may have several rows: each batch expires on its own date.
     ingredients_df: ingredient_id, name, supplier_id, base_uom, pack_uom, pack_size_base, pack_price_rm,
                     shelf_life_days
     suppliers_df:   supplier_id, name, min_order_rm
@@ -85,10 +87,16 @@ def plan_purchases(
     need_by = {}
     for r in need_df.itertuples(index=False):
         need_by.setdefault(r.ingredient_id, {})[_d(r.date)] = float(r.need_base)
-    stock_by = {
-        r.ingredient_id: (float(r.qty_base), None if pd.isna(r.last_purchased_on) else _d(r.last_purchased_on))
-        for r in inventory_df.itertuples(index=False)
-    }
+    stock_by: dict = {}
+    for r in inventory_df.itertuples(index=False):
+        own_shelf = getattr(r, "shelf_life_days", None)
+        stock_by.setdefault(r.ingredient_id, []).append(
+            (
+                float(r.qty_base),
+                None if pd.isna(r.last_purchased_on) else _d(r.last_purchased_on),
+                None if own_shelf is None or pd.isna(own_shelf) else int(own_shelf),
+            )
+        )
     safety_by = {(r.ingredient_id, int(r.horizon)): r for r in safety_df.itertuples(index=False)}
     sup_by = {r.supplier_id: r for r in suppliers_df.itertuples(index=False)}
 
@@ -97,27 +105,37 @@ def plan_purchases(
 
     for ing in ingredients_df.itertuples(index=False):
         g, shelf = ing.ingredient_id, int(ing.shelf_life_days)
-        qty, bought_on = stock_by.get(g, (0.0, None))
         need = need_by.get(g, {})
         if not any(v > 0 for v in need.values()):  # no dish uses it, so nothing will ever be planned for it
             out_exceptions.append({"type": "no_forecast_use", "ingredient_id": g, "name": ing.name})
 
-        # 1. expired stock is excluded and listed for discarding
-        lots, expiry = [], None
-        if qty > 0:
-            expiry = (bought_on + timedelta(days=shelf)) if bought_on else today + timedelta(days=shelf)
-            if expiry <= today:
+        # 1. expired batches are excluded and listed for discarding; fresh batches become lots
+        lots, fresh_expiries, expired_expiries = [], [], []
+        qty = expired_qty = 0.0
+        date_unknown = False
+        for b_qty, bought_on, b_shelf in stock_by.get(g, []):
+            if b_qty <= 0:
+                continue
+            qty += b_qty
+            date_unknown = date_unknown or bought_on is None
+            b_expiry = (bought_on if bought_on else today) + timedelta(days=b_shelf if b_shelf else shelf)
+            if b_expiry <= today:
+                expired_qty += b_qty
+                expired_expiries.append(b_expiry)
                 discard.append(
-                    {"ingredient_id": g, "name": ing.name, "base_uom": ing.base_uom, "qty_base": round(qty, 3), "expired_on": expiry.isoformat(),
-                     "days_ago": (today - expiry).days}
+                    {"ingredient_id": g, "name": ing.name, "base_uom": ing.base_uom, "qty_base": round(b_qty, 3), "expired_on": b_expiry.isoformat(),
+                     "days_ago": (today - b_expiry).days}
                 )
             else:
-                lots.append(Lot(qty, expiry))
+                lots.append(Lot(b_qty, b_expiry))
+                fresh_expiries.append(b_expiry)
+        shown_expiry = min(fresh_expiries) if fresh_expiries else (min(expired_expiries) if expired_expiries else None)
         stock_info = {
             "qty_base": round(qty, 3),
-            "expires_on": expiry.isoformat() if expiry else None,
-            "expired": bool(expiry and expiry <= today),
-            "purchase_date_unknown": bool(qty > 0 and bought_on is None),
+            "expires_on": shown_expiry.isoformat() if shown_expiry else None,
+            "expired": bool(expired_expiries and not fresh_expiries),  # all of it is expired
+            "expired_base": round(expired_qty, 3),  # the part of it that is expired (not counted)
+            "purchase_date_unknown": bool(qty > 0 and date_unknown),
         }
 
         # 2./3. simulate day by day, buying when a day from tomorrow on would run short

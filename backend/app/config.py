@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 REPO_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(REPO_ROOT / ".env")
 
-APP_NAME = "RestockIQ"
+APP_NAME = "RestockAI"
 
 
 @dataclass(frozen=True)

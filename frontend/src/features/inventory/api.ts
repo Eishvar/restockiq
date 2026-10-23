@@ -3,6 +3,20 @@ import { api } from '../../api/client'
 
 export type Status = 'ok' | 'expiring_soon' | 'expired'
 
+export type Batch = {
+  id: number
+  ingredient_id: number
+  procured_on: string
+  qty_base: number
+  display_qty: string
+  shelf_life_days: number
+  pack_price_rm: number
+  value_rm: number
+  expires_on: string
+  days_left: number
+  status: Status
+}
+
 export type InventoryRow = {
   ingredient_id: number
   code: string
@@ -21,6 +35,9 @@ export type InventoryRow = {
   expires_on: string | null
   days_left: number | null
   status: Status
+  expired_qty_base: number
+  stock_value_rm: number
+  batches: Batch[]
 }
 
 export type InventoryList = { today: string; onboarded: boolean; items: InventoryRow[] }
@@ -31,6 +48,22 @@ export type ItemPatch = {
   shelf_life_days?: number
   pack_price_rm?: number
 }
+
+export type BatchPatch = {
+  qty_base?: number
+  procured_on?: string
+  shelf_life_days?: number
+  pack_price_rm?: number
+}
+
+export type NewBatch = {
+  qty_base: number
+  procured_on?: string
+  shelf_life_days?: number
+  pack_price_rm?: number
+}
+
+export type DiscardResult = { discarded: string[]; batches: number }
 
 export type NewItem = {
   name: string
@@ -97,8 +130,21 @@ export const useRemoveItem = () =>
 
 export const useDiscardExpired = () =>
   useWrite((id: number | null) =>
-    api<{ discarded: string[] }>(id === null ? '/inventory/discard-expired' : `/inventory/${id}/discard-expired`, send('POST')),
+    api<DiscardResult>(id === null ? '/inventory/discard-expired' : `/inventory/${id}/discard-expired`, send('POST')),
   )
+
+export const useAddBatch = () =>
+  useWrite(({ ingredientId, batch }: { ingredientId: number; batch: NewBatch }) =>
+    api<InventoryRow>(`/inventory/${ingredientId}/batches`, send('POST', batch)),
+  )
+
+export const usePatchBatch = () =>
+  useWrite(({ id, patch }: { id: number; patch: BatchPatch }) => api<InventoryRow>(`/inventory/batches/${id}`, send('PATCH', patch)))
+
+export const useRemoveBatch = () => useWrite((id: number) => api<void>(`/inventory/batches/${id}`, send('DELETE')))
+
+export const useDiscardBatch = () =>
+  useWrite((id: number) => api<DiscardResult>(`/inventory/batches/${id}/discard`, send('POST')))
 
 export const useConfirmOnboarding = () =>
   useWrite(() => api<{ onboarded: boolean }>('/inventory/onboarding/confirm', send('POST')))

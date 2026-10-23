@@ -25,7 +25,8 @@ export function whySentences(line: Line): string[] {
   if (e.stock.qty_base <= 0) out.push('You have none in stock.')
   else if (e.stock.expired) out.push(`Your ${qty(e.stock.qty_base)} has expired, so none of it is counted.`)
   else {
-    const until = e.stock.expires_on ? ` (good until ${fmtDay(e.stock.expires_on)})` : ''
+    if (e.stock.expired_base > 0) out.push(`${qty(e.stock.expired_base)} of your stock has expired, so it is not counted.`)
+    const until = e.stock.expires_on ? ` (the first batch is good until ${fmtDay(e.stock.expires_on)})` : ''
     out.push(
       `You have ${qty(e.stock.qty_base)}${until}${todayUse > 0 ? `, and today's use (${qty(todayUse)}) comes off first` : ''}: ${qty(line.usable_stock_base)} usable.`,
     )

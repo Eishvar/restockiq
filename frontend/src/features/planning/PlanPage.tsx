@@ -54,8 +54,8 @@ function DiscardList({ plan }: { plan: Plan }) {
     <Card title={`Throw away (${plan.discard.length})`}>
       <p className="mb-2 text-sm text-slate-600">These have passed their shelf life. They are not counted as stock. Discard them on the Inventory page.</p>
       <Table head={['Item', 'How much', 'Expired']}>
-        {plan.discard.map((d) => (
-          <tr key={d.ingredient_id}>
+        {plan.discard.map((d, i) => (
+          <tr key={`${d.ingredient_id}-${i}`}>
             <td className="font-medium">{d.name}</td>
             <td>{formatQty(d.qty_base, d.base_uom)}</td>
             <td>{fmtDay(d.expired_on)} ({d.days_ago} day{d.days_ago === 1 ? '' : 's'} ago)</td>

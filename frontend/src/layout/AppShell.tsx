@@ -42,7 +42,7 @@ export default function AppShell() {
     <div className="flex min-h-screen">
       {/* Desktop sidebar */}
       <aside className="hidden w-56 shrink-0 border-r border-slate-200 bg-white md:block">
-        <div className="px-4 py-4 text-lg font-bold text-emerald-700">RestockIQ</div>
+        <div className="px-4 py-4 text-lg font-bold text-emerald-700">RestockAI</div>
         {sidebar}
       </aside>
 
@@ -51,7 +51,7 @@ export default function AppShell() {
         <div className="fixed inset-0 z-30 md:hidden" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-black/40" />
           <aside className="absolute left-0 top-0 h-full w-60 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="px-4 py-4 text-lg font-bold text-emerald-700">RestockIQ</div>
+            <div className="px-4 py-4 text-lg font-bold text-emerald-700">RestockAI</div>
             {sidebar}
           </aside>
         </div>

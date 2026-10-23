@@ -1,4 +1,4 @@
-﻿# Deploying RestockIQ on Replit
+# Deploying RestockAI on Replit
 
 Replit is compulsory for this hackathon (hosting + PostgreSQL + the Replit-managed Claude integration).
 One process serves everything: FastAPI answers `/api/*` and serves the built web app at `/`.

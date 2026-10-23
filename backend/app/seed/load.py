@@ -20,6 +20,7 @@ from app.db import Base, SessionLocal, engine, import_all_models, init_db
 from app.modules.calendar.models import CalendarEvent
 from app.modules.catalog.models import Ingredient, MenuItem, Recipe, Supplier
 from app.modules.inventory.models import InventoryItem, InventoryMovement
+from app.modules.inventory.service import backfill_batches
 from app.modules.planning.quality import recompute_safety
 from app.modules.sales.models import SalesDaily
 from app.modules.settings.models import Tenant, User
@@ -215,6 +216,8 @@ def load_demo_data(db: Session, data_dir: Path | None = None, compute_safety: bo
             for r in inventory
         ],
     )
+    db.flush()
+    backfill_batches(db)  # the opening stock becomes one batch per item
     db.commit()
 
     if compute_safety:

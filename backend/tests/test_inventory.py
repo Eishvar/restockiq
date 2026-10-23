@@ -198,3 +198,122 @@ def test_new_item_after_onboarding_is_an_adjustment(client, db, users, loaded):
 
 def test_inventory_requires_login(client, loaded):
     assert client.get("/api/inventory").status_code == 401
+
+
+# ---------- batches: the same item bought on different days is tracked separately ----------
+def make_item(client, users, **over):
+    body = {**NEW_ITEM, "name": "Raw Chicken", "shelf_life_days": 3, "qty_base": 2000, "last_purchased_on": "2026-10-19", **over}
+    return client.post("/api/inventory/items", json=body, headers=as_user(users["manager"])).json()
+
+
+def test_same_item_on_different_days_is_separate_batches_with_own_expiry(client, users, loaded):
+    h = as_user(users["manager"])
+    chicken = make_item(client, users)  # bought Monday 19 Oct, 3 days: expired on 22 Oct
+    assert len(chicken["batches"]) == 1
+    r = client.post(f"/api/inventory/{chicken['ingredient_id']}/batches",
+                    json={"qty_base": 3000, "procured_on": "2026-10-21", "pack_price_rm": 12.5}, headers=h)
+    assert r.status_code == 201
+    row = r.json()
+    mon, wed = row["batches"]
+    assert (mon["procured_on"], mon["expires_on"], mon["status"]) == ("2026-10-19", "2026-10-22", "expired")
+    assert (wed["procured_on"], wed["expires_on"], wed["status"]) == ("2026-10-21", "2026-10-24", "expiring_soon")
+    assert wed["pack_price_rm"] == 12.5 and mon["pack_price_rm"] == NEW_ITEM["pack_price_rm"]
+    assert wed["value_rm"] == round(3000 / NEW_ITEM["pack_size_base"] * 12.5, 2)
+    assert row["qty_base"] == 5000 and row["status"] == "expired" and row["expired_qty_base"] == 2000
+    assert row["expires_on"] == "2026-10-22"  # the batch that expires first
+
+
+def test_adding_stock_on_the_same_date_merges_into_one_batch(client, users, loaded):
+    h = as_user(users["manager"])
+    chicken = make_item(client, users, shelf_life_days=10)
+    r = client.post(f"/api/inventory/{chicken['ingredient_id']}/batches",
+                    json={"qty_base": 2000, "procured_on": "2026-10-19"}, headers=h).json()
+    assert len(r["batches"]) == 1 and r["batches"][0]["qty_base"] == 4000
+
+
+def test_batch_defaults_and_validation(client, users, loaded):
+    h = as_user(users["manager"])
+    chicken = make_item(client, users)
+    url = f"/api/inventory/{chicken['ingredient_id']}/batches"
+    b = client.post(url, json={"qty_base": 500}, headers=h).json()["batches"][-1]
+    assert b["procured_on"] == "2026-10-22" and b["shelf_life_days"] == 3 and b["pack_price_rm"] == NEW_ITEM["pack_price_rm"]
+    assert client.post(url, json={"qty_base": 500, "procured_on": "2026-12-01"}, headers=h).status_code == 422
+    assert client.post(url, json={"qty_base": 0}, headers=h).status_code == 422
+    assert client.post(url, json={"qty_base": 5}, headers=as_user(users["staff"])).status_code == 403
+
+
+def test_discard_only_the_expired_batch(client, db, users, loaded):
+    h = as_user(users["manager"])
+    chicken = make_item(client, users)
+    client.post(f"/api/inventory/{chicken['ingredient_id']}/batches", json={"qty_base": 3000, "procured_on": "2026-10-21"}, headers=h)
+    mon, wed = next(
+        i for i in client.get("/api/inventory", headers=h).json()["items"] if i["ingredient_id"] == chicken["ingredient_id"]
+    )["batches"]
+    assert client.post(f"/api/inventory/batches/{wed['id']}/discard", headers=h).status_code == 409  # not expired
+    r = client.post(f"/api/inventory/batches/{mon['id']}/discard", headers=as_user(users["staff"]))
+    assert r.status_code == 200 and r.json() == {"discarded": ["Raw Chicken"], "batches": 1}
+    row = next(i for i in client.get("/api/inventory", headers=h).json()["items"] if i["ingredient_id"] == chicken["ingredient_id"])
+    assert [b["id"] for b in row["batches"]] == [wed["id"]] and row["qty_base"] == 3000 and row["status"] == "expiring_soon"
+    last = moves(db, chicken["ingredient_id"])[-1]
+    assert (last.reason, last.change_base) == ("discard_expired", -2000)
+    log = db.scalars(select(ActivityLog).where(ActivityLog.action == "inventory_expired_discarded")).all()[-1]
+    assert log.details["procured_on"] == "2026-10-19" and log.details["expired_on"] == "2026-10-22"
+
+
+def test_discard_all_expired_removes_every_expired_batch(client, users, loaded):
+    h = as_user(users["manager"])
+    chicken = make_item(client, users)
+    client.post(f"/api/inventory/{chicken['ingredient_id']}/batches", json={"qty_base": 1, "procured_on": "2026-10-18"}, headers=h)
+    before = client.get("/api/inventory", headers=h).json()["items"]
+    n_expired = sum(b["status"] == "expired" for i in before for b in i["batches"])
+    r = client.post("/api/inventory/discard-expired", headers=h).json()
+    assert r["batches"] == n_expired and "Raw Chicken" in r["discarded"]
+    after = client.get("/api/inventory", headers=h).json()["items"]
+    assert not [b for i in after for b in i["batches"] if b["status"] == "expired"]
+
+
+def test_edit_and_remove_a_batch(client, db, users, loaded):
+    h = as_user(users["manager"])
+    chicken = make_item(client, users, shelf_life_days=30)
+    client.post(f"/api/inventory/{chicken['ingredient_id']}/batches", json={"qty_base": 3000, "procured_on": "2026-10-21"}, headers=h)
+    mon, wed = next(i for i in client.get("/api/inventory", headers=h).json()["items"] if i["ingredient_id"] == chicken["ingredient_id"])["batches"]
+    url = f"/api/inventory/batches/{wed['id']}"
+    r = client.patch(url, json={"shelf_life_days": 2, "pack_price_rm": 9}, headers=h)
+    assert r.status_code == 200
+    got = next(b for b in r.json()["batches"] if b["id"] == wed["id"])
+    assert (got["shelf_life_days"], got["pack_price_rm"], got["expires_on"], got["status"]) == (2, 9, "2026-10-23", "expiring_soon")
+    assert client.patch(url, json={"procured_on": "2026-10-19"}, headers=h).status_code == 409  # that day already has a batch
+    assert client.patch(url, json={"procured_on": "2026-12-01"}, headers=h).status_code == 422
+    assert client.patch(url, json={"shelf_life_days": 5}, headers=as_user(users["staff"])).status_code == 403
+    assert client.patch(url, json={"qty_base": 100}, headers=as_user(users["staff"])).status_code == 200
+    assert client.delete(url, headers=as_user(users["staff"])).status_code == 403
+    assert client.delete(url, headers=h).status_code == 204
+    row = next(i for i in client.get("/api/inventory", headers=h).json()["items"] if i["ingredient_id"] == chicken["ingredient_id"])
+    assert [b["id"] for b in row["batches"]] == [mon["id"]] and row["qty_base"] == 2000
+    assert client.patch(url, json={"qty_base": 1}, headers=h).status_code == 404
+    actions = [a.action for a in db.scalars(select(ActivityLog).order_by(ActivityLog.id))]
+    assert actions[-3:] == ["inventory_batch_edited", "inventory_batch_edited", "inventory_batch_removed"]
+
+
+def test_item_level_quantity_edit_with_several_batches_uses_oldest_stock_first(client, users, loaded):
+    h = as_user(users["manager"])
+    chicken = make_item(client, users, shelf_life_days=30)  # 2000 on 19 Oct
+    client.post(f"/api/inventory/{chicken['ingredient_id']}/batches", json={"qty_base": 3000, "procured_on": "2026-10-21"}, headers=h)
+    r = client.patch(f"/api/inventory/{chicken['ingredient_id']}", json={"qty_base": 2500}, headers=h).json()  # used 2500
+    assert [(b["procured_on"], b["qty_base"]) for b in r["batches"]] == [("2026-10-21", 2500)]
+    # a date change is ambiguous with several batches
+    client.post(f"/api/inventory/{chicken['ingredient_id']}/batches", json={"qty_base": 10, "procured_on": "2026-10-20"}, headers=h)
+    assert client.patch(f"/api/inventory/{chicken['ingredient_id']}", json={"last_purchased_on": "2026-10-18"}, headers=h).status_code == 409
+
+
+def test_stock_saved_before_batches_existed_is_upgraded(client, db, users, loaded):
+    from app.modules.inventory.models import InventoryBatch
+    from app.modules.inventory.service import backfill_batches
+
+    db.query(InventoryBatch).delete()
+    db.commit()
+    created = backfill_batches(db)
+    assert created > 0 and backfill_batches(db) == 0  # safe to run on every start
+    rows = client.get("/api/inventory", headers=as_user(users["staff"])).json()["items"]
+    assert all(len(i["batches"]) == (1 if i["qty_base"] > 0 else 0) for i in rows)
+    assert all(abs(sum(b["qty_base"] for b in i["batches"]) - i["qty_base"]) < 1e-6 for i in rows)
