@@ -6,11 +6,9 @@ import { fmtDayYear } from '../planning/format'
 import {
   useResetDemo,
   useSaveSettings,
-  useSaveSupplier,
   useSettings,
   type RiskProfile,
   type Settings,
-  type SupplierSettings,
 } from './api'
 
 const PROFILES: { value: RiskProfile; title: string; text: string }[] = [
@@ -132,41 +130,6 @@ function Baseline({ s }: { s: Settings }) {
   )
 }
 
-function SupplierRow({ s }: { s: SupplierSettings }) {
-  const save = useSaveSupplier()
-  const toast = useToast()
-  const [whatsapp, setWhatsapp] = useState(s.whatsapp)
-  const [minOrder, setMinOrder] = useState(String(s.min_order_rm))
-  const changed = whatsapp !== s.whatsapp || parseFloat(minOrder) !== s.min_order_rm
-
-  async function submit() {
-    try {
-      await save.mutateAsync({ id: s.id, whatsapp, min_order_rm: parseFloat(minOrder) })
-      toast(`${s.name} saved`, 'success')
-    } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not save', 'error')
-    }
-  }
-
-  return (
-    <div className="grid gap-2 py-3 sm:grid-cols-[1fr_1fr_8rem_auto] sm:items-end">
-      <div>
-        <div className="font-medium">{s.name}</div>
-        <div className="text-xs text-slate-500">{s.category} · delivers {s.delivery_days}</div>
-      </div>
-      <label className="block text-sm">
-        <span className="mb-1 block text-xs text-slate-500">WhatsApp number</span>
-        <input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+60123456789" className={`${inputCls} w-full`} aria-label={`WhatsApp number for ${s.name}`} />
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block text-xs text-slate-500">Minimum order (RM)</span>
-        <input type="number" min={0} step="1" value={minOrder} onChange={(e) => setMinOrder(e.target.value)} className={`${inputCls} w-full`} aria-label={`Minimum order for ${s.name}`} />
-      </label>
-      <Button onClick={submit} disabled={!changed || save.isPending}>Save</Button>
-    </div>
-  )
-}
-
 function Reset() {
   const reset = useResetDemo()
   const toast = useToast()
@@ -223,11 +186,6 @@ export default function SettingsPage() {
       </div>
       <Risk key={data.risk_profile} s={data} />
       <Baseline key={`${data.manual_planning_hours}-${data.today_override}`} s={data} />
-      <Card title="Suppliers">
-        <div className="divide-y divide-slate-100">
-          {data.suppliers.map((s) => <SupplierRow key={`${s.id}-${s.whatsapp}-${s.min_order_rm}`} s={s} />)}
-        </div>
-      </Card>
       <Reset />
     </div>
   )

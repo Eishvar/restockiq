@@ -89,7 +89,16 @@ export type Movement = {
   note: string
 }
 
-export type Supplier = { id: number; code: string; name: string }
+export type Supplier = {
+  id: number
+  code: string
+  name: string
+  category: string
+  delivery_days: string
+  lead_time_days: number
+  min_order_rm: number
+  whatsapp: string
+}
 
 export const useInventory = () => useQuery({ queryKey: ['inventory'], queryFn: () => api<InventoryList>('/inventory') })
 
