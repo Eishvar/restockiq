@@ -6,11 +6,9 @@ import { fmtDayYear } from '../planning/format'
 import {
   useResetDemo,
   useSaveSettings,
-  useSaveSupplier,
   useSettings,
   type RiskProfile,
   type Settings,
-  type SupplierSettings,
 } from './api'
 
 const PROFILES: { value: RiskProfile; title: string; text: string }[] = [
@@ -76,7 +74,7 @@ function Risk({ s }: { s: Settings }) {
         {s.buffers_updated_at && ` Buffers last measured ${new Date(s.buffers_updated_at).toLocaleString('en-MY')}.`}
       </p>
       <div className="mt-3 flex items-center gap-3">
-        <Button onClick={apply} disabled={!changed || save.isPending}>{save.isPending ? 'Measuring again… (about 10 seconds)' : 'Save'}</Button>
+        <Button onClick={apply} disabled={!changed || save.isPending}>{save.isPending ? 'Updating…' : 'Save'}</Button>
       </div>
     </Card>
   )
@@ -85,17 +83,7 @@ function Risk({ s }: { s: Settings }) {
 function Baseline({ s }: { s: Settings }) {
   const save = useSaveSettings()
   const toast = useToast()
-  const [hours, setHours] = useState(String(s.manual_planning_hours))
   const [date, setDate] = useState(s.today_override ?? '')
-
-  async function saveHours() {
-    try {
-      await save.mutateAsync({ manual_planning_hours: parseFloat(hours) })
-      toast('Saved', 'success')
-    } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not save', 'error')
-    }
-  }
 
   async function saveDate(value: string | null) {
     try {
@@ -108,16 +96,7 @@ function Baseline({ s }: { s: Settings }) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card title="Time planning takes by hand">
-        <p className="mb-2 text-sm text-slate-600">Used to work out the time you save. About two working days is 16 hours.</p>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="number" min={0.5} max={200} step="0.5" value={hours} onChange={(e) => setHours(e.target.value)} className={`${inputCls} w-24`} aria-label="Hours by hand" />
-          hours each time
-        </label>
-        <Button className="mt-3" onClick={saveHours} disabled={!(parseFloat(hours) > 0) || parseFloat(hours) === s.manual_planning_hours || save.isPending}>Save</Button>
-      </Card>
-
+    <div className="space-y-4">
       <Card title="Demo date">
         <p className="mb-2 text-sm text-slate-600">
           For demos: pretend it is another day. Today is <strong>{fmtDayYear(s.today)}</strong>{s.today_override ? ' (set by you)' : ''}.
@@ -128,41 +107,6 @@ function Baseline({ s }: { s: Settings }) {
           {s.today_override && <Button variant="secondary" onClick={() => saveDate(null)} disabled={save.isPending}>Use the real date</Button>}
         </div>
       </Card>
-    </div>
-  )
-}
-
-function SupplierRow({ s }: { s: SupplierSettings }) {
-  const save = useSaveSupplier()
-  const toast = useToast()
-  const [whatsapp, setWhatsapp] = useState(s.whatsapp)
-  const [minOrder, setMinOrder] = useState(String(s.min_order_rm))
-  const changed = whatsapp !== s.whatsapp || parseFloat(minOrder) !== s.min_order_rm
-
-  async function submit() {
-    try {
-      await save.mutateAsync({ id: s.id, whatsapp, min_order_rm: parseFloat(minOrder) })
-      toast(`${s.name} saved`, 'success')
-    } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not save', 'error')
-    }
-  }
-
-  return (
-    <div className="grid gap-2 py-3 sm:grid-cols-[1fr_1fr_8rem_auto] sm:items-end">
-      <div>
-        <div className="font-medium">{s.name}</div>
-        <div className="text-xs text-slate-500">{s.category} · delivers {s.delivery_days}</div>
-      </div>
-      <label className="block text-sm">
-        <span className="mb-1 block text-xs text-slate-500">WhatsApp number</span>
-        <input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+60123456789" className={`${inputCls} w-full`} aria-label={`WhatsApp number for ${s.name}`} />
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block text-xs text-slate-500">Minimum order (RM)</span>
-        <input type="number" min={0} step="1" value={minOrder} onChange={(e) => setMinOrder(e.target.value)} className={`${inputCls} w-full`} aria-label={`Minimum order for ${s.name}`} />
-      </label>
-      <Button onClick={submit} disabled={!changed || save.isPending}>Save</Button>
     </div>
   )
 }
@@ -185,7 +129,7 @@ function Reset() {
   return (
     <Card title="Reset demo data">
       <p className="mb-3 text-sm text-slate-600">
-        Wipes plans, orders, stock changes and calendar edits, then loads the starting example again. Takes about 10 seconds. Users are kept.
+        Wipes plans, orders, stock changes and calendar edits, then loads the starting example again. Users are kept.
       </p>
       <Button variant="danger" onClick={() => setOpen(true)}>Reset demo data</Button>
       <Modal open={open} title="Reset all demo data?" onClose={() => setOpen(false)}>
@@ -223,11 +167,6 @@ export default function SettingsPage() {
       </div>
       <Risk key={data.risk_profile} s={data} />
       <Baseline key={`${data.manual_planning_hours}-${data.today_override}`} s={data} />
-      <Card title="Suppliers">
-        <div className="divide-y divide-slate-100">
-          {data.suppliers.map((s) => <SupplierRow key={`${s.id}-${s.whatsapp}-${s.min_order_rm}`} s={s} />)}
-        </div>
-      </Card>
       <Reset />
     </div>
   )

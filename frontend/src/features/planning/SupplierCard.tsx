@@ -1,25 +1,32 @@
 import { Fragment, useState } from 'react'
 import { Badge, Button, Card, Modal, Tooltip, useToast } from '../../components/ui'
 import { inputCls } from '../inventory/QtyInput'
-import { useEditLine, useOrderAction, type Line, type Order, type OrderStatus, type SendResult } from './api'
+import {
+  useEditLine,
+  useOrderAction,
+  usePrepareOrderMessage,
+  type Line,
+  type Order,
+  type OrderStatus,
+  type SendResult,
+} from './api'
 import { effectiveSchedule, fmtDay, rm } from './format'
 import GatedButton, { useRole } from './GatedButton'
 import { bufferTooltip, whySentences } from './why'
 
-const STEPS: { status: OrderStatus; label: string }[] = [
-  { status: 'draft', label: 'Draft' },
-  { status: 'pending_approval', label: 'Waiting for approval' },
-  { status: 'approved', label: 'Approved' },
-  { status: 'sent', label: 'Sent' },
-  { status: 'received', label: 'Received' },
-]
-
 function Stepper({ status }: { status: OrderStatus }) {
   if (status === 'rejected') return <Badge tone="bad">Rejected</Badge>
-  const at = STEPS.findIndex((s) => s.status === status)
+  const active = status === 'received' ? 'received' : status === 'approved' || status === 'sent' ? 'approved' : 'draft'
+  const steps: { status: string; label: string }[] = [
+    { status: 'draft', label: 'Draft' },
+    { status: 'approved', label: 'Approved' },
+    { status: 'received', label: 'Received' },
+  ]
   return (
     <ol className="flex flex-wrap items-center gap-1 text-xs" aria-label="Order progress">
-      {STEPS.map((s, i) => (
+      {steps.map((s, i) => {
+        const at = steps.findIndex((step) => step.status === active)
+        return (
         <li key={s.status} className="flex items-center gap-1">
           <span
             aria-current={i === at ? 'step' : undefined}
@@ -27,9 +34,10 @@ function Stepper({ status }: { status: OrderStatus }) {
           >
             {s.label}
           </span>
-          {i < STEPS.length - 1 && <span className="text-slate-300">›</span>}
+          {i < steps.length - 1 && <span className="text-slate-300">›</span>}
         </li>
-      ))}
+        )
+      })}
     </ol>
   )
 }
@@ -118,14 +126,16 @@ function Why({ line }: { line: Line }) {
   )
 }
 
-export default function SupplierCard({ order }: { order: Order }) {
+export default function SupplierCard({ order, showSupplierTitle = true }: { order: Order; showSupplierTitle?: boolean }) {
   const { isOwner, isManager } = useRole()
   const act = useOrderAction()
+  const prepareMessage = usePrepareOrderMessage()
   const toast = useToast()
   const [open, setOpen] = useState<number | null>(null)
   const [rejecting, setRejecting] = useState(false)
   const [reason, setReason] = useState('')
   const [message, setMessage] = useState<SendResult | null>(null)
+  const [finishing, setFinishing] = useState(false)
 
   const draft = order.status === 'draft'
   const editable = draft && isManager
@@ -135,6 +145,39 @@ export default function SupplierCard({ order }: { order: Order }) {
       toast(done, 'success')
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Something went wrong', 'error')
+    }
+  }
+
+  async function finishAndApprove() {
+    setFinishing(true)
+    try {
+      setMessage(await prepareMessage.mutateAsync(order.id))
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not prepare the order message', 'error')
+    } finally {
+      setFinishing(false)
+    }
+  }
+
+  async function confirmPlaced() {
+    if (!message) return
+    setFinishing(true)
+    try {
+      let current = message.order.status
+      if (current === 'draft') {
+        const submitted = (await act.mutateAsync({ orderId: order.id, action: 'submit' })) as Order
+        current = submitted.status
+        setMessage((previous) => previous ? { ...previous, order: submitted } : previous)
+      }
+      if (current === 'pending_approval') {
+        await act.mutateAsync({ orderId: order.id, action: 'approve' })
+      }
+      setMessage(null)
+      toast('Order placed and moved to Approved.', 'success')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not update the order status', 'error')
+    } finally {
+      setFinishing(false)
     }
   }
 
@@ -173,14 +216,20 @@ export default function SupplierCard({ order }: { order: Order }) {
   const actions = (
     <div className="flex flex-wrap items-center gap-2">
       {draft && (
-        <GatedButton allowed={isManager} need="manager" verb="submit orders" onClick={() => run('submit', 'Submitted. The owner can now approve it.')} disabled={act.isPending}>
-          Submit for approval
-        </GatedButton>
+        isOwner ? (
+          <GatedButton allowed={isOwner} need="owner" verb="approve orders" onClick={finishAndApprove} disabled={act.isPending || finishing}>
+            Review & place order
+          </GatedButton>
+        ) : (
+          <GatedButton allowed={isManager} need="manager" verb="submit orders" onClick={() => run('submit', 'Finished. The owner can now approve it.')} disabled={act.isPending}>
+            Finish & submit
+          </GatedButton>
+        )
       )}
       {order.status === 'pending_approval' && (
         <>
-          <GatedButton allowed={isOwner} need="owner" verb="approve orders" onClick={() => run('approve', 'Approved')} disabled={act.isPending}>
-            Approve
+          <GatedButton allowed={isOwner} need="owner" verb="approve orders" onClick={finishAndApprove} disabled={act.isPending || finishing}>
+            Review & place order
           </GatedButton>
           <GatedButton allowed={isOwner} need="owner" verb="reject orders" variant="danger" onClick={() => setRejecting(true)} disabled={act.isPending}>
             Reject
@@ -188,9 +237,14 @@ export default function SupplierCard({ order }: { order: Order }) {
         </>
       )}
       {order.status === 'approved' && (
-        <GatedButton allowed={isOwner} need="owner" verb="send orders to suppliers" onClick={send} disabled={act.isPending}>
-          Send via WhatsApp
-        </GatedButton>
+        <>
+          <GatedButton allowed={isOwner} need="owner" verb="send orders to suppliers" onClick={send} disabled={act.isPending}>
+            Send via WhatsApp
+          </GatedButton>
+          <GatedButton allowed={isManager} need="manager" verb="mark deliveries as received" onClick={() => run('receive', 'Stock updated with this delivery')} disabled={act.isPending}>
+            Mark received
+          </GatedButton>
+        </>
       )}
       {order.status === 'sent' && (
         <>
@@ -210,9 +264,14 @@ export default function SupplierCard({ order }: { order: Order }) {
     <Card>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-base font-semibold">{order.supplier_name}</h3>
+          {showSupplierTitle ? (
+            <h3 className="text-base font-semibold">{order.supplier_name}</h3>
+          ) : (
+            <h3 className="text-sm font-semibold">Order #{order.id} · plan #{order.run_id} ({order.plan_today})</h3>
+          )}
           <p className="text-xs text-slate-500">
             {lines.length} item{lines.length === 1 ? '' : 's'}
+            {order.created_at ? ` · created ${fmtDay(order.created_at.slice(0, 10))}` : ''}
             {order.approved_by_name ? ` · approved by ${order.approved_by_name}` : ''}
           </p>
         </div>
@@ -304,18 +363,29 @@ export default function SupplierCard({ order }: { order: Order }) {
         </div>
       </Modal>
 
-      <Modal open={message !== null} title="WhatsApp message" onClose={() => setMessage(null)}>
+      <Modal open={message !== null} title={`Place order · ${order.supplier_name}`} onClose={() => setMessage(null)}>
         <p className="mb-2 text-sm text-slate-600">
-          {message?.whatsapp_url ? 'WhatsApp should have opened in a new tab. If not, use the button below or copy the text.' : 'This supplier has no WhatsApp number. Copy the text and send it yourself.'}
+          Review the list and contact the supplier. This stays in Draft until you confirm the order has been placed.
         </p>
         <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-sm">{message?.whatsapp_text}</pre>
-        <div className="mt-3 flex flex-wrap justify-end gap-2">
+        <div className="mt-3 flex flex-wrap justify-between gap-2">
+          <Button variant="secondary" onClick={() => setMessage(null)}>Cancel</Button>
+          <div className="flex flex-wrap justify-end gap-2">
           <Button variant="secondary" onClick={copy}>Copy message</Button>
+          {message?.order.supplier_whatsapp && (
+            <a href={`tel:${message.order.supplier_whatsapp.replace(/[^\d+]/g, '')}`} className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+              Call supplier
+            </a>
+          )}
           {message?.whatsapp_url && (
             <a href={message.whatsapp_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
               Open WhatsApp
             </a>
           )}
+          <Button onClick={confirmPlaced} disabled={finishing || act.isPending}>
+            {finishing ? 'Updating order…' : 'I have placed the order'}
+          </Button>
+          </div>
         </div>
       </Modal>
     </Card>

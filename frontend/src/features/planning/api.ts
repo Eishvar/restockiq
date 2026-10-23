@@ -164,3 +164,9 @@ export const useOrderAction = () =>
       body: action === 'reject' ? JSON.stringify({ reason }) : undefined,
     }),
   )
+
+/** Previews the supplier message without moving the order out of Draft. */
+export const usePrepareOrderMessage = () =>
+  useMutation({
+    mutationFn: (orderId: number) => api<SendResult>(`/planning/orders/${orderId}/message`),
+  })
