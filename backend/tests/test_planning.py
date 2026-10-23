@@ -270,6 +270,21 @@ def test_sending_twice_returns_the_same_message_without_a_second_log(client, db,
     assert len(db.scalars(select(ActivityLog).where(ActivityLog.action == "po_sent")).all()) == 1
 
 
+def test_message_preview_keeps_the_order_in_draft_until_confirmed(client, db, users, loaded):
+    order = make_plan(client, users, 3)["orders"][0]
+    preview = client.get(f"/api/planning/orders/{order['id']}/message", headers=as_user(users["owner"]))
+
+    assert preview.status_code == 200
+    result = preview.json()
+    assert result["order"]["status"] == "draft"
+    assert result["order"]["id"] == order["id"]
+    assert order["supplier_name"] in result["whatsapp_text"]
+    assert f"Total: RM {order['total_rm']:,.2f}" in result["whatsapp_text"]
+    assert client.get(f"/api/planning/orders/{order['id']}", headers=as_user(users["manager"])).json()["status"] == "draft"
+    assert not db.scalars(select(ActivityLog).where(ActivityLog.action == "po_sent")).all()
+    assert client.get(f"/api/planning/orders/{order['id']}/message", headers=as_user(users["manager"])).status_code == 403
+
+
 def test_orders_list_filter_and_detail(client, users, loaded):
     plan = make_plan(client, users, 3)
     ids = [o["id"] for o in plan["orders"]]

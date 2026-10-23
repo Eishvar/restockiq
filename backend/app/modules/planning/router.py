@@ -38,6 +38,12 @@ def get_order(order_id: int, user: User = Depends(current_user), db: Session = D
     return service.get_order(db, user, order_id)
 
 
+@router.get("/orders/{order_id}/message", response_model=SendOut)
+def prepare_order_message(order_id: int, user: User = Depends(require_role("owner")), db: Session = Depends(get_db)):
+    """Preview the supplier message without advancing the order's status."""
+    return service.prepare_order_message(db, user, order_id)
+
+
 @router.patch("/orders/{order_id}/lines/{line_id}", response_model=OrderOut)
 def edit_line(order_id: int, line_id: int, body: LinePatch, user: User = Depends(require_role("manager")),
               db: Session = Depends(get_db)):

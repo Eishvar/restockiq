@@ -326,11 +326,7 @@ def reject(db: Session, user: User, order_id: int, reason: str) -> OrderOut:
     return get_order(db, user, order_id)
 
 
-def send(db: Session, user: User, order_id: int) -> SendOut:
-    """Approved -> sent. Returns the WhatsApp text and a wa.me link. Asking again for a sent order just
-    returns the same message (no new log entry), so the owner can reopen the chat."""
-    po = _order(db, user, order_id)
-    _require_status(po, "approved", "sent")
+def _message_for_order(db: Session, user: User, po: PurchaseOrder) -> tuple[str, str | None]:
     sup = db.get(Supplier, po.supplier_id)
     tenant = db.get(Tenant, user.tenant_id)
     items = []
@@ -341,6 +337,24 @@ def send(db: Session, user: User, order_id: int) -> SendOut:
                           "schedule": effective_schedule(l.buy_schedule or [], l.suggested_packs, l.final_packs)})
     text = build_order_message(sup.name, tenant.name, items, po.total_rm)
     url = whatsapp_url(whatsapp_number(sup.whatsapp), text)
+    return text, url
+
+
+def prepare_order_message(db: Session, user: User, order_id: int) -> SendOut:
+    """Create the supplier message without changing order status."""
+    po = _order(db, user, order_id)
+    _require_status(po, "draft", "pending_approval", "approved", "sent")
+    text, url = _message_for_order(db, user, po)
+    return SendOut(order=get_order(db, user, order_id), whatsapp_text=text, whatsapp_url=url)
+
+
+def send(db: Session, user: User, order_id: int) -> SendOut:
+    """Approved -> sent. Returns the WhatsApp text and a wa.me link. Asking again for a sent order just
+    returns the same message (no new log entry), so the owner can reopen the chat."""
+    po = _order(db, user, order_id)
+    _require_status(po, "approved", "sent")
+    sup = db.get(Supplier, po.supplier_id)
+    text, url = _message_for_order(db, user, po)
     if po.status == "approved":
         po.status, po.sent_at = "sent", now_kl()
         log_action(db, user, "po_sent", "purchase_order", po.id,

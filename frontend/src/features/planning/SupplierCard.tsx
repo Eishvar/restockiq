@@ -1,7 +1,15 @@
 import { Fragment, useState } from 'react'
 import { Badge, Button, Card, Modal, Tooltip, useToast } from '../../components/ui'
 import { inputCls } from '../inventory/QtyInput'
-import { useEditLine, useOrderAction, type Line, type Order, type OrderStatus, type SendResult } from './api'
+import {
+  useEditLine,
+  useOrderAction,
+  usePrepareOrderMessage,
+  type Line,
+  type Order,
+  type OrderStatus,
+  type SendResult,
+} from './api'
 import { effectiveSchedule, fmtDay, rm } from './format'
 import GatedButton, { useRole } from './GatedButton'
 import { bufferTooltip, whySentences } from './why'
@@ -121,6 +129,7 @@ function Why({ line }: { line: Line }) {
 export default function SupplierCard({ order, showSupplierTitle = true }: { order: Order; showSupplierTitle?: boolean }) {
   const { isOwner, isManager } = useRole()
   const act = useOrderAction()
+  const prepareMessage = usePrepareOrderMessage()
   const toast = useToast()
   const [open, setOpen] = useState<number | null>(null)
   const [rejecting, setRejecting] = useState(false)
@@ -142,26 +151,31 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
   async function finishAndApprove() {
     setFinishing(true)
     try {
-      if (order.status === 'draft') {
-        await act.mutateAsync({ orderId: order.id, action: 'submit' })
-      }
-      const approved = (await act.mutateAsync({ orderId: order.id, action: 'approve' })) as Order
-      try {
-        const result = (await act.mutateAsync({ orderId: order.id, action: 'send' })) as SendResult
-        setMessage(result)
-      } catch {
-        const text = [
-          `Order for ${approved.supplier_name}`,
-          ...approved.lines.filter((line) => line.final_packs > 0).map((line) => `- ${line.name}: ${line.display_buy}`),
-          `Total: ${rm(approved.total_rm)}`,
-        ].join('\n')
-        setMessage({ order: approved, whatsapp_text: text, whatsapp_url: null })
-        toast('Order approved. Review the details; the WhatsApp message could not be prepared.', 'error')
-        return
-      }
-      toast('Order approved. Review the details and contact the supplier.', 'success')
+      setMessage(await prepareMessage.mutateAsync(order.id))
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not approve the order', 'error')
+      toast(err instanceof Error ? err.message : 'Could not prepare the order message', 'error')
+    } finally {
+      setFinishing(false)
+    }
+  }
+
+  async function confirmPlaced() {
+    if (!message) return
+    setFinishing(true)
+    try {
+      let current = message.order.status
+      if (current === 'draft') {
+        const submitted = (await act.mutateAsync({ orderId: order.id, action: 'submit' })) as Order
+        current = submitted.status
+        setMessage((previous) => previous ? { ...previous, order: submitted } : previous)
+      }
+      if (current === 'pending_approval') {
+        await act.mutateAsync({ orderId: order.id, action: 'approve' })
+      }
+      setMessage(null)
+      toast('Order placed and moved to Approved.', 'success')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not update the order status', 'error')
     } finally {
       setFinishing(false)
     }
@@ -204,7 +218,7 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
       {draft && (
         isOwner ? (
           <GatedButton allowed={isOwner} need="owner" verb="approve orders" onClick={finishAndApprove} disabled={act.isPending || finishing}>
-            {finishing ? 'Approving…' : 'Finish & approve'}
+            Review & place order
           </GatedButton>
         ) : (
           <GatedButton allowed={isManager} need="manager" verb="submit orders" onClick={() => run('submit', 'Finished. The owner can now approve it.')} disabled={act.isPending}>
@@ -215,7 +229,7 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
       {order.status === 'pending_approval' && (
         <>
           <GatedButton allowed={isOwner} need="owner" verb="approve orders" onClick={finishAndApprove} disabled={act.isPending || finishing}>
-            {finishing ? 'Approving…' : 'Approve & review'}
+            Review & place order
           </GatedButton>
           <GatedButton allowed={isOwner} need="owner" verb="reject orders" variant="danger" onClick={() => setRejecting(true)} disabled={act.isPending}>
             Reject
@@ -349,18 +363,29 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
         </div>
       </Modal>
 
-      <Modal open={message !== null} title={`Order details · ${order.supplier_name}`} onClose={() => setMessage(null)}>
+      <Modal open={message !== null} title={`Place order · ${order.supplier_name}`} onClose={() => setMessage(null)}>
         <p className="mb-2 text-sm text-slate-600">
-          The approved order is ready. Send this list through WhatsApp, call the supplier, or copy the message.
+          Review the list and contact the supplier. This stays in Draft until you confirm the order has been placed.
         </p>
         <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-sm">{message?.whatsapp_text}</pre>
-        <div className="mt-3 flex flex-wrap justify-end gap-2">
+        <div className="mt-3 flex flex-wrap justify-between gap-2">
+          <Button variant="secondary" onClick={() => setMessage(null)}>Cancel</Button>
+          <div className="flex flex-wrap justify-end gap-2">
           <Button variant="secondary" onClick={copy}>Copy message</Button>
+          {message?.order.supplier_whatsapp && (
+            <a href={`tel:${message.order.supplier_whatsapp.replace(/[^\d+]/g, '')}`} className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+              Call supplier
+            </a>
+          )}
           {message?.whatsapp_url && (
             <a href={message.whatsapp_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
               Open WhatsApp
             </a>
           )}
+          <Button onClick={confirmPlaced} disabled={finishing || act.isPending}>
+            {finishing ? 'Updating order…' : 'I have placed the order'}
+          </Button>
+          </div>
         </div>
       </Modal>
     </Card>
