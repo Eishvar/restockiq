@@ -8,8 +8,10 @@ channel = "stable-25_05"
 
 [deployment]
 deploymentTarget = "autoscale"
-build = ["sh", "-c", "cd frontend && npm ci && npm run build && cd ../backend && pip install -r requirements.txt"]
-run = ["sh", "-c", "cd backend && python -m app.seed.load --if-empty && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Replit's Python is read-only and sets PIP_USER, which makes a plain `pip install` fail with "Can not perform a
+# '--user' install". So the deployment installs into its own virtualenv (backend/.venv, not in git) and runs from it.
+build = ["sh", "-c", "cd frontend && npm ci && npm run build && cd ../backend && python -m venv .venv && PIP_USER=no .venv/bin/pip install -r requirements.txt"]
+run = ["sh", "-c", "cd backend && .venv/bin/python -m app.seed.load --if-empty && .venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
 
 [[ports]]
 localPort = 8000
