@@ -5,6 +5,9 @@ from app.core.auth import current_user, require_role
 from app.db import get_db
 from app.modules.inventory import service
 from app.modules.inventory.schemas import (
+    BatchCreate,
+    BatchPatch,
+    DiscardResult,
     InventoryList,
     InventoryRow,
     ItemCreate,
@@ -34,10 +37,27 @@ def confirm_onboarding(user: User = Depends(require_role("owner")), db: Session 
     return OnboardingResult(onboarded=True, onboarded_at=tenant.onboarded_at)
 
 
-@router.post("/discard-expired")
+@router.post("/discard-expired", response_model=DiscardResult)
 def discard_all_expired(user: User = Depends(current_user), db: Session = Depends(get_db)):
-    """Throw away every expired item at once (the 'Expired: discard?' banner)."""
-    return {"discarded": service.discard_expired(db, user)}
+    """Throw away every expired batch at once (the 'Remove all expired' button)."""
+    return service.discard_expired(db, user)
+
+
+@router.patch("/batches/{batch_id}", response_model=InventoryRow)
+def edit_batch(batch_id: int, body: BatchPatch, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """Staff may change the quantity only; managers and owners can also change date, shelf life and price."""
+    return service.edit_batch(db, user, batch_id, body)
+
+
+@router.delete("/batches/{batch_id}", status_code=204)
+def remove_batch(batch_id: int, user: User = Depends(require_role("manager")), db: Session = Depends(get_db)):
+    service.remove_batch(db, user, batch_id)
+
+
+@router.post("/batches/{batch_id}/discard", response_model=DiscardResult)
+def discard_batch(batch_id: int, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """Throw away one expired batch."""
+    return service.discard_batch(db, user, batch_id)
 
 
 @router.patch("/{ingredient_id}", response_model=InventoryRow)
@@ -51,9 +71,15 @@ def remove_item(ingredient_id: int, user: User = Depends(require_role("manager")
     service.remove_item(db, user, ingredient_id)
 
 
-@router.post("/{ingredient_id}/discard-expired")
+@router.post("/{ingredient_id}/batches", response_model=InventoryRow, status_code=201)
+def add_batch(ingredient_id: int, body: BatchCreate, user: User = Depends(require_role("manager")), db: Session = Depends(get_db)):
+    """Record stock bought on one day as its own batch."""
+    return service.add_batch(db, user, ingredient_id, body)
+
+
+@router.post("/{ingredient_id}/discard-expired", response_model=DiscardResult)
 def discard_one_expired(ingredient_id: int, user: User = Depends(current_user), db: Session = Depends(get_db)):
-    return {"discarded": service.discard_expired(db, user, ingredient_id)}
+    return service.discard_expired(db, user, ingredient_id)
 
 
 @router.get("/{ingredient_id}/movements", response_model=list[MovementOut])

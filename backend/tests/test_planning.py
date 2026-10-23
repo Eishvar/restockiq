@@ -1,11 +1,12 @@
 """The planning workflow: generate -> edit -> submit -> approve -> send -> receive, with roles and logging."""
+from datetime import date
 from urllib.parse import unquote
 
 import pytest
 from sqlalchemy import select
 
 from app.modules.activity.models import ActivityLog
-from app.modules.inventory.models import InventoryItem, InventoryMovement
+from app.modules.inventory.models import InventoryBatch, InventoryItem, InventoryMovement
 from app.modules.planning.models import ForecastLine, PlanRun, PurchaseOrder
 from app.modules.planning.whatsapp import build_order_message, effective_schedule, whatsapp_number, whatsapp_url
 from tests.conftest import as_user
@@ -185,26 +186,31 @@ def test_full_journey_with_roles_inventory_and_activity_log(client, db, users, l
     assert [a["action"] for a in api][0] == "po_received"
 
 
-def test_receiving_does_not_make_expired_stock_look_fresh(client, db, users, loaded):
+def test_receiving_adds_a_new_batch_and_keeps_expired_stock_separate(client, db, users, loaded):
     plan = make_plan(client, users, 5)
     expired_ids = {d["ingredient_id"] for d in plan["discard"]}
     order, line = next(
         (o, l) for o in plan["orders"] for l in o["lines"] if l["ingredient_id"] in expired_ids
     )  # a delivery of something whose old stock has already expired
-    inv = db.scalars(select(InventoryItem).where(InventoryItem.ingredient_id == line["ingredient_id"])).one()
-    old_qty = inv.qty_base
-    assert old_qty > 0
+    ing_id = line["ingredient_id"]
+    old = db.scalars(select(InventoryBatch).where(InventoryBatch.ingredient_id == ing_id)).one()
+    old_date, old_qty = old.procured_on, old.qty_base
     act(client, users["manager"], order["id"], "submit")
     act(client, users["owner"], order["id"], "approve")
     act(client, users["owner"], order["id"], "send")
     assert act(client, users["manager"], order["id"], "receive").status_code == 200
+    batches = db.scalars(select(InventoryBatch).where(InventoryBatch.ingredient_id == ing_id)
+                         .order_by(InventoryBatch.procured_on)).all()
+    assert [b.procured_on for b in batches] == [old_date, date(2026, 10, 22)]  # the old batch keeps its own date
+    assert batches[0].qty_base == old_qty
+    assert batches[1].qty_base == pytest.approx(line["final_packs"] * line["pack_size_base"])
+    assert batches[1].pack_price_rm == line["pack_price_rm"]
+    row = next(i for i in client.get("/api/inventory", headers=as_user(users["manager"])).json()["items"]
+               if i["ingredient_id"] == ing_id)
+    assert [b["status"] for b in row["batches"]] == ["expired", "ok"] and row["status"] == "expired"
+    inv = db.scalars(select(InventoryItem).where(InventoryItem.ingredient_id == ing_id)).one()
     db.refresh(inv)
-    assert inv.qty_base == pytest.approx(line["final_packs"] * line["pack_size_base"])  # old expired stock is gone
-    reasons = [m.reason for m in db.scalars(select(InventoryMovement).where(
-        InventoryMovement.ingredient_id == line["ingredient_id"]).order_by(InventoryMovement.id))]
-    assert reasons[-2:] == ["discard_expired", "received"]
-    log = db.scalars(select(ActivityLog).where(ActivityLog.action == "po_received")).one()
-    assert any(x["qty_base"] == old_qty for x in log.details["discarded_expired"])
+    assert inv.qty_base == pytest.approx(old_qty + line["final_packs"] * line["pack_size_base"])
 
 
 def test_reject_needs_a_reason_and_is_final(client, db, users, loaded):

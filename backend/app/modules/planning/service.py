@@ -20,8 +20,7 @@ from app.engine.forecast import WEEKDAYS, forecast_detail
 from app.engine.purchasing import plan_purchases
 from app.engine.requirements import requirements
 from app.modules.catalog.models import Ingredient, MenuItem, Supplier
-from app.modules.inventory.models import InventoryItem, InventoryMovement
-from app.modules.inventory.service import compute_status
+from app.modules.inventory.service import add_stock
 from app.modules.planning.data import load_frames, load_safety
 from app.modules.planning.models import ForecastLine, ForecastQuality, PlanRun, POLine, PurchaseOrder
 from app.modules.planning.schemas import (
@@ -351,40 +350,21 @@ def send(db: Session, user: User, order_id: int) -> SendOut:
 
 
 def receive(db: Session, user: User, order_id: int) -> OrderOut:
-    """Sent -> received: add the packs to stock and set the last-bought date to today."""
+    """Sent -> received: add the packs to stock as a new batch dated today."""
     po = _order(db, user, order_id)
     _require_status(po, "sent")
     today = get_today(db, user.tenant_id)
-    added, discarded = [], []
+    added = []
     for l in _lines(db, po):
         if l.final_packs <= 0:
             continue
         ing = db.get(Ingredient, l.ingredient_id)
         qty = l.final_packs * ing.pack_size_base
-        inv = db.scalars(
-            select(InventoryItem).where(InventoryItem.tenant_id == user.tenant_id, InventoryItem.ingredient_id == ing.id)
-        ).first()
-        if inv is None:
-            inv = InventoryItem(tenant_id=user.tenant_id, ingredient_id=ing.id, qty_base=0)
-            db.add(inv)
-        # The shelf has one purchase date, so old expired stock must go before fresh stock arrives;
-        # otherwise the new date would make the expired stock look fresh again.
-        if inv.qty_base > 0 and compute_status(inv.last_purchased_on, ing.shelf_life_days, inv.qty_base, today)[2] == "expired":
-            db.add(InventoryMovement(
-                tenant_id=user.tenant_id, ingredient_id=ing.id, date=today, change_base=-inv.qty_base,
-                reason="discard_expired", user_id=user.id, note=f"Expired stock thrown away on delivery (order #{po.id})",
-            ))
-            discarded.append({"item": ing.name, "qty_base": inv.qty_base})
-            inv.qty_base = 0
-        inv.qty_base += qty
-        inv.last_purchased_on, inv.updated_at, inv.updated_by = today, now_kl(), user.id
-        db.add(InventoryMovement(
-            tenant_id=user.tenant_id, ingredient_id=ing.id, date=today, change_base=qty, reason="received",
-            user_id=user.id, note=f"Order #{po.id}",
-        ))
+        # Each delivery is its own batch dated today, so older stock keeps its own (earlier) expiry date.
+        add_stock(db, user, ing, qty, today, "received", f"Order #{po.id}", pack_price_rm=l.pack_price_rm)
         added.append({"item": ing.name, "packs": l.final_packs, "qty_base": qty})
     po.status, po.received_at = "received", now_kl()
     log_action(db, user, "po_received", "purchase_order", po.id,
-               {"lines": added, "discarded_expired": discarded, "total_rm": po.total_rm})
+               {"lines": added, "total_rm": po.total_rm})
     db.commit()
     return get_order(db, user, order_id)

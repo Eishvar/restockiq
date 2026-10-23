@@ -184,7 +184,7 @@ def test_staff_cannot_apply_but_a_manager_can_and_edits_win(client, db, users, l
     # movements and the log tell the story
     move = db.scalars(select(InventoryMovement).where(InventoryMovement.ingredient_id == rice["id"],
                                                       InventoryMovement.reason == "adjust")).one()
-    assert move.note == "From a stock note" and move.user_id == users["manager"].id
+    assert move.note.startswith("From a stock note") and move.user_id == users["manager"].id
     actions = [a.action for a in db.scalars(select(ActivityLog).order_by(ActivityLog.id))]
     assert actions[0] == "ai_stock_note_read" and "inventory_edited" in actions and actions[-1] == "ai_suggestion_applied"
     done = db.scalars(select(ActivityLog).where(ActivityLog.action == "ai_suggestion_applied")).one()

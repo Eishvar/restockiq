@@ -20,7 +20,7 @@ export type TripDetail = {
 
 export type Explanation = {
   daily_need: { date: string; need_base: number }[]
-  stock: { qty_base: number; expires_on: string | null; expired: boolean; purchase_date_unknown: boolean }
+  stock: { qty_base: number; expires_on: string | null; expired: boolean; expired_base: number; purchase_date_unknown: boolean }
   trips: TripDetail[]
   service_level: number | null
   n_samples: number

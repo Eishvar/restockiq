@@ -2,15 +2,19 @@ import { useState } from 'react'
 import { Button, Card, EmptyState, SegmentedControl, Table, Tooltip, useToast } from '../../components/ui'
 import { useMe } from '../auth/api'
 import {
+  useDiscardBatch,
   useDiscardExpired,
   useInventory,
-  usePatchItem,
+  usePatchBatch,
+  useRemoveBatch,
   useRemoveItem,
+  type Batch,
+  type BatchPatch,
   type InventoryRow,
-  type ItemPatch,
   type Status,
 } from './api'
 import QuickNoteModal from '../assistant/QuickNoteModal'
+import AddBatchModal from './AddBatchModal'
 import AddItemModal from './AddItemModal'
 import HistoryModal from './HistoryModal'
 import OnboardingWizard from './OnboardingWizard'
@@ -19,21 +23,24 @@ import { StatusBadge, STORAGE_LABEL, fmtDate } from './shared'
 
 type Filter = 'all' | Status
 
-function ItemRow({
-  row, today, canEditAll, onHistory,
-}: { row: InventoryRow; today: string; canEditAll: boolean; onHistory: () => void }) {
+const rm = (n: number) => `RM ${n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+/** One batch: a purchase of this item on one day, with its own shelf life, price and expiry date. */
+function BatchRowView({ item, batch, today, canEditAll }: { item: InventoryRow; batch: Batch; today: string; canEditAll: boolean }) {
   const [editing, setEditing] = useState(false)
-  const [draft, setDraft] = useState<ItemPatch>({})
-  const patch = usePatchItem()
-  const remove = useRemoveItem()
-  const discard = useDiscardExpired()
+  const [draft, setDraft] = useState<BatchPatch>({})
+  const patch = usePatchBatch()
+  const remove = useRemoveBatch()
+  const discard = useDiscardBatch()
   const toast = useToast()
   const fail = (err: unknown) => toast(err instanceof Error ? err.message : 'Something went wrong', 'error')
+  const expired = batch.status === 'expired'
+  const label = `${item.name} bought ${fmtDate(batch.procured_on)}`
 
   async function save() {
     try {
-      if (Object.keys(draft).length) await patch.mutateAsync({ id: row.ingredient_id, patch: draft })
-      toast(`${row.name} updated`, 'success')
+      if (Object.keys(draft).length) await patch.mutateAsync({ id: batch.id, patch: draft })
+      toast(`${label} updated`, 'success')
       setEditing(false)
       setDraft({})
     } catch (err) {
@@ -41,75 +48,83 @@ function ItemRow({
     }
   }
 
-  async function onRemove() {
-    if (!window.confirm(`Remove ${row.name} from your stock? Its history is kept.`)) return
-    try {
-      await remove.mutateAsync(row.ingredient_id)
-      toast(`${row.name} removed`, 'success')
-    } catch (err) {
-      fail(err)
-    }
-  }
-
   async function onDiscard() {
+    if (!window.confirm(`Remove the expired ${item.name} (${batch.display_qty}) bought ${fmtDate(batch.procured_on)} from your stock?`)) return
     try {
-      await discard.mutateAsync(row.ingredient_id)
-      toast(`${row.name} thrown away`, 'success')
+      await discard.mutateAsync(batch.id)
+      toast(`Expired ${item.name} removed`, 'success')
     } catch (err) {
       fail(err)
     }
   }
 
-  const manager = (label: string, button: React.ReactNode) =>
-    canEditAll ? button : <Tooltip text={`Only managers and owners can ${label}`}>{button}</Tooltip>
+  async function onRemove() {
+    if (!window.confirm(`Delete this batch of ${item.name} (bought ${fmtDate(batch.procured_on)})? Its history is kept.`)) return
+    try {
+      await remove.mutateAsync(batch.id)
+      toast('Batch deleted', 'success')
+    } catch (err) {
+      fail(err)
+    }
+  }
 
+  const editAll = editing && canEditAll
   return (
-    <tr className={row.status === 'expired' ? 'bg-red-50' : ''}>
-      <td>
-        <div className="font-medium">{row.name}</div>
-        <div className="text-xs text-slate-500">
-          {STORAGE_LABEL[row.storage]}
-          {row.supplier_name ? ` · ${row.supplier_name}` : ''}
-        </div>
-      </td>
-      <td className="whitespace-nowrap">
-        {editing ? (
-          <QtyInput baseQty={draft.qty_base ?? row.qty_base} item={row} onChange={(q) => setDraft((d) => ({ ...d, qty_base: q }))} />
-        ) : (
-          row.display_qty
-        )}
-      </td>
-      <td className="whitespace-nowrap">
-        {editing && canEditAll ? (
+    <tr className={expired ? 'bg-red-50' : ''}>
+      <td className="pl-8 whitespace-nowrap">
+        {editAll ? (
           <input
             type="date"
-            aria-label="Last bought"
+            aria-label="Bought on"
             max={today}
-            value={draft.last_purchased_on !== undefined ? (draft.last_purchased_on ?? '') : (row.last_purchased_on ?? '')}
-            onChange={(e) => setDraft((d) => ({ ...d, last_purchased_on: e.target.value || null }))}
+            value={draft.procured_on ?? batch.procured_on}
+            onChange={(e) => e.target.value && setDraft((d) => ({ ...d, procured_on: e.target.value }))}
             className={inputCls}
           />
         ) : (
-          fmtDate(row.last_purchased_on)
+          <span className="text-slate-700">Bought {fmtDate(batch.procured_on)}</span>
         )}
       </td>
       <td className="whitespace-nowrap">
-        {editing && canEditAll ? (
+        {editing ? (
+          <QtyInput baseQty={draft.qty_base ?? batch.qty_base} item={item} onChange={(q) => setDraft((d) => ({ ...d, qty_base: q }))} />
+        ) : (
+          batch.display_qty
+        )}
+      </td>
+      <td className="whitespace-nowrap">
+        {editAll ? (
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            aria-label="Price per pack"
+            value={draft.pack_price_rm ?? batch.pack_price_rm}
+            onChange={(e) => e.target.value !== '' && setDraft((d) => ({ ...d, pack_price_rm: parseFloat(e.target.value) }))}
+            className={`${inputCls} w-24`}
+          />
+        ) : (
+          `${rm(batch.pack_price_rm)} / pack`
+        )}
+      </td>
+      <td className="whitespace-nowrap">{rm(batch.value_rm)}</td>
+      <td className="whitespace-nowrap">
+        {editAll ? (
           <input
             type="number"
             min={1}
             aria-label="Shelf life in days"
-            value={draft.shelf_life_days ?? row.shelf_life_days}
+            value={draft.shelf_life_days ?? batch.shelf_life_days}
             onChange={(e) => e.target.value && setDraft((d) => ({ ...d, shelf_life_days: parseInt(e.target.value) }))}
             className={`${inputCls} w-20`}
           />
         ) : (
-          `${row.shelf_life_days} days`
+          `${batch.shelf_life_days} days`
         )}
       </td>
-      <td className="whitespace-nowrap">{fmtDate(row.expires_on)}</td>
+      <td className="whitespace-nowrap">{fmtDate(batch.expires_on)}</td>
       <td>
-        <StatusBadge row={row} />
+        <StatusBadge row={batch} />
       </td>
       <td className="whitespace-nowrap text-right">
         <div className="flex justify-end gap-1">
@@ -124,23 +139,83 @@ function ItemRow({
             </>
           ) : (
             <>
-              {row.status === 'expired' && (
+              {expired && (
                 <Button variant="danger" onClick={onDiscard} disabled={discard.isPending}>
-                  Discard
+                  Remove expired
                 </Button>
               )}
               <Button variant="ghost" onClick={() => setEditing(true)}>
                 Edit
               </Button>
-              <Button variant="ghost" onClick={onHistory}>
-                History
-              </Button>
-              {manager('remove items', <Button variant="ghost" onClick={onRemove} disabled={!canEditAll}>Remove</Button>)}
+              {canEditAll && !expired && (
+                <Button variant="ghost" onClick={onRemove} disabled={remove.isPending}>
+                  Delete
+                </Button>
+              )}
             </>
           )}
         </div>
       </td>
     </tr>
+  )
+}
+
+/** An item and all its batches, kept separate so each shows its own expiry date. */
+function ItemGroup({
+  row, today, canEditAll, onHistory, onAddBatch,
+}: { row: InventoryRow; today: string; canEditAll: boolean; onHistory: () => void; onAddBatch: () => void }) {
+  const remove = useRemoveItem()
+  const toast = useToast()
+
+  async function onRemove() {
+    if (!window.confirm(`Remove ${row.name} and all its batches from your stock? Its history is kept.`)) return
+    try {
+      await remove.mutateAsync(row.ingredient_id)
+      toast(`${row.name} removed`, 'success')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Something went wrong', 'error')
+    }
+  }
+
+  const manager = (label: string, button: React.ReactNode) =>
+    canEditAll ? button : <Tooltip text={`Only managers and owners can ${label}`}>{button}</Tooltip>
+
+  return (
+    <>
+      <tr className="bg-slate-50">
+        <td colSpan={3}>
+          <div className="font-semibold">{row.name}</div>
+          <div className="text-xs text-slate-500">
+            {STORAGE_LABEL[row.storage]}
+            {row.supplier_name ? ` · ${row.supplier_name}` : ''}
+            {row.batches.length > 1 ? ` · ${row.batches.length} batches` : ''}
+          </div>
+        </td>
+        <td className="whitespace-nowrap font-medium">
+          {row.display_qty} · {rm(row.stock_value_rm)}
+        </td>
+        <td colSpan={2} />
+        <td>{row.batches.length > 0 && <StatusBadge row={row} />}</td>
+        <td className="whitespace-nowrap text-right">
+          <div className="flex justify-end gap-1">
+            {manager('add stock', <Button variant="secondary" onClick={onAddBatch} disabled={!canEditAll}>+ Add stock</Button>)}
+            <Button variant="ghost" onClick={onHistory}>
+              History
+            </Button>
+            {manager('remove items', <Button variant="ghost" title="Remove this item and all its batches" onClick={onRemove} disabled={!canEditAll}>Remove</Button>)}
+          </div>
+        </td>
+      </tr>
+      {row.batches.length === 0 ? (
+        <tr>
+          <td colSpan={8} className="pl-8 text-slate-500">
+            None in stock.
+          </td>
+        </tr>
+      ) : (
+        row.batches.map((b) => <BatchRowView key={b.id} item={row} batch={b} today={today} canEditAll={canEditAll} />)
+      )}
+    </>
   )
 }
 
@@ -155,6 +230,7 @@ export default function InventoryPage() {
   const [adding, setAdding] = useState(false)
   const [noting, setNoting] = useState(false)
   const [history, setHistory] = useState<InventoryRow | null>(null)
+  const [batchFor, setBatchFor] = useState<InventoryRow | null>(null)
 
   if (isLoading) return <p className="text-sm text-slate-500">Loading your stock…</p>
   if (error || !data) return <EmptyState title="Could not load your stock" hint={error?.message ?? 'Please try again.'} />
@@ -165,8 +241,8 @@ export default function InventoryPage() {
   // The owner sets up stock once; everyone else sees the normal page with a short note.
   if (!data.onboarded && role === 'owner') return <OnboardingWizard data={data} />
 
-  const expired = data.items.filter((i) => i.status === 'expired')
-  const soon = data.items.filter((i) => i.status === 'expiring_soon')
+  const expiredBatches = data.items.flatMap((i) => i.batches.filter((b) => b.status === 'expired').map((b) => ({ item: i, batch: b })))
+  const soonBatches = data.items.flatMap((i) => i.batches.filter((b) => b.status === 'expiring_soon').map((b) => ({ item: i, batch: b })))
   const rows = data.items.filter(
     (i) =>
       (filter === 'all' || i.status === filter) &&
@@ -175,9 +251,10 @@ export default function InventoryPage() {
   )
 
   async function discardAll() {
+    if (!window.confirm(`Remove all ${expiredBatches.length} expired batch${expiredBatches.length === 1 ? '' : 'es'} from your stock?`)) return
     try {
       const r = await discard.mutateAsync(null)
-      toast(`${r.discarded.length} expired item(s) thrown away`, 'success')
+      toast(`${r.batches} expired batch${r.batches === 1 ? '' : 'es'} removed`, 'success')
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Could not discard', 'error')
     }
@@ -194,7 +271,9 @@ export default function InventoryPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold">Inventory</h1>
-          <p className="text-sm text-slate-600">What you have now, as of {fmtDate(data.today)}.</p>
+          <p className="text-sm text-slate-600">
+            What you have now, as of {fmtDate(data.today)}. The same item bought on different days is kept as separate batches.
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="secondary" onClick={() => setNoting(true)}>⚡ Quick add from a note</Button>
@@ -208,20 +287,27 @@ export default function InventoryPage() {
         </div>
       )}
 
-      {expired.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900">
+      {expiredBatches.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-900">
           <span>
-            <strong>{expired.length} item{expired.length === 1 ? ' has' : 's have'} expired:</strong>{' '}
-            {expired.map((i) => i.name).join(', ')}. Throw them away so they are not counted as stock?
+            <strong>
+              {expiredBatches.length} batch{expiredBatches.length === 1 ? ' has' : 'es have'} expired:
+            </strong>{' '}
+            {expiredBatches.map(({ item, batch }) => `${item.name} (bought ${fmtDate(batch.procured_on)})`).join(', ')}. Remove them so
+            they are not counted as stock?
           </span>
           <Button variant="danger" onClick={discardAll} disabled={discard.isPending}>
-            Discard expired
+            Remove all expired
           </Button>
         </div>
       )}
-      {soon.length > 0 && (
+      {soonBatches.length > 0 && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-          <strong>Use soon:</strong> {soon.map((i) => `${i.name} (${i.days_left} day${i.days_left === 1 ? '' : 's'})`).join(', ')}.
+          <strong>Use soon:</strong>{' '}
+          {soonBatches
+            .map(({ item, batch }) => `${item.name} bought ${fmtDate(batch.procured_on)} (${batch.days_left} day${batch.days_left === 1 ? '' : 's'})`)
+            .join(', ')}
+          .
         </div>
       )}
 
@@ -257,14 +343,22 @@ export default function InventoryPage() {
         {rows.length === 0 ? (
           <EmptyState title="No items match" hint="Try a different search or filter." />
         ) : (
-          <Table head={['Item', 'In stock', 'Last bought', 'Good for', 'Expires', 'Status', '']}>
+          <Table head={['Item / batch', 'In stock', 'Price', 'Value', 'Good for', 'Expires', 'Status', '']}>
             {rows.map((r) => (
-              <ItemRow key={r.ingredient_id} row={r} today={data.today} canEditAll={canEditAll} onHistory={() => setHistory(r)} />
+              <ItemGroup
+                key={r.ingredient_id}
+                row={r}
+                today={data.today}
+                canEditAll={canEditAll}
+                onHistory={() => setHistory(r)}
+                onAddBatch={() => setBatchFor(r)}
+              />
             ))}
           </Table>
         )}
       </Card>
 
+      <AddBatchModal item={batchFor} today={data.today} onClose={() => setBatchFor(null)} />
       <AddItemModal open={adding} today={data.today} onClose={() => setAdding(false)} />
       <QuickNoteModal open={noting} data={data} onClose={() => setNoting(false)} />
       <HistoryModal ingredientId={history?.ingredient_id ?? null} name={history?.name ?? ''} onClose={() => setHistory(null)} />
