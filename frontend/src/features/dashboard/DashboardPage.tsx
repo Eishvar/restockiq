@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Badge, Card, EmptyState, Stat } from '../../components/ui'
-import { fmtDay, num, rm } from '../planning/format'
+import { fmtDay, rm } from '../planning/format'
 import { useDashboard, type Dashboard } from './api'
 
 const STATUS: Record<string, { label: string; tone: 'neutral' | 'good' | 'warn' | 'bad' }> = {
@@ -13,31 +13,6 @@ const STATUS: Record<string, { label: string; tone: 'neutral' | 'good' | 'warn' 
 }
 
 const pct = (x: number) => `${Math.round(x * 100)}%`
-
-function TimeSaved({ d }: { d: Dashboard }) {
-  const days = d.hours_saved / 8
-  return (
-    <div className="rounded-xl bg-emerald-600 p-5 text-white shadow-sm">
-      <div className="text-xs font-medium uppercase opacity-80">Time saved</div>
-      {d.plans_completed === 0 ? (
-        <>
-          <div className="mt-1 text-3xl font-semibold">Not yet</div>
-          <p className="mt-1 text-sm opacity-90">
-            Planning by hand takes about {num(d.manual_hours_per_plan, 0)} hours. Approve your first plan and the time you saved shows here.
-          </p>
-        </>
-      ) : (
-        <>
-          <div className="mt-1 text-4xl font-semibold">{num(d.hours_saved, 1)} hours</div>
-          <p className="mt-1 text-sm opacity-90">
-            about {num(days, 1)} working day{days === 1 ? '' : 's'} across {d.plans_completed} plan{d.plans_completed === 1 ? '' : 's'}
-            {' '}(by hand: {num(d.manual_hours_per_plan, 0)} hours each, minus the minutes you spent checking).
-          </p>
-        </>
-      )}
-    </div>
-  )
-}
 
 function Accuracy({ d }: { d: Dashboard }) {
   const a = d.accuracy
@@ -79,15 +54,7 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-6xl space-y-4">
       <div>
         <h1 className="text-xl font-semibold">Dashboard</h1>
-        <p className="text-sm text-slate-600">How RestockAI is helping, as of {fmtDay(d.today)}.</p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="md:col-span-2"><TimeSaved d={d} /></div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-1">
-          <Stat label="Average check time" value={d.avg_review_minutes === null ? '—' : `${num(d.avg_review_minutes, 1)} min`} hint="From plan made to order approved" />
-          <Stat label="Plans made" value={d.plans_total} hint={`${d.plans_completed} approved`} />
-        </div>
+        <p className="text-sm text-slate-600">Plan, forecast and stock overview · {fmtDay(d.today)}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -99,7 +66,7 @@ export default function DashboardPage() {
           ) : (
             <>
               <p className="text-sm text-slate-600">
-                Made in {num(d.last_plan.duration_ms / 1000, 1)} s for {d.last_plan.horizon_days} day{d.last_plan.horizon_days === 1 ? '' : 's'} ·{' '}
+                For {d.last_plan.horizon_days} day{d.last_plan.horizon_days === 1 ? '' : 's'} ·{' '}
                 <strong>{rm(d.last_plan.grand_total_rm)}</strong> in total
               </p>
               <ul className="mt-3 divide-y divide-slate-100">
@@ -122,10 +89,30 @@ export default function DashboardPage() {
             <Stat label="Expired" value={d.inventory.expired} />
           </div>
           {d.inventory.expired > 0 && (
-            <p className="mt-3 text-sm text-red-800">Expired: {d.inventory.expired_items.join(', ')}. <Link to="/inventory" className="underline">Discard them</Link></p>
+            <div className="mt-3">
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase text-red-800">Expired items</h3>
+                <Link to="/inventory" className="text-xs font-medium text-emerald-700 underline">Inventory</Link>
+              </div>
+              <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {d.inventory.expired_items.map((name) => (
+                  <li key={name} className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-900">{name}</li>
+                ))}
+              </ul>
+            </div>
           )}
           {d.inventory.expiring_soon > 0 && (
-            <p className="mt-1 text-sm text-amber-800">Use soon: {d.inventory.expiring_items.map((i) => `${i.name} (${i.days_left}d)`).join(', ')}</p>
+            <div className="mt-3">
+              <h3 className="mb-2 text-xs font-semibold uppercase text-amber-800">Use soon</h3>
+              <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {d.inventory.expiring_items.map((item) => (
+                  <li key={item.name} className="flex items-center justify-between gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                    <span className="min-w-0 break-words">{item.name}</span>
+                    <Badge tone="warn">{item.days_left}d</Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
         </Card>
 

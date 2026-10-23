@@ -74,7 +74,7 @@ function Risk({ s }: { s: Settings }) {
         {s.buffers_updated_at && ` Buffers last measured ${new Date(s.buffers_updated_at).toLocaleString('en-MY')}.`}
       </p>
       <div className="mt-3 flex items-center gap-3">
-        <Button onClick={apply} disabled={!changed || save.isPending}>{save.isPending ? 'Measuring again… (about 10 seconds)' : 'Save'}</Button>
+        <Button onClick={apply} disabled={!changed || save.isPending}>{save.isPending ? 'Updating…' : 'Save'}</Button>
       </div>
     </Card>
   )
@@ -83,17 +83,7 @@ function Risk({ s }: { s: Settings }) {
 function Baseline({ s }: { s: Settings }) {
   const save = useSaveSettings()
   const toast = useToast()
-  const [hours, setHours] = useState(String(s.manual_planning_hours))
   const [date, setDate] = useState(s.today_override ?? '')
-
-  async function saveHours() {
-    try {
-      await save.mutateAsync({ manual_planning_hours: parseFloat(hours) })
-      toast('Saved', 'success')
-    } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not save', 'error')
-    }
-  }
 
   async function saveDate(value: string | null) {
     try {
@@ -106,16 +96,7 @@ function Baseline({ s }: { s: Settings }) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card title="Time planning takes by hand">
-        <p className="mb-2 text-sm text-slate-600">Used to work out the time you save. About two working days is 16 hours.</p>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="number" min={0.5} max={200} step="0.5" value={hours} onChange={(e) => setHours(e.target.value)} className={`${inputCls} w-24`} aria-label="Hours by hand" />
-          hours each time
-        </label>
-        <Button className="mt-3" onClick={saveHours} disabled={!(parseFloat(hours) > 0) || parseFloat(hours) === s.manual_planning_hours || save.isPending}>Save</Button>
-      </Card>
-
+    <div className="space-y-4">
       <Card title="Demo date">
         <p className="mb-2 text-sm text-slate-600">
           For demos: pretend it is another day. Today is <strong>{fmtDayYear(s.today)}</strong>{s.today_override ? ' (set by you)' : ''}.
@@ -148,7 +129,7 @@ function Reset() {
   return (
     <Card title="Reset demo data">
       <p className="mb-3 text-sm text-slate-600">
-        Wipes plans, orders, stock changes and calendar edits, then loads the starting example again. Takes about 10 seconds. Users are kept.
+        Wipes plans, orders, stock changes and calendar edits, then loads the starting example again. Users are kept.
       </p>
       <Button variant="danger" onClick={() => setOpen(true)}>Reset demo data</Button>
       <Modal open={open} title="Reset all demo data?" onClose={() => setOpen(false)}>
