@@ -19,4 +19,4 @@ class CalendarEvent(Base):
     end_date: Mapped[date] = mapped_column(Date)
     name: Mapped[str] = mapped_column(String(160))
     status: Mapped[str] = mapped_column(String(20), default="approved")  # approved | suggested
-    source: Mapped[str] = mapped_column(String(20), default="seed")  # seed | manual | ai
+    source: Mapped[str] = mapped_column(String(20), default="seed")  # seed | setup | manual | ai

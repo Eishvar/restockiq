@@ -1,0 +1,20 @@
+type,label,start_date,end_date,name
+public_holiday,public_holiday,2025-10-20,2025-10-20,Deepavali
+public_holiday,public_holiday,2025-12-25,2025-12-25,Christmas
+public_holiday,public_holiday,2026-01-01,2026-01-01,New Year
+public_holiday,public_holiday,2026-02-17,2026-02-18,Chinese New Year
+public_holiday,public_holiday,2026-03-20,2026-03-21,Hari Raya Aidilfitri
+public_holiday,public_holiday,2026-05-01,2026-05-01,Labour Day
+public_holiday,public_holiday,2026-05-27,2026-05-28,Hari Raya Haji
+public_holiday,public_holiday,2026-05-31,2026-06-01,Wesak / Agong's Birthday
+public_holiday,public_holiday,2026-06-17,2026-06-17,Awal Muharram
+public_holiday,public_holiday,2026-08-26,2026-08-26,Maulidur Rasul
+public_holiday,public_holiday,2026-08-31,2026-08-31,Merdeka Day
+public_holiday,public_holiday,2026-09-16,2026-09-16,Malaysia Day
+public_holiday,public_holiday,2026-11-08,2026-11-08,Deepavali
+public_holiday,public_holiday,2026-12-25,2026-12-25,Christmas
+public_holiday,public_holiday,2027-01-01,2027-01-01,New Year
+public_holiday,public_holiday,2027-05-01,2027-05-01,Labour Day
+public_holiday,public_holiday,2027-08-31,2027-08-31,Merdeka Day
+public_holiday,public_holiday,2027-09-16,2027-09-16,Malaysia Day
+public_holiday,public_holiday,2027-12-25,2027-12-25,Christmas

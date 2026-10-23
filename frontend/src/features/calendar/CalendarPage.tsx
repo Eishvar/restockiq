@@ -189,7 +189,7 @@ export default function CalendarPage() {
                     </td>
                     <td className="whitespace-nowrap">
                       <Badge tone={e.type === 'period' ? 'good' : e.type === 'public_holiday' ? 'warn' : 'neutral'}>{TYPE_LABEL[e.type]}</Badge>
-                      {e.source !== 'seed' && <span className="ml-1 text-xs text-slate-400">added by hand</span>}
+                      {e.source === 'manual' &&<span className="ml-1 text-xs text-slate-400">added by hand</span>}
                     </td>
                     <td className="whitespace-nowrap text-right">
                       <Button variant="ghost" onClick={() => setForm({ open: true, event: e })}>Edit</Button>

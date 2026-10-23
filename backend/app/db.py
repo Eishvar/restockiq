@@ -17,6 +17,8 @@ MODEL_MODULES = [
     "planning",  # safety_profiles, forecast_quality, plan_runs, forecast_lines, purchase_orders, po_lines
     "assistant",  # ai_suggestions
     "activity",  # activity_log
+    "setup",  # tenant_setup (first-time wizard progress)
+    "pos",  # pos_imports (uploaded sales files)
 ]
 
 
