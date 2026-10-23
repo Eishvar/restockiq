@@ -65,6 +65,7 @@ class SendOut(BaseModel):
     order: OrderOut
     whatsapp_text: str
     whatsapp_url: str | None
+    call_url: str | None = None
 
 
 class ForecastDay(BaseModel):

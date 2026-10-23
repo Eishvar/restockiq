@@ -47,7 +47,8 @@ function SupplierDetails({ supplier }: { supplier: Supplier }) {
         <div className="grid gap-2 sm:grid-cols-[1fr_12rem_auto] sm:items-end">
           <label className="block text-sm">
             <span className="mb-1 block text-xs text-slate-500">WhatsApp number</span>
-            <input value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+60123456789" className={`${inputCls} w-full`} aria-label={`WhatsApp number for ${supplier.name}`} />
+            <input type="tel" autoComplete="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+60123456789" className={`${inputCls} w-full`} aria-label={`WhatsApp number for ${supplier.name}`} />
+            <span className="mt-1 block text-xs text-slate-500">Malaysian local number or international number with country code.</span>
           </label>
           <label className="block text-sm">
             <span className="mb-1 block text-xs text-slate-500">Minimum order (RM)</span>

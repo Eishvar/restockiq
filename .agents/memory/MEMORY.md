@@ -1,0 +1,1 @@
+- [Supplier order placement](supplier-order-placement.md) — contact links must not advance an order; approval follows explicit placement confirmation.

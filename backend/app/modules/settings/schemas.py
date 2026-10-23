@@ -1,7 +1,9 @@
 from datetime import date
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.core.phone import international_number
 
 
 class UserOut(BaseModel):
@@ -55,5 +57,15 @@ class SettingsPatch(BaseModel):
 
 class SupplierPatch(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=120)
-    whatsapp: str | None = Field(default=None, max_length=30, pattern=r"^(\+?\d[\d \-]{6,20}\d)?$")
+    whatsapp: str | None = Field(default=None, max_length=30)
     min_order_rm: float | None = Field(default=None, ge=0, le=1_000_000)
+
+    @field_validator("whatsapp")
+    @classmethod
+    def valid_phone(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        if value and international_number(value) is None:
+            raise ValueError("Enter a Malaysian local number (0123456789) or an international number (+60123456789).")
+        return value

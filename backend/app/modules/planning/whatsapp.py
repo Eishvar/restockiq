@@ -1,8 +1,8 @@
 """Order text for WhatsApp, and the trip schedule after the manager edits the pack counts. Pure functions."""
-import re
 from datetime import date
 from urllib.parse import quote
 
+from app.core.phone import international_number as whatsapp_number
 from app.core.units import format_packs
 
 
@@ -30,9 +30,8 @@ def _day(iso: str) -> str:
     return f"{d.strftime('%a')} {d.day} {d.strftime('%b')}"
 
 
-def whatsapp_number(raw: str | None) -> str | None:
-    digits = re.sub(r"\D", "", raw or "")
-    return digits or None
+def call_url(number: str | None) -> str | None:
+    return f"tel:+{number}" if number else None
 
 
 def build_order_message(supplier_name: str, tenant_name: str, lines: list[dict], total_rm: float) -> str:
@@ -51,4 +50,4 @@ def build_order_message(supplier_name: str, tenant_name: str, lines: list[dict],
 
 
 def whatsapp_url(number: str | None, text: str) -> str | None:
-    return f"https://wa.me/{number}?text={quote(text)}" if number else None
+    return f"https://wa.me/{number}?text={quote(text, safe='')}" if number else None

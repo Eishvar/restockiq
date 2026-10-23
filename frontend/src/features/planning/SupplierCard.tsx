@@ -192,17 +192,6 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
     }
   }
 
-  async function send() {
-    try {
-      const res = (await act.mutateAsync({ orderId: order.id, action: 'send' })) as SendResult
-      setMessage(res)
-      if (order.status === 'approved') toast('Marked as sent. Open WhatsApp to send the message.', 'success')
-      if (res.whatsapp_url) window.open(res.whatsapp_url, '_blank', 'noopener')
-    } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not prepare the message', 'error')
-    }
-  }
-
   async function copy() {
     try {
       await navigator.clipboard.writeText(message?.whatsapp_text ?? '')
@@ -238,8 +227,8 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
       )}
       {order.status === 'approved' && (
         <>
-          <GatedButton allowed={isOwner} need="owner" verb="send orders to suppliers" onClick={send} disabled={act.isPending}>
-            Send via WhatsApp
+          <GatedButton allowed={isOwner} need="owner" verb="contact suppliers" onClick={finishAndApprove} disabled={act.isPending || finishing}>
+            Contact supplier
           </GatedButton>
           <GatedButton allowed={isManager} need="manager" verb="mark deliveries as received" onClick={() => run('receive', 'Stock updated with this delivery')} disabled={act.isPending}>
             Mark received
@@ -248,7 +237,7 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
       )}
       {order.status === 'sent' && (
         <>
-          <GatedButton allowed={isOwner} need="owner" verb="reopen the WhatsApp message" variant="secondary" onClick={send} disabled={act.isPending}>
+          <GatedButton allowed={isOwner} need="owner" verb="reopen the WhatsApp message" variant="secondary" onClick={finishAndApprove} disabled={act.isPending || finishing}>
             Open WhatsApp / copy
           </GatedButton>
           <GatedButton allowed={isManager} need="manager" verb="mark deliveries as received" onClick={() => run('receive', 'Stock updated with this delivery')} disabled={act.isPending}>
@@ -365,15 +354,26 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
 
       <Modal open={message !== null} title={`Place order · ${order.supplier_name}`} onClose={() => setMessage(null)}>
         <p className="mb-2 text-sm text-slate-600">
-          Review the list and contact the supplier. This stays in Draft until you confirm the order has been placed.
+          {message?.order.status === 'draft' || message?.order.status === 'pending_approval'
+            ? 'Contact the supplier, then confirm below. The order stays in Draft until you confirm.'
+            : 'Contact the supplier about this order.'}
         </p>
+        {message?.call_url ? (
+          <p className="mb-2 text-sm font-medium text-slate-800">
+            Supplier number: {message.call_url.slice(4)}
+          </p>
+        ) : (
+          <p role="alert" className="mb-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">
+            Add a valid phone number in this supplier’s details to use WhatsApp or Call.
+          </p>
+        )}
         <pre className="max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-sm">{message?.whatsapp_text}</pre>
         <div className="mt-3 flex flex-wrap justify-between gap-2">
           <Button variant="secondary" onClick={() => setMessage(null)}>Cancel</Button>
           <div className="flex flex-wrap justify-end gap-2">
           <Button variant="secondary" onClick={copy}>Copy message</Button>
-          {message?.order.supplier_whatsapp && (
-            <a href={`tel:${message.order.supplier_whatsapp.replace(/[^\d+]/g, '')}`} className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+          {message?.call_url && (
+            <a href={message.call_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
               Call supplier
             </a>
           )}
@@ -382,11 +382,18 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
               Open WhatsApp
             </a>
           )}
-          <Button onClick={confirmPlaced} disabled={finishing || act.isPending}>
-            {finishing ? 'Updating order…' : 'I have placed the order'}
-          </Button>
+          {message?.order.status === 'draft' || message?.order.status === 'pending_approval' ? (
+            <Button onClick={confirmPlaced} disabled={finishing || act.isPending}>
+              {finishing ? 'Updating order…' : 'I have placed the order'}
+            </Button>
+          ) : (
+            <Button onClick={() => setMessage(null)}>Done</Button>
+          )}
           </div>
         </div>
+        <p className="mt-3 text-xs text-slate-500">
+          WhatsApp opens with your message ready to send. Calls open your phone or calling app; a computer needs a calling app configured.
+        </p>
       </Modal>
     </Card>
   )

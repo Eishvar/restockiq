@@ -33,7 +33,7 @@ from app.modules.planning.schemas import (
     QualityOut,
     SendOut,
 )
-from app.modules.planning.whatsapp import build_order_message, effective_schedule, whatsapp_number, whatsapp_url
+from app.modules.planning.whatsapp import build_order_message, call_url, effective_schedule, whatsapp_number, whatsapp_url
 from app.modules.sales.models import SalesDaily
 from app.modules.settings.models import Tenant, User
 
@@ -326,7 +326,7 @@ def reject(db: Session, user: User, order_id: int, reason: str) -> OrderOut:
     return get_order(db, user, order_id)
 
 
-def _message_for_order(db: Session, user: User, po: PurchaseOrder) -> tuple[str, str | None]:
+def _message_for_order(db: Session, user: User, po: PurchaseOrder) -> tuple[str, str | None, str | None]:
     sup = db.get(Supplier, po.supplier_id)
     tenant = db.get(Tenant, user.tenant_id)
     items = []
@@ -336,16 +336,16 @@ def _message_for_order(db: Session, user: User, po: PurchaseOrder) -> tuple[str,
             items.append({"name": ing.name, "pack_uom": ing.pack_uom,
                           "schedule": effective_schedule(l.buy_schedule or [], l.suggested_packs, l.final_packs)})
     text = build_order_message(sup.name, tenant.name, items, po.total_rm)
-    url = whatsapp_url(whatsapp_number(sup.whatsapp), text)
-    return text, url
+    number = whatsapp_number(sup.whatsapp)
+    return text, whatsapp_url(number, text), call_url(number)
 
 
 def prepare_order_message(db: Session, user: User, order_id: int) -> SendOut:
     """Create the supplier message without changing order status."""
     po = _order(db, user, order_id)
     _require_status(po, "draft", "pending_approval", "approved", "sent")
-    text, url = _message_for_order(db, user, po)
-    return SendOut(order=get_order(db, user, order_id), whatsapp_text=text, whatsapp_url=url)
+    text, url, phone_url = _message_for_order(db, user, po)
+    return SendOut(order=get_order(db, user, order_id), whatsapp_text=text, whatsapp_url=url, call_url=phone_url)
 
 
 def send(db: Session, user: User, order_id: int) -> SendOut:
@@ -354,13 +354,13 @@ def send(db: Session, user: User, order_id: int) -> SendOut:
     po = _order(db, user, order_id)
     _require_status(po, "approved", "sent")
     sup = db.get(Supplier, po.supplier_id)
-    text, url = _message_for_order(db, user, po)
+    text, url, phone_url = _message_for_order(db, user, po)
     if po.status == "approved":
         po.status, po.sent_at = "sent", now_kl()
         log_action(db, user, "po_sent", "purchase_order", po.id,
                    {"supplier": sup.name, "channel": "whatsapp", "has_number": url is not None, "total_rm": po.total_rm})
     db.commit()
-    return SendOut(order=get_order(db, user, order_id), whatsapp_text=text, whatsapp_url=url)
+    return SendOut(order=get_order(db, user, order_id), whatsapp_text=text, whatsapp_url=url, call_url=phone_url)
 
 
 def receive(db: Session, user: User, order_id: int) -> OrderOut:

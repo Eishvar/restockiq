@@ -116,7 +116,7 @@ export type Plan = {
   } | null
 }
 
-export type SendResult = { order: Order; whatsapp_text: string; whatsapp_url: string | null }
+export type SendResult = { order: Order; whatsapp_text: string; whatsapp_url: string | null; call_url: string | null }
 
 export const usePlanContext = () =>
   useQuery({ queryKey: ['planning-context'], queryFn: () => api<{ today: string; last_plan_id: number | null }>('/planning/context') })

@@ -125,6 +125,33 @@ def test_edited_whatsapp_number_is_used_in_the_order_link(client, db, users, loa
         client.post(f"/api/planning/orders/{order['id']}/{step}", headers=as_user(users[who]))
     sent = client.post(f"/api/planning/orders/{order['id']}/send", headers=as_user(users["owner"])).json()
     assert sent["whatsapp_url"].startswith("https://wa.me/60198887777?text=")
+    assert sent["call_url"] == "tel:+60198887777"
+
+
+def test_local_supplier_phone_is_used_for_both_links_without_advancing_order(client, db, users, loaded):
+    sup = db.scalars(select(Supplier).order_by(Supplier.id)).first()
+    url = f"/api/settings/suppliers/{sup.id}"
+    changed = client.patch(url, json={"whatsapp": "019-888 7777"}, headers=as_user(users["owner"]))
+    assert changed.status_code == 200
+    plan = client.post("/api/planning/plans", json={"horizon_days": 3}, headers=as_user(users["manager"])).json()
+    order = next(o for o in plan["orders"] if o["supplier_id"] == sup.id)
+    preview_url = f"/api/planning/orders/{order['id']}/message"
+    preview = client.get(preview_url, headers=as_user(users["owner"])).json()
+    assert preview["whatsapp_url"].startswith("https://wa.me/60198887777?text=")
+    assert preview["call_url"] == "tel:+60198887777"
+    assert preview["order"]["status"] == "draft"
+
+    # Contact details are read fresh, even for a previously generated order.
+    client.patch(url, json={"whatsapp": "+65 (9123) 4567"}, headers=as_user(users["owner"]))
+    updated = client.get(preview_url, headers=as_user(users["owner"])).json()
+    assert updated["whatsapp_url"].startswith("https://wa.me/6591234567?text=")
+    assert updated["call_url"] == "tel:+6591234567"
+    assert updated["order"]["status"] == "draft"
+
+    client.patch(url, json={"whatsapp": ""}, headers=as_user(users["owner"]))
+    missing = client.get(preview_url, headers=as_user(users["owner"])).json()
+    assert missing["whatsapp_url"] is None and missing["call_url"] is None
+    assert missing["whatsapp_text"]
 
 
 # ---------- calendar ----------
