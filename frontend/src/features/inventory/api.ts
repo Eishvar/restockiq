@@ -78,6 +78,7 @@ function useWrite<TVars, TOut>(fn: (v: TVars) => Promise<TOut>) {
       qc.invalidateQueries({ queryKey: ['inventory'] })
       qc.invalidateQueries({ queryKey: ['activity'] })
       qc.invalidateQueries({ queryKey: ['movements'] })
+      qc.invalidateQueries({ queryKey: ['setup'] }) // confirming the stock moves the setup wizard on
     },
   })
 }
