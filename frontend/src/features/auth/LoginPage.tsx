@@ -26,7 +26,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <div className="text-2xl font-bold text-emerald-700">RestockIQ</div>
+          <div className="text-2xl font-bold text-emerald-700">RestockAI</div>
           <p className="mt-1 text-sm text-slate-600">Smart purchase planning for your kitchen</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">

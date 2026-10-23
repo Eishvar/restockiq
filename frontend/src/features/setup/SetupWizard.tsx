@@ -105,7 +105,7 @@ function PosStep() {
   return (
     <Card title="Connect your sales system (POS)">
       <p className="text-sm text-slate-600">
-        RestockIQ learns from what you sell. Pick the system your till uses.
+        RestockAI learns from what you sell. Pick the system your till uses.
       </p>
       <div className="mt-3 space-y-2">
         <div className="flex items-start gap-3 rounded-lg border border-emerald-500 bg-emerald-50 p-3">
@@ -124,7 +124,7 @@ function PosStep() {
       <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
         <p className="font-medium">You will export your sales from FeedMe</p>
         <p className="mt-1">
-          RestockIQ does not read your till by itself yet. Each day (or each week), export your daily sales from FeedMe as a CSV file and upload it here.
+          RestockAI does not read your till by itself yet. Each day (or each week), export your daily sales from FeedMe as a CSV file and upload it here.
           It takes about a minute, and automatic syncing is planned for later.
         </p>
         <p className="mt-2">
@@ -135,7 +135,7 @@ function PosStep() {
 
       <label className="mt-4 flex items-start gap-2 text-sm">
         <input type="checkbox" checked={understood} onChange={(e) => setUnderstood(e.target.checked)} className="mt-1" />
-        <span>I understand I need to export my sales from FeedMe and upload them to RestockIQ.</span>
+        <span>I understand I need to export my sales from FeedMe and upload them to RestockAI.</span>
       </label>
       <div className="mt-4 flex justify-end">
         <Button onClick={next} disabled={!understood || connect.isPending}>{connect.isPending ? 'Connecting…' : 'Connect FeedMe'}</Button>
@@ -265,7 +265,7 @@ export default function SetupWizard() {
     <div className="min-h-screen bg-slate-50">
       <header className="border-b border-slate-200 bg-white px-4 py-3">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="text-lg font-bold text-emerald-700">RestockIQ</span>
+          <span className="text-lg font-bold text-emerald-700">RestockAI</span>
           <span className="text-xs text-slate-500">First-time setup · {me.data?.name}</span>
         </div>
       </header>

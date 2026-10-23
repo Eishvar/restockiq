@@ -258,7 +258,7 @@ def _check_range(db: Session, user: User, start: date, end: date) -> date:
 
 
 def feedme_days(db: Session, user: User, count: int = 10) -> list[FeedMeDay]:
-    """The last `count` days the simulated till has, newest first, with a flag for days already in RestockIQ."""
+    """The last `count` days the simulated till has, newest first, with a flag for days already in RestockAI."""
     cap = get_today(db, user.tenant_id)
     start = cap - timedelta(days=count - 1)
     rows = feedme.export_rows(settings.data_dir, start, cap)

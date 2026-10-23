@@ -22,7 +22,7 @@ export default function PosCard() {
         <p className="text-sm text-slate-500">{pos.error ? pos.error.message : 'Loading…'}</p>
       ) : !p.provider ? (
         <>
-          <p className="text-sm text-slate-600">No POS connected yet. Connect FeedMe so RestockIQ can learn from your daily sales.</p>
+          <p className="text-sm text-slate-600">No POS connected yet. Connect FeedMe so RestockAI can learn from your daily sales.</p>
           {me.data?.role === 'owner' ? (
             <Link to="/setup" className="mt-2 inline-block text-sm font-medium text-emerald-700 underline">Finish setup</Link>
           ) : (

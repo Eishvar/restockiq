@@ -2,7 +2,7 @@
 
 FeedMe's real export layout is not known to us, so this module invents a plausible CSV and generates its
 rows from the synthetic data in data/. It stands in for "the till" so the whole journey can be shown:
-export from the POS -> upload to RestockIQ -> the forecast learns from the new days.
+export from the POS -> upload to RestockAI -> the forecast learns from the new days.
 
 Days up to the end of data/daily_sales.csv come from that file; later days are generated from the recent
 same-weekday sales (deterministic per date, so exporting twice gives the same file).

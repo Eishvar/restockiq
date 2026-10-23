@@ -7,7 +7,7 @@ import { fmtDay, num, rm } from '../planning/format'
 import { downloadFeedMeCsv, useFeedMeDays, useFeedMePreview } from './api'
 
 /**
- * A stand-in for the FeedMe till, so the "export sales -> upload to RestockIQ" step can be shown in a demo.
+ * A stand-in for the FeedMe till, so the "export sales -> upload to RestockAI" step can be shown in a demo.
  * It is deliberately plain (no FeedMe logo or branding) and says so on screen. The data is synthetic.
  */
 export default function FeedMePage() {
@@ -20,7 +20,7 @@ export default function FeedMePage() {
 
   const list = days.data ?? []
   const newest = list[0]?.date ?? ''
-  // Until the person picks dates: from the oldest day not yet in RestockIQ (else just the newest day) to the newest day.
+  // Until the person picks dates: from the oldest day not yet in RestockAI (else just the newest day) to the newest day.
   const notSent = list.filter((d) => !d.imported).map((d) => d.date).sort()
   const start = from || notSent[0] || newest
   const end = to || newest
@@ -32,7 +32,7 @@ export default function FeedMePage() {
     setBusy(true)
     try {
       const name = await downloadFeedMeCsv(start, end)
-      toast(`Downloaded ${name}. Now upload it in RestockIQ (Dashboard → Import sales).`, 'success')
+      toast(`Downloaded ${name}. Now upload it in RestockAI (Dashboard → Import sales).`, 'success')
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Could not export', 'error')
     } finally {
@@ -47,7 +47,7 @@ export default function FeedMePage() {
       </div>
       <header className="flex items-center justify-between border-b border-stone-300 bg-white px-4 py-3">
         <span className="text-lg font-semibold text-stone-800">POS · Sales reports</span>
-        <Link to="/dashboard" className="text-sm font-medium text-emerald-700 underline">← Back to RestockIQ</Link>
+        <Link to="/dashboard" className="text-sm font-medium text-emerald-700 underline">← Back to RestockAI</Link>
       </header>
 
       <main className="mx-auto max-w-5xl space-y-4 p-4 md:p-6">
@@ -63,7 +63,7 @@ export default function FeedMePage() {
               <h1 className="text-base font-semibold">Daily sales (latest days)</h1>
               <table className="mt-3 w-full text-left text-sm">
                 <thead className="border-b border-stone-200 text-xs uppercase text-stone-500">
-                  <tr><th className="py-2">Day</th><th>Dishes sold</th><th>Net sales</th><th>In RestockIQ?</th></tr>
+                  <tr><th className="py-2">Day</th><th>Dishes sold</th><th>Net sales</th><th>In RestockAI?</th></tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {list.map((d) => (
@@ -80,7 +80,7 @@ export default function FeedMePage() {
 
             <section className="rounded-xl border border-stone-300 bg-white p-4">
               <h2 className="text-base font-semibold">Export sales</h2>
-              <p className="mt-1 text-sm text-stone-600">Choose the days, download the file, then upload it in RestockIQ.</p>
+              <p className="mt-1 text-sm text-stone-600">Choose the days, download the file, then upload it in RestockAI.</p>
               <div className="mt-3 flex flex-wrap items-end gap-3">
                 <label className="text-sm">
                   <span className="mb-1 block font-medium">From</span>
