@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Badge, Card, EmptyState, Stat } from '../../components/ui'
 import { fmtDay, num, rm } from '../planning/format'
+import PosCard from '../pos/PosCard'
 import { useDashboard, type Dashboard } from './api'
 
 const STATUS: Record<string, { label: string; tone: 'neutral' | 'good' | 'warn' | 'bad' }> = {
@@ -114,6 +115,8 @@ export default function DashboardPage() {
             </>
           )}
         </Card>
+
+        <PosCard />
 
         <Card title="Stock health">
           <div className="grid grid-cols-3 gap-3 text-center">
