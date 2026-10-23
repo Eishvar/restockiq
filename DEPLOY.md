@@ -82,3 +82,14 @@ From a shell: `cd backend && python -m app.seed.load --reset`.
 | Plan button says "no sales history" | Seeding was skipped: run `cd backend && python -m app.seed.load --reset`. |
 | AI shows "unavailable" | Approve the Anthropic AI integration for the deployment, or set `ANTHROPIC_API_KEY`. |
 | Everything is slow after idle | Autoscale cold start: warm it up (step 6.3). |
+
+## First-time setup and sales import (added after M8)
+
+- The app opens on a **Sign in** screen (pick a demo user). Signing in as **Ah Hock (Owner)** on a fresh or reset
+  database starts the 4-step setup: Country (Malaysia) -> Sales system (FeedMe, simulated) -> Your stock -> Calendar
+  (optional, can be skipped). Managers and staff are never blocked by it.
+- **Settings -> Reset demo data** also resets this wizard, so the demo can be repeated.
+- To show the daily routine: Dashboard -> **Open FeedMe (simulated)** -> Download CSV -> back on the Dashboard press
+  **Import sales** and choose that file. The new day appears in "Sales up to" and the app's "today" moves forward.
+  If a recording needs a fixed date, set **Settings -> Demo date** first (it wins over the imported sales).
+- The new tables (`tenant_setup`, `pos_imports`) are created automatically on start; no manual migration.
