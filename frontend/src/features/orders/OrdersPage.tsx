@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, EmptyState } from '../../components/ui'
+import { Badge, EmptyState, PageSkeleton } from '../../components/ui'
 import { inputCls } from '../inventory/QtyInput'
 import { fmtDayYear, rm } from '../planning/format'
 import { useOrders, type Order, type OrderStatus } from '../planning/api'
@@ -43,7 +43,7 @@ function OrderRecord({ order }: { order: Order }) {
         <span className="flex shrink-0 items-center gap-2">
           <Badge tone={status.tone}>{status.label}</Badge>
           <span className="font-semibold text-slate-900">{rm(order.total_rm)}</span>
-          <span aria-hidden="true" className="text-slate-400">⌄</span>
+          <svg aria-hidden="true" className="text-slate-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
         </span>
       </summary>
       <div className="border-t border-slate-100 px-4 py-3">
@@ -82,8 +82,8 @@ export default function OrdersPage() {
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<'all' | OrderStatus>('all')
 
-  if (orders.isLoading) return <p className="text-sm text-slate-500">Loading order history…</p>
-  if (orders.error) return <EmptyState title="Could not load order history" hint={orders.error.message} />
+  if (orders.isLoading) return <PageSkeleton rows={4} />
+  if (orders.error) return <EmptyState title="Could not load order history" hint={orders.error.message} action={<button type="button" onClick={() => void orders.refetch()} className="text-sm font-semibold text-emerald-800 underline">Try again</button>} />
   if (!orders.data?.length) {
     return (
       <div className="mx-auto max-w-6xl space-y-4">

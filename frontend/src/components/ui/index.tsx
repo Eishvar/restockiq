@@ -4,10 +4,12 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ButtonHTMLAttributes,
   type ReactNode,
 } from 'react'
+import { createPortal } from 'react-dom'
 
 const cx = (...parts: (string | false | undefined)[]) => parts.filter(Boolean).join(' ')
 
@@ -100,32 +102,87 @@ export function Modal({
   onClose: () => void
   children: ReactNode
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const previousFocus = useRef<HTMLElement | null>(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
   useEffect(() => {
     if (!open) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const first = dialogRef.current?.querySelector<HTMLElement>('button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])')
+    first?.focus()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseRef.current()
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusable = [...dialogRef.current.querySelectorAll<HTMLElement>('button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])')]
+        if (!focusable.length) return
+        const firstItem = focusable[0], lastItem = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === firstItem) { e.preventDefault(); lastItem.focus() }
+        else if (!e.shiftKey && document.activeElement === lastItem) { e.preventDefault(); firstItem.focus() }
+      }
+    }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [open, onClose])
+    return () => { window.removeEventListener('keydown', onKey); previousFocus.current?.focus() }
+  }, [open])
   if (!open) return null
-  return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+  return createPortal((
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4" onClick={() => onCloseRef.current()}>
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby="modal-title"
         className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          <button aria-label="Close" className="text-slate-500 hover:text-slate-800" onClick={onClose}>
-            ✕
+          <h2 id="modal-title" className="text-lg font-semibold">{title}</h2>
+          <button aria-label="Close" className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-800" onClick={onClose}>
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 6 12 12M18 6 6 18" /></svg>
           </button>
         </div>
         {children}
       </div>
     </div>
+  ), document.body)
+}
+
+export function Skeleton({ className = '' }: { className?: string }) {
+  return <div aria-hidden="true" className={`animate-pulse rounded-xl bg-slate-200/70 ${className}`} />
+}
+
+export function PageSkeleton({ rows = 4 }: { rows?: number }) {
+  return (
+    <div aria-label="Loading page" role="status" className="space-y-4">
+      <span className="sr-only">Loading page content</span>
+      <Skeleton className="h-9 w-48" />
+      <Skeleton className="h-5 w-80 max-w-full" />
+      <div className="grid gap-4 md:grid-cols-2">
+        {Array.from({ length: rows }, (_, i) => <Skeleton key={i} className="h-40" />)}
+      </div>
+    </div>
   )
+}
+
+export function ConfirmModal({
+  open, title, description, pending, error, onCancel, onConfirm,
+}: {
+  open: boolean
+  title: string
+  description: string
+  pending?: boolean
+  error?: string
+  onCancel: () => void
+  onConfirm: () => void
+}) {
+  return <Modal open={open} title={title} onClose={pending ? () => {} : onCancel}>
+    <p className="text-sm text-slate-700">{description}</p>
+    {error && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
+    <div className="mt-5 flex justify-end gap-2">
+      <Button variant="secondary" onClick={onCancel} disabled={pending}>Cancel</Button>
+      <Button variant="danger" onClick={onConfirm} disabled={pending}>{pending ? 'Working…' : 'Confirm'}</Button>
+    </div>
+  </Modal>
 }
 
 // ---------- Stat ----------

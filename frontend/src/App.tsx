@@ -4,6 +4,7 @@ import AppShell, { NAV } from './layout/AppShell'
 import Placeholder from './features/Placeholder'
 import LoginPage from './features/auth/LoginPage'
 import { RequireSetup, RequireUser } from './features/auth/Guards'
+import { PageSkeleton } from './components/ui'
 
 // Each page is its own download, so the first screen loads fast (the charts library alone is large).
 const page = (load: () => Promise<{ default: React.ComponentType }>) => {
@@ -11,7 +12,6 @@ const page = (load: () => Promise<{ default: React.ComponentType }>) => {
   return <Page />
 }
 
-// Pages built so far; every other sidebar item shows a placeholder.
 const PAGES: Record<string, React.ReactNode> = {
   '/plan': page(() => import('./features/planning/PlanPage')),
   '/inventory': page(() => import('./features/inventory/InventoryPage')),
@@ -27,7 +27,7 @@ const FEEDME = page(() => import('./features/pos/FeedMePage'))
 
 export default function App() {
   return (
-    <Suspense fallback={<p className="p-6 text-sm text-slate-500">Loading…</p>}>
+    <Suspense fallback={<div className="p-6"><PageSkeleton rows={3} /></div>}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route element={<RequireUser />}>
@@ -37,6 +37,7 @@ export default function App() {
           <Route element={<RequireSetup />}>
             <Route element={<AppShell />}>
               <Route index element={<Navigate to="/plan" replace />} />
+              <Route path="/recipes" element={<Navigate to="/dashboard" replace />} />
               {NAV.map((n) => (
                 <Route key={n.path} path={n.path} element={PAGES[n.path] ?? <Placeholder title={n.label} />} />
               ))}

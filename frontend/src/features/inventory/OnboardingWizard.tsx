@@ -88,9 +88,9 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
 
       <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
         <div className="flex items-center gap-3 text-sm text-slate-600">
-          <Button variant="secondary" onClick={() => setNoting(true)}>
-            ⚡ Quick add from a note
-          </Button>
+          <button type="button" onClick={() => setNoting(true)} className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-100">
+            Quick add from a note <span className="mt-0.5 block text-left text-xs font-normal text-emerald-800">English or Bahasa Malaysia · “beras 12 bag, telur 3 tray…”</span>
+          </button>
           <Button variant="secondary" onClick={() => setAdding(true)}>
             + Add item
           </Button>

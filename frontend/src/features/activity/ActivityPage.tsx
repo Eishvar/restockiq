@@ -1,6 +1,8 @@
 import { ApiError } from '../../api/client'
 import { Badge, Card, EmptyState, Table } from '../../components/ui'
 import { useActivity, type ActivityRow } from './api'
+import { formatActivityDetails } from './format'
+import RestrictedRoleSwitch from '../auth/RestrictedRoleSwitch'
 
 const roleTone = { owner: 'good', manager: 'warn', staff: 'neutral' } as const
 
@@ -13,10 +15,8 @@ const when = (iso: string) =>
   new Date(iso).toLocaleString('en-MY', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
 function Details({ row }: { row: ActivityRow }) {
-  const parts: string[] = []
-  if (row.entity_type) parts.push(`${row.entity_type.replace(/_/g, ' ')}${row.entity_id ? ` #${row.entity_id}` : ''}`)
-  if (row.details) parts.push(Object.entries(row.details).map(([k, v]) => `${k.replace(/_/g, ' ')}: ${JSON.stringify(v)}`).join(', '))
-  return <span className="text-slate-600">{parts.join(' · ') || '—'}</span>
+  const parts = formatActivityDetails(row.details, row.entity_type, row.entity_id)
+  return <div className="flex flex-wrap gap-1.5">{parts.length ? parts.map((part, i) => <Badge key={i}>{part}</Badge>) : <span className="text-slate-400">—</span>}</div>
 }
 
 export default function ActivityPage() {
@@ -29,6 +29,7 @@ export default function ActivityPage() {
       <EmptyState
         title="Only managers and owners can see the activity record"
         hint="Switch user (top right) to Siti or Ah Hock to view it."
+        action={<RestrictedRoleSwitch permission="manager" />}
       />
     )
   else if (error) body = <EmptyState title="Could not load the activity record" hint={error.message} />

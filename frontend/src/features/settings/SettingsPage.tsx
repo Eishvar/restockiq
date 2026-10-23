@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Button, Card, EmptyState, Modal, useToast } from '../../components/ui'
+import { Button, Card, ConfirmModal, EmptyState, useToast } from '../../components/ui'
 import { useMe } from '../auth/api'
 import { inputCls } from '../inventory/QtyInput'
 import { fmtDayYear } from '../planning/format'
+import RestrictedRoleSwitch from '../auth/RestrictedRoleSwitch'
 import {
   useResetDemo,
   useSaveSettings,
@@ -115,6 +116,7 @@ function Reset() {
   const reset = useResetDemo()
   const toast = useToast()
   const [open, setOpen] = useState(false)
+  const [error, setError] = useState('')
 
   async function go() {
     try {
@@ -122,7 +124,7 @@ function Reset() {
       setOpen(false)
       toast('Demo data reset. Everything is back to the starting example.', 'success')
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not reset', 'error')
+      setError(err instanceof Error ? err.message : 'Could not reset')
     }
   }
 
@@ -131,14 +133,8 @@ function Reset() {
       <p className="mb-3 text-sm text-slate-600">
         Wipes plans, orders, stock changes and calendar edits, then loads the starting example again. Users are kept.
       </p>
-      <Button variant="danger" onClick={() => setOpen(true)}>Reset demo data</Button>
-      <Modal open={open} title="Reset all demo data?" onClose={() => setOpen(false)}>
-        <p className="text-sm text-slate-700">This cannot be undone. Everything you added or changed will be replaced by the example data.</p>
-        <div className="mt-4 flex justify-end gap-2">
-          <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="danger" onClick={go} disabled={reset.isPending}>{reset.isPending ? 'Resetting…' : 'Yes, reset'}</Button>
-        </div>
-      </Modal>
+      <Button variant="danger" onClick={() => { setOpen(true); setError('') }}>Reset demo data</Button>
+      <ConfirmModal open={open} title="Reset all demo data?" description="This cannot be undone. Everything you added or changed will be replaced by the example data." pending={reset.isPending} error={error} onCancel={() => { setOpen(false); setError('') }} onConfirm={() => void go()} />
     </Card>
   )
 }
@@ -153,7 +149,7 @@ export default function SettingsPage() {
     return (
       <div className="mx-auto max-w-4xl space-y-4">
         <h1 className="text-xl font-semibold">Settings</h1>
-        <EmptyState title="Only the owner can change settings" hint="Switch user (top right) to Ah Hock to see them." />
+        <EmptyState title="Only the owner can change settings" hint="Switch to the owner demo user to view and change configuration." action={<RestrictedRoleSwitch permission="owner" />} />
       </div>
     )
   if (isLoading) return <p className="text-sm text-slate-500">Loading…</p>

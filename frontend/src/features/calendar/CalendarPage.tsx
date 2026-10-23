@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Badge, Button, Card, EmptyState, Modal, SegmentedControl, Table, useToast } from '../../components/ui'
+import { Badge, Button, Card, ConfirmModal, EmptyState, Modal, SegmentedControl, Table, useToast } from '../../components/ui'
 import { useMe } from '../auth/api'
 import { inputCls } from '../inventory/QtyInput'
 import { fmtDay } from '../planning/format'
+import RestrictedRoleSwitch from '../auth/RestrictedRoleSwitch'
 import {
   useAddEvent,
   useCalendar,
@@ -102,13 +103,15 @@ export default function CalendarPage() {
   const toast = useToast()
   const [filter, setFilter] = useState<Filter>('all')
   const [form, setForm] = useState<{ open: boolean; event: CalendarEvent | null }>({ open: false, event: null })
+  const [deleteTarget, setDeleteTarget] = useState<CalendarEvent | null>(null)
+  const [deleteError, setDeleteError] = useState('')
 
   if (me.isLoading) return <p className="text-sm text-slate-500">Loading…</p>
   if (!allowed)
     return (
       <div className="mx-auto max-w-4xl space-y-4">
         <h1 className="text-xl font-semibold">Calendar</h1>
-        <EmptyState title="Only managers and the owner can change the calendar" hint="Switch user (top right) to Siti or Ah Hock." />
+        <EmptyState title="Only managers and the owner can change the calendar" hint="Switch to a permitted demo user to view and manage events." action={<RestrictedRoleSwitch permission="manager" />} />
       </div>
     )
   if (isLoading) return <p className="text-sm text-slate-500">Loading…</p>
@@ -116,13 +119,15 @@ export default function CalendarPage() {
 
   const rows = data.events.filter((e) => filter === 'all' || e.type === filter)
 
-  async function remove(e: CalendarEvent) {
-    if (!window.confirm(`Delete “${e.name}” from the calendar?`)) return
+  async function remove() {
+    if (!deleteTarget) return
+    setDeleteError('')
     try {
-      await del.mutateAsync(e.id)
+      await del.mutateAsync(deleteTarget.id)
       toast('Removed', 'success')
+      setDeleteTarget(null)
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not delete', 'error')
+      setDeleteError(err instanceof Error ? err.message : 'Could not delete')
     }
   }
 
@@ -193,7 +198,7 @@ export default function CalendarPage() {
                     </td>
                     <td className="whitespace-nowrap text-right">
                       <Button variant="ghost" onClick={() => setForm({ open: true, event: e })}>Edit</Button>
-                      <Button variant="ghost" onClick={() => remove(e)} disabled={del.isPending}>Delete</Button>
+                      <Button variant="ghost" onClick={() => { setDeleteTarget(e); setDeleteError('') }} disabled={del.isPending}>Delete</Button>
                     </td>
                   </tr>
                 )
@@ -206,6 +211,7 @@ export default function CalendarPage() {
       <Modal open={form.open} title={form.event ? 'Edit calendar entry' : 'Add to calendar'} onClose={() => setForm({ open: false, event: null })}>
         <EventForm key={form.event?.id ?? 'new'} event={form.event} labels={data.labels} onClose={() => setForm({ open: false, event: null })} />
       </Modal>
+      <ConfirmModal open={!!deleteTarget} title="Delete calendar entry?" description={deleteTarget ? `Delete “${deleteTarget.name}” from the calendar? This cannot be undone.` : ''} pending={del.isPending} error={deleteError} onCancel={() => { setDeleteTarget(null); setDeleteError('') }} onConfirm={remove} />
     </div>
   )
 }

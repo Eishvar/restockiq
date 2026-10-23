@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Card, EmptyState, SegmentedControl, Table, Tooltip, useToast } from '../../components/ui'
+import { Button, Card, ConfirmModal, EmptyState, PageSkeleton, SegmentedControl, Table, Tooltip, useToast } from '../../components/ui'
 import { useMe } from '../auth/api'
 import {
   useDiscardBatch,
@@ -33,6 +33,8 @@ function BatchRowView({ item, batch, today, canEditAll }: { item: InventoryRow; 
   const remove = useRemoveBatch()
   const discard = useDiscardBatch()
   const toast = useToast()
+  const [confirmAction, setConfirmAction] = useState<'discard' | 'delete' | null>(null)
+  const [confirmError, setConfirmError] = useState('')
   const fail = (err: unknown) => toast(err instanceof Error ? err.message : 'Something went wrong', 'error')
   const expired = batch.status === 'expired'
   const label = `${item.name} bought ${fmtDate(batch.procured_on)}`
@@ -49,22 +51,22 @@ function BatchRowView({ item, batch, today, canEditAll }: { item: InventoryRow; 
   }
 
   async function onDiscard() {
-    if (!window.confirm(`Remove the expired ${item.name} (${batch.display_qty}) bought ${fmtDate(batch.procured_on)} from your stock?`)) return
     try {
       await discard.mutateAsync(batch.id)
       toast(`Expired ${item.name} removed`, 'success')
+      setConfirmAction(null)
     } catch (err) {
-      fail(err)
+      setConfirmError(err instanceof Error ? err.message : 'Could not remove expired stock')
     }
   }
 
   async function onRemove() {
-    if (!window.confirm(`Delete this batch of ${item.name} (bought ${fmtDate(batch.procured_on)})? Its history is kept.`)) return
     try {
       await remove.mutateAsync(batch.id)
       toast('Batch deleted', 'success')
+      setConfirmAction(null)
     } catch (err) {
-      fail(err)
+      setConfirmError(err instanceof Error ? err.message : 'Could not delete this batch')
     }
   }
 
@@ -140,7 +142,7 @@ function BatchRowView({ item, batch, today, canEditAll }: { item: InventoryRow; 
           ) : (
             <>
               {expired && (
-                <Button variant="danger" onClick={onDiscard} disabled={discard.isPending}>
+                  <Button variant="danger" onClick={() => { setConfirmAction('discard'); setConfirmError('') }} disabled={discard.isPending}>
                   Remove expired
                 </Button>
               )}
@@ -148,7 +150,7 @@ function BatchRowView({ item, batch, today, canEditAll }: { item: InventoryRow; 
                 Edit
               </Button>
               {canEditAll && !expired && (
-                <Button variant="ghost" onClick={onRemove} disabled={remove.isPending}>
+                <Button variant="ghost" onClick={() => { setConfirmAction('delete'); setConfirmError('') }} disabled={remove.isPending}>
                   Delete
                 </Button>
               )}
@@ -156,6 +158,7 @@ function BatchRowView({ item, batch, today, canEditAll }: { item: InventoryRow; 
           )}
         </div>
       </td>
+      <ConfirmModal open={!!confirmAction} title={confirmAction === 'discard' ? 'Remove expired stock?' : 'Delete stock batch?'} description={confirmAction === 'discard' ? `Remove the expired ${item.name} (${batch.display_qty}) bought ${fmtDate(batch.procured_on)} from your stock?` : `Delete this batch of ${item.name} bought ${fmtDate(batch.procured_on)}? Its history is kept.`} pending={discard.isPending || remove.isPending} error={confirmError} onCancel={() => { setConfirmAction(null); setConfirmError('') }} onConfirm={() => void (confirmAction === 'discard' ? onDiscard() : onRemove())} />
     </tr>
   )
 }
@@ -166,14 +169,16 @@ function ItemGroup({
 }: { row: InventoryRow; today: string; canEditAll: boolean; onHistory: () => void; onAddBatch: () => void }) {
   const remove = useRemoveItem()
   const toast = useToast()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmError, setConfirmError] = useState('')
 
   async function onRemove() {
-    if (!window.confirm(`Remove ${row.name} and all its batches from your stock? Its history is kept.`)) return
     try {
       await remove.mutateAsync(row.ingredient_id)
       toast(`${row.name} removed`, 'success')
+      setConfirmOpen(false)
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Something went wrong', 'error')
+      setConfirmError(err instanceof Error ? err.message : 'Could not remove this item')
     }
   }
 
@@ -202,7 +207,7 @@ function ItemGroup({
             <Button variant="ghost" onClick={onHistory}>
               History
             </Button>
-            {manager('remove items', <Button variant="ghost" title="Remove this item and all its batches" onClick={onRemove} disabled={!canEditAll}>Remove</Button>)}
+            {manager('remove items', <Button variant="ghost" title="Remove this item and all its batches" onClick={() => { setConfirmOpen(true); setConfirmError('') }} disabled={!canEditAll}>Remove</Button>)}
           </div>
         </td>
       </tr>
@@ -215,12 +220,13 @@ function ItemGroup({
       ) : (
         row.batches.map((b) => <BatchRowView key={b.id} item={row} batch={b} today={today} canEditAll={canEditAll} />)
       )}
+      <ConfirmModal open={confirmOpen} title="Remove this item?" description={`Remove ${row.name} and all its batches from your stock? Its history is kept.`} pending={remove.isPending} error={confirmError} onCancel={() => { setConfirmOpen(false); setConfirmError('') }} onConfirm={() => void onRemove()} />
     </>
   )
 }
 
 export default function InventoryPage() {
-  const { data, isLoading, error } = useInventory()
+  const { data, isLoading, error, refetch } = useInventory()
   const me = useMe()
   const discard = useDiscardExpired()
   const toast = useToast()
@@ -231,9 +237,11 @@ export default function InventoryPage() {
   const [noting, setNoting] = useState(false)
   const [history, setHistory] = useState<InventoryRow | null>(null)
   const [batchFor, setBatchFor] = useState<InventoryRow | null>(null)
+  const [confirmDiscardAll, setConfirmDiscardAll] = useState(false)
+  const [discardAllError, setDiscardAllError] = useState('')
 
-  if (isLoading) return <p className="text-sm text-slate-500">Loading your stock…</p>
-  if (error || !data) return <EmptyState title="Could not load your stock" hint={error?.message ?? 'Please try again.'} />
+  if (isLoading) return <PageSkeleton rows={4} />
+  if (error || !data) return <EmptyState title="Could not load your stock" hint={error?.message ?? 'Please try again.'} action={<button type="button" onClick={() => void refetch()} className="text-sm font-semibold text-emerald-800 underline">Try again</button>} />
 
   const role = me.data?.role
   const canEditAll = role === 'owner' || role === 'manager'
@@ -251,12 +259,12 @@ export default function InventoryPage() {
   )
 
   async function discardAll() {
-    if (!window.confirm(`Remove all ${expiredBatches.length} expired batch${expiredBatches.length === 1 ? '' : 'es'} from your stock?`)) return
     try {
       const r = await discard.mutateAsync(null)
       toast(`${r.batches} expired batch${r.batches === 1 ? '' : 'es'} removed`, 'success')
+      setConfirmDiscardAll(false)
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not discard', 'error')
+      setDiscardAllError(err instanceof Error ? err.message : 'Could not discard expired stock')
     }
   }
 
@@ -276,7 +284,9 @@ export default function InventoryPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" onClick={() => setNoting(true)}>⚡ Quick add from a note</Button>
+          <button type="button" onClick={() => setNoting(true)} className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-100">
+            Quick add from a note <span className="mt-0.5 block text-left text-xs font-normal text-emerald-800">English or Bahasa Malaysia · “beras 12 bag, telur 3 tray…”</span>
+          </button>
           {canEditAll ? addButton : <Tooltip text="Only managers and owners can add items">{addButton}</Tooltip>}
         </div>
       </div>
@@ -291,7 +301,7 @@ export default function InventoryPage() {
         <div className="rounded-xl border border-red-300 bg-red-50 p-3">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm font-semibold text-red-900">Expired ({expiredBatches.length}) – not counted as stock</div>
-            <Button variant="danger" onClick={discardAll} disabled={discard.isPending}>
+            <Button variant="danger" onClick={() => { setConfirmDiscardAll(true); setDiscardAllError('') }} disabled={discard.isPending}>
               Remove all expired
             </Button>
           </div>
@@ -378,6 +388,7 @@ export default function InventoryPage() {
       <AddItemModal open={adding} today={data.today} onClose={() => setAdding(false)} />
       <QuickNoteModal open={noting} data={data} onClose={() => setNoting(false)} />
       <HistoryModal ingredientId={history?.ingredient_id ?? null} name={history?.name ?? ''} onClose={() => setHistory(null)} />
+      <ConfirmModal open={confirmDiscardAll} title="Remove all expired batches?" description={`Remove all ${expiredBatches.length} expired batches from your stock? This does not remove their history.`} pending={discard.isPending} error={discardAllError} onCancel={() => { setConfirmDiscardAll(false); setDiscardAllError('') }} onConfirm={() => void discardAll()} />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Badge, Button, Card, Modal, Tooltip, useToast } from '../../components/ui'
 import { inputCls } from '../inventory/QtyInput'
 import {
@@ -34,7 +34,7 @@ function Stepper({ status }: { status: OrderStatus }) {
           >
             {s.label}
           </span>
-          {i < steps.length - 1 && <span className="text-slate-300">›</span>}
+          {i < steps.length - 1 && <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-300"><path d="m9 18 6-6-6-6"/></svg>}
         </li>
         )
       })}
@@ -79,40 +79,51 @@ function Buy({ line, order, editable }: { line: Line; order: Order; editable: bo
   const edit = useEditLine()
   const toast = useToast()
   const [text, setText] = useState(String(line.final_packs))
-  const [seen, setSeen] = useState(line.final_packs)
-  if (seen !== line.final_packs) {
-    setSeen(line.final_packs)
-    setText(String(line.final_packs))
-  }
+  const [saving, setSaving] = useState(false)
+  const busyRef = useRef(false)
+  useEffect(() => { if (!busyRef.current) setText(String(line.final_packs)) }, [line.final_packs])
   if (!editable) return <span>{line.display_buy}</span>
 
-  async function commit() {
-    const n = parseInt(text)
-    if (Number.isNaN(n) || n < 0) return setText(String(line.final_packs))
+  async function commit(value = text) {
+    const n = Number(value)
+    if (!Number.isInteger(n) || n < 0) { setText(String(line.final_packs)); return }
     if (n === line.final_packs) return
+    if (busyRef.current) return
+    busyRef.current = true
+    setSaving(true)
     try {
       await edit.mutateAsync({ orderId: order.id, lineId: line.id, finalPacks: n })
+      setText(String(n))
     } catch (err) {
       setText(String(line.final_packs))
       toast(err instanceof Error ? err.message : 'Could not change the amount', 'error')
+    } finally {
+      busyRef.current = false
+      setSaving(false)
     }
   }
 
   return (
-    <span className="inline-flex items-center gap-1">
+    <div className="flex min-w-40 flex-wrap items-center gap-1">
+      <button type="button" aria-label={`Decrease packs of ${line.name}`} disabled={saving || Number(text) <= 0} onPointerDown={(e) => e.preventDefault()} onClick={() => { if (busyRef.current) return; const n = Math.max(0, Number(text || 0) - 1); setText(String(n)); void commit(String(n)) }} className="h-11 w-11 rounded-lg border border-slate-300 bg-white font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40">−</button>
       <input
         type="number"
         min={0}
+        step={1}
         inputMode="numeric"
         aria-label={`Packs of ${line.name}`}
         value={text}
-        onChange={(e) => setText(e.target.value)}
-        onBlur={commit}
+        onChange={(e) => { if (/^\d*$/.test(e.target.value)) setText(e.target.value) }}
+        onBlur={() => void commit()}
         onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-        className={`${inputCls} w-16`}
+        disabled={saving}
+        className={`${inputCls} h-11 w-16 text-center`}
       />
       <span className="text-xs text-slate-500">{line.pack_uom}</span>
-    </span>
+      <button type="button" aria-label={`Increase packs of ${line.name}`} disabled={saving} onPointerDown={(e) => e.preventDefault()} onClick={() => { if (busyRef.current) return; const n = Math.max(0, Number(text || 0)) + 1; setText(String(n)); void commit(String(n)) }} className="h-11 w-11 rounded-lg border border-slate-300 bg-white font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40">+</button>
+      {saving && <span role="status" className="text-xs text-slate-500">Saving…</span>}
+      {line.final_packs !== line.suggested_packs && <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-xs text-amber-900">Edited (suggested: {line.suggested_packs}) <button type="button" aria-label={`Reset packs of ${line.name} to suggested ${line.suggested_packs}`} disabled={saving} className="min-h-11 font-semibold underline" onPointerDown={(e) => e.preventDefault()} onClick={() => { if (busyRef.current) return; setText(String(line.suggested_packs)); void commit(String(line.suggested_packs)) }}>Reset</button></span>}
+    </div>
   )
 }
 
@@ -273,7 +284,7 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
         )}
       </div>
       {order.warnings.map((w) => (
-        <p key={w} className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">⚠ {w}</p>
+        <p key={w} className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><svg aria-hidden="true" className="mt-0.5 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3 2.7 20h18.6L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>{w}</p>
       ))}
 
       {/* Wide screens: a table */}

@@ -87,7 +87,7 @@ export default function QuickNoteModal({ open, onClose, data }: { open: boolean;
   }
 
   return (
-    <Modal open={open} title="⚡ Quick add from a note" onClose={close}>
+    <Modal open={open} title="Quick add from a note" onClose={close}>
       {!result ? (
         <div className="space-y-3">
           <p className="text-sm text-slate-600">
@@ -183,7 +183,7 @@ export default function QuickNoteModal({ open, onClose, data }: { open: boolean;
                       </label>
                     )}
                   </div>
-                  {r.issue && <p className="mt-2 text-xs text-amber-800">⚠ {r.issue}</p>}
+                  {r.issue && <p className="mt-2 flex items-start gap-1.5 text-xs text-amber-800"><svg aria-hidden="true" className="mt-px shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3 2.7 20h18.6L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>{r.issue}</p>}
                 </div>
               )
             })}

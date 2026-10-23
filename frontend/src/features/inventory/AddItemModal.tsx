@@ -180,11 +180,11 @@ export default function AddItemModal({ open, today, onClose }: Props) {
               <input required type="number" min={1} value={shelfLife} onChange={(e) => setShelfLife(e.target.value)} className={`${inputCls} w-full`} />
               {aiOff ? (
                 <Tooltip text={UNAVAILABLE_TEXT}>
-                  <Button type="button" variant="secondary" disabled>⚡ Suggest</Button>
+                  <Button type="button" variant="secondary" disabled>Suggest</Button>
                 </Tooltip>
               ) : (
                 <Button type="button" variant="secondary" onClick={suggest} disabled={!name.trim() || suggesting.isPending}>
-                  {suggesting.isPending ? '…' : '⚡ Suggest'}
+                  {suggesting.isPending ? 'Suggesting…' : 'Suggest'}
                 </Button>
               )}
             </span>

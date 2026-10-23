@@ -1,6 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 
-body {
-  @apply bg-slate-50 text-slate-900 antialiased;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+:root {
+  color-scheme: light;
+  --ink: #253a35;
+  --paper: #f5f7f1;
+  --leaf: #16845f;
+  --line: #dce5dc;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
 }
+
+body { @apply antialiased; margin: 0; background: var(--paper); color: var(--ink); }
+h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 3px solid #75b99b; outline-offset: 2px;
+}
+@keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.page-enter { animation: rise-in .28s ease-out both; }

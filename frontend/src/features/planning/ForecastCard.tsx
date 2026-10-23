@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts'
 import { Button, Card, Chip, Table } from '../../components/ui'
 import type { Drivers, Plan } from './api'
-import { fmtDay, fmtShort, num, prettyState, weekdayLong } from './format'
+import { fmtDay, num, prettyState, weekdayLong } from './format'
+import { bridgeForecastHistory } from './forecast-data'
 
 const signed = (factor: number) => `${factor >= 1 ? '+' : '−'}${Math.abs(Math.round((factor - 1) * 100))}%`
 
@@ -20,10 +21,7 @@ export function driverChips(date: string, d: Drivers): { text: string; hint: str
 export default function ForecastCard({ plan }: { plan: Plan }) {
   const [showAll, setShowAll] = useState(false)
   const { days, dishes, history } = plan.forecast
-  const chart = [
-    ...history.map((h) => ({ label: fmtShort(h.date), actual: h.total })),
-    ...days.map((d) => ({ label: fmtShort(d.date), forecast: Math.round(d.total) })),
-  ]
+  const chart = bridgeForecastHistory(history, days)
   const shown = showAll ? dishes : dishes.slice(0, 12)
 
   return (

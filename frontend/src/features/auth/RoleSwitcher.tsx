@@ -14,9 +14,10 @@ export default function RoleSwitcher() {
   const valid = users.data?.some((u) => String(u.id) === stored)
   const me = useMe(!!valid)
 
-  function choose(id: string) {
+  async function choose(id: string) {
+    await qc.cancelQueries()
     setStoredUserId(id)
-    qc.invalidateQueries() // refetch everything as the new user
+    await qc.invalidateQueries()
   }
 
   function signOut() {

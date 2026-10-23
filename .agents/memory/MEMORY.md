@@ -1,1 +1,2 @@
 - [Supplier order placement](supplier-order-placement.md) — contact links must not advance an order; approval follows explicit placement confirmation.
+- [Demo UX and copy](demo-ux-and-copy.md) — hackathon judging context, recoverable demo role restrictions, and no time-saved marketing claims.

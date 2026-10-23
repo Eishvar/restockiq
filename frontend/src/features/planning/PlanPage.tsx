@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Card, EmptyState, SegmentedControl, Table, useToast } from '../../components/ui'
+import { Card, EmptyState, PageSkeleton, SegmentedControl, Table, useToast } from '../../components/ui'
 import { ApiError } from '../../api/client'
 import { useGeneratePlan, usePlan, usePlanContext, type Plan } from './api'
 import ForecastCard from './ForecastCard'
@@ -121,10 +121,11 @@ export default function PlanPage() {
         </div>
       </Card>
 
-      {(ctx.isLoading || plan.isLoading) && <p className="text-sm text-slate-500">Loading…</p>}
-      {plan.error && <EmptyState title="Could not load the plan" hint={plan.error.message} />}
+      {(ctx.isLoading || plan.isLoading) && <PageSkeleton rows={3} />}
+      {ctx.error && <EmptyState title="Could not load planning data" hint={ctx.error.message} action={<button type="button" onClick={() => void ctx.refetch()} className="text-sm font-semibold text-emerald-800 underline">Try again</button>} />}
+      {plan.error && <EmptyState title="Could not load the plan" hint={plan.error.message} action={<button type="button" onClick={() => void plan.refetch()} className="text-sm font-semibold text-emerald-800 underline">Try again</button>} />}
 
-      {!p && !ctx.isLoading && !plan.isLoading && !plan.error && (
+      {!p && !ctx.isLoading && !ctx.error && !plan.isLoading && !plan.error && (
         <EmptyState
           title="No plan yet"
           hint="Choose the number of days and generate a purchase plan."
@@ -148,16 +149,17 @@ export default function PlanPage() {
               </ul>
             </details>
           )}
-          <SupplierOrdersBoard />
+          <div id="supplier-orders" className="scroll-mt-24"><SupplierOrdersBoard planId={p.id} /></div>
         </>
       )}
 
       {p && p.orders.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:left-56">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:left-60">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-slate-600">
               {active.length} order{active.length === 1 ? '' : 's'} · {active.filter((o) => ['approved', 'sent', 'received'].includes(o.status)).length} approved
             </div>
+            <button type="button" onClick={() => document.getElementById('supplier-orders')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="inline-flex min-h-9 items-center gap-1 text-sm font-semibold text-emerald-800 underline underline-offset-2">Review supplier orders <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 4v16m-7-7 7 7 7-7"/></svg></button>
             <div className="text-lg font-semibold">Grand total {rm(total)}</div>
           </div>
         </div>

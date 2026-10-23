@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button, EmptyState, useToast } from '../../components/ui'
 import { inputCls } from '../inventory/QtyInput'
 import { useSuppliers, type Supplier } from '../inventory/api'
@@ -68,9 +68,26 @@ function SupplierDetails({ supplier }: { supplier: Supplier }) {
   )
 }
 
-function SupplierGroup({ supplier, orders }: { supplier: Supplier; orders: Order[] }) {
-  const [expanded, setExpanded] = useState(false)
-  const [tab, setTab] = useState<Tab>('draft')
+function SupplierGroup({ supplier, orders, planId }: { supplier: Supplier; orders: Order[]; planId?: number }) {
+  const hasDraft = orders.some((order) => ['draft', 'pending_approval'].includes(order.status))
+  const hasApproved = orders.some((order) => ['approved', 'sent'].includes(order.status))
+  const preferredTab: Tab = hasDraft ? 'draft' : hasApproved ? 'approved' : orders.some((order) => order.status === 'received') ? 'received' : 'draft'
+  const currentPlanOrders = orders.filter((order) => order.run_id === planId)
+  const activeIds = orders.filter((order) => ['draft', 'pending_approval'].includes(order.status) || order.run_id === planId).map((order) => order.id).sort((a, b) => a - b).join(',')
+  const [expanded, setExpanded] = useState(() => hasDraft || currentPlanOrders.length > 0)
+  const [tab, setTab] = useState<Tab>(() => preferredTab)
+  const knownActiveIds = useRef(activeIds)
+  useEffect(() => {
+    if (activeIds !== knownActiveIds.current) {
+      const previous = new Set(knownActiveIds.current ? knownActiveIds.current.split(',') : [])
+      const added = activeIds.split(',').filter((id) => id && !previous.has(id))
+      knownActiveIds.current = activeIds
+      if (added.length) {
+        setExpanded(true)
+        setTab(preferredTab)
+      }
+    }
+  }, [activeIds, preferredTab])
   const tabOrders = orders.filter((order) => bucket(order.status) === tab)
   const counts = Object.fromEntries(TABS.map(({ id }) => [id, orders.filter((order) => bucket(order.status) === id).length])) as Record<Tab, number>
 
@@ -83,7 +100,7 @@ function SupplierGroup({ supplier, orders }: { supplier: Supplier; orders: Order
         onClick={() => setExpanded((open) => !open)}
       >
         <span className="flex min-w-0 items-center gap-2">
-          <span aria-hidden="true" className="w-4 shrink-0 text-xs text-black">{expanded ? '▼' : '▶'}</span>
+          <svg aria-hidden="true" className={`shrink-0 text-black transition-transform ${expanded ? 'rotate-90' : ''}`} width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 2.5 11 8l-6 5.5Z"/></svg>
           <span className="truncate font-semibold text-slate-900">{supplier.name}</span>
         </span>
         <span className="shrink-0 text-xs text-slate-500">
@@ -121,7 +138,7 @@ function SupplierGroup({ supplier, orders }: { supplier: Supplier; orders: Order
 }
 
 /** Every supplier gets an independent collapsible order list and three simple status tabs. */
-export default function SupplierOrdersBoard() {
+export default function SupplierOrdersBoard({ planId }: { planId?: number }) {
   const orders = useOrders('')
   const supplierList = useSuppliers()
   if (orders.isLoading || supplierList.isLoading) return <p className="text-sm text-slate-500">Loading supplier details…</p>
@@ -141,7 +158,7 @@ export default function SupplierOrdersBoard() {
         <p className="text-sm text-slate-600">Expand a supplier to manage its number and minimum order, edit draft quantities, and track orders through delivery.</p>
       </div>
       {suppliers.map((supplier) => (
-        <SupplierGroup key={supplier.id} supplier={supplier} orders={grouped.get(supplier.id) ?? []} />
+        <SupplierGroup key={supplier.id} supplier={supplier} orders={grouped.get(supplier.id) ?? []} planId={planId} />
       ))}
     </div>
   )
