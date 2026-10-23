@@ -1,7 +1,7 @@
 modules = ["python-3.12", "nodejs-20", "web", "nix"]
 
 # "Run" button in the workspace: build the web app once, then serve everything from one process.
-run = ["sh", "-c", "cd frontend && npm ci && npm run build && cd ../backend && pip install -r requirements.txt && python -m app.seed.load --if-empty && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+run = ["sh", "-c", "cd frontend && npm ci && npm run build && cd ../backend && python -m app.seed.load --if-empty && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
 
 [nix]
 channel = "stable-25_05"
