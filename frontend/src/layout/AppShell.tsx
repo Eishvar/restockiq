@@ -7,7 +7,7 @@ import RoleSwitcher from '../features/auth/RoleSwitcher'
 export const NAV = [
   { path: '/plan', label: 'Plan purchases' },
   { path: '/inventory', label: 'Inventory' },
-  { path: '/orders', label: 'Orders' },
+  { path: '/orders', label: 'Order history' },
   { path: '/dashboard', label: 'Dashboard' },
   { path: '/calendar', label: 'Calendar' },
   { path: '/recipes', label: 'Recipes' },
