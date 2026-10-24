@@ -38,6 +38,21 @@ class Supplier(Base):
     whatsapp: Mapped[str] = mapped_column(String(30), default="")
 
 
+class StorageArea(Base):
+    """A place where stock is kept (Freezer, Chiller, Dry store, or one the owner adds).
+
+    `key` is what ingredients.storage stores and never changes; `name` is what people see and can be renamed.
+    """
+
+    __tablename__ = "storage_areas"
+    __table_args__ = (UniqueConstraint("tenant_id", "key"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tenant_id: Mapped[int] = mapped_column(ForeignKey("tenants.id"), index=True)
+    key: Mapped[str] = mapped_column(String(20))
+    name: Mapped[str] = mapped_column(String(60))
+
+
 class Ingredient(Base):
     __tablename__ = "ingredients"
     __table_args__ = (UniqueConstraint("tenant_id", "code"),)

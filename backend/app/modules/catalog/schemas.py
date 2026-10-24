@@ -28,6 +28,16 @@ class SupplierOut(BaseModel):
     whatsapp: str
 
 
+class NameIn(BaseModel):
+    name: str
+
+
+class StorageAreaOut(BaseModel):
+    key: str
+    name: str
+    items: int  # how many ingredients are kept here
+
+
 class IngredientOut(BaseModel):
     id: int
     code: str

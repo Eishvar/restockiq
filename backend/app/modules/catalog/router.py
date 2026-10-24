@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.auth import current_user
+from app.core.auth import current_user, require_role
 from app.db import get_db
+from app.modules.catalog import service
 from app.modules.catalog.models import Ingredient, MenuItem, Recipe, Supplier
-from app.modules.catalog.schemas import IngredientOut, MenuItemOut, RecipeOut, SupplierOut
+from app.modules.catalog.schemas import IngredientOut, MenuItemOut, NameIn, RecipeOut, StorageAreaOut, SupplierOut
 from app.modules.settings.models import User
 
 router = APIRouter(prefix="/catalog", tags=["catalog"])
@@ -19,6 +20,35 @@ def menu(user: User = Depends(current_user), db: Session = Depends(get_db)):
 @router.get("/suppliers", response_model=list[SupplierOut])
 def suppliers(user: User = Depends(current_user), db: Session = Depends(get_db)):
     return db.scalars(select(Supplier).where(Supplier.tenant_id == user.tenant_id).order_by(Supplier.code)).all()
+
+
+@router.post("/suppliers", response_model=SupplierOut, status_code=201)
+def add_supplier(body: NameIn, user: User = Depends(require_role("manager")), db: Session = Depends(get_db)):
+    """Add a supplier by name. Its WhatsApp number and minimum order are filled in later under Supplier details."""
+    return service.add_supplier(db, user, body.name)
+
+
+@router.patch("/suppliers/{supplier_id}", response_model=SupplierOut)
+def rename_supplier(supplier_id: int, body: NameIn, user: User = Depends(require_role("manager")),
+                    db: Session = Depends(get_db)):
+    return service.rename_supplier(db, user, supplier_id, body.name)
+
+
+@router.get("/storage-areas", response_model=list[StorageAreaOut])
+def storage_areas(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """The places stock can be kept (Freezer, Chiller, Dry store and any the business added)."""
+    return service.list_areas(db, user)
+
+
+@router.post("/storage-areas", response_model=StorageAreaOut, status_code=201)
+def add_storage_area(body: NameIn, user: User = Depends(require_role("manager")), db: Session = Depends(get_db)):
+    return service.add_area(db, user, body.name)
+
+
+@router.patch("/storage-areas/{key}", response_model=StorageAreaOut)
+def rename_storage_area(key: str, body: NameIn, user: User = Depends(require_role("manager")),
+                        db: Session = Depends(get_db)):
+    return service.rename_area(db, user, key, body.name)
 
 
 @router.get("/ingredients", response_model=list[IngredientOut])

@@ -51,7 +51,7 @@ class InventoryList(BaseModel):
 
 class ItemCreate(BaseModel):
     name: str = Field(min_length=1, max_length=160)
-    storage: Literal["freezer", "chiller", "dry"] = "dry"
+    storage: str = Field(default="dry", min_length=1, max_length=20)  # a key from /catalog/storage-areas
     base_uom: Literal["g", "ml", "pcs"]
     supplier_id: int | None = None
     pack_uom: str = Field(min_length=1, max_length=60, description='e.g. "BAG (10kg)"')
@@ -60,7 +60,6 @@ class ItemCreate(BaseModel):
     shelf_life_days: int = Field(ge=1, le=3650)
     qty_base: float = Field(default=0, ge=0)
     last_purchased_on: date | None = None
-    suggestion_id: int | None = None  # set when the shelf life came from the AI "Suggest" button
 
 
 class ItemPatch(BaseModel):

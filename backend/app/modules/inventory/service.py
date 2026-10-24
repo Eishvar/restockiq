@@ -15,7 +15,7 @@ from app.core.activity import log_action
 from app.core.clock import now_kl
 from app.core.today import get_today
 from app.core.units import format_qty
-from app.modules.assistant.models import AISuggestion
+from app.modules.catalog import service as catalog_service
 from app.modules.catalog.models import Ingredient, Supplier
 from app.modules.inventory.models import InventoryBatch, InventoryItem, InventoryMovement
 from app.modules.inventory.schemas import (
@@ -240,6 +240,8 @@ def add_item(db: Session, user: User, body: ItemCreate) -> InventoryRow:
         supplier = db.get(Supplier, body.supplier_id)
         if supplier is None or supplier.tenant_id != user.tenant_id:
             raise HTTPException(422, "Unknown supplier")
+    if body.storage not in {a.key for a in catalog_service.ensure_areas(db, user.tenant_id)}:
+        raise HTTPException(422, "Unknown place. Add it first, then choose it.")
     today = get_today(db, user.tenant_id)
     _check_not_future(body.last_purchased_on, today)
     ing = Ingredient(
@@ -268,15 +270,6 @@ def add_item(db: Session, user: User, body: ItemCreate) -> InventoryRow:
         db, user, "inventory_item_added", "inventory", ing.id,
         {"name": ing.name, "qty_base": body.qty_base, "shelf_life_days": ing.shelf_life_days},
     )
-    if body.suggestion_id is not None:  # the person used an AI shelf-life suggestion for this item
-        suggestion = db.get(AISuggestion, body.suggestion_id)
-        if suggestion and suggestion.tenant_id == user.tenant_id and suggestion.kind == "shelf_life" and suggestion.status == "pending":
-            suggestion.status, suggestion.decided_by = "applied", user.id
-            log_action(
-                db, user, "ai_suggestion_applied", "ai_suggestion", suggestion.id,
-                {"kind": "shelf_life", "item": ing.name, "suggested_days": suggestion.payload["shelf_life_days"],
-                 "final_days": ing.shelf_life_days},
-            )
     db.commit()
     return _full_row(db, user, ing.id, today)
 
