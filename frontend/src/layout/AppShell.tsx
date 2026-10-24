@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getHealth } from '../api/client'
@@ -37,27 +37,35 @@ function LockIcon() {
 
 export default function AppShell() {
   const [open, setOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('restockai_sidebar') === 'collapsed')
+  useEffect(() => {
+    localStorage.setItem('restockai_sidebar', collapsed ? 'collapsed' : 'expanded')
+    document.documentElement.style.setProperty('--sidebar-w', collapsed ? '4.5rem' : '15rem')
+    return () => { document.documentElement.style.removeProperty('--sidebar-w') }
+  }, [collapsed])
   const health = useQuery({ queryKey: ['health'], queryFn: getHealth, retry: false })
   const me = useMe()
 
-  const sidebar = (
+  const renderNav = (compact: boolean) => (
     <nav className="flex flex-col gap-5 p-3">
       {['Operations', 'Business'].map((group) => <div key={group}>
-        <div className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[.16em] text-slate-400">{group}</div>
+        {compact ? <div className="mx-3 mb-2 border-t border-brand-border" /> : <div className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[.16em] text-slate-400">{group}</div>}
         <div className="flex flex-col gap-1">{NAV.filter((n) => n.group === group).map((n) => (
         <NavLink
           key={n.path}
           to={n.path}
           onClick={() => setOpen(false)}
+          title={compact ? n.label : undefined}
+          aria-label={compact ? n.label : undefined}
           className={({ isActive }) =>
-            `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+            `flex items-center gap-3 rounded-xl px-3 py-2.5 ${compact ? 'justify-center' : ''} text-sm font-medium transition ${
               isActive ? 'bg-brand-royal text-white shadow-sm' : 'text-slate-700 hover:bg-brand-surface hover:text-brand-navy'
             }`
           }
         >
           <NavIcon name={n.icon} />
-          <span className="flex-1">{n.label}</span>
-          {me.data?.role === 'staff' && n.restricted && <span title={`Requires ${n.restricted} access`} className="opacity-60"><LockIcon /></span>}
+          {!compact && <span className="flex-1">{n.label}</span>}
+          {!compact && me.data?.role === 'staff' && n.restricted && <span title={`Requires ${n.restricted} access`} className="opacity-60"><LockIcon /></span>}
         </NavLink>
       ))}</div></div>)}
     </nav>
@@ -66,9 +74,15 @@ export default function AppShell() {
   return (
     <div className="flex min-h-[100dvh]">
       {/* Desktop sidebar */}
-      <aside className="hidden w-60 shrink-0 border-r border-brand-border bg-brand-paper md:block">
-        <div className="px-5 py-5 text-lg font-extrabold tracking-tight text-brand-navy">Restock<span className="text-slate-700">AI</span><span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[.18em] text-slate-400">Kitchen purchasing</span></div>
-        {sidebar}
+      <aside className={`hidden shrink-0 border-r border-brand-border bg-brand-paper transition-[width] duration-200 md:block ${collapsed ? 'w-[4.5rem]' : 'w-60'}`}>
+        <div className="sticky top-0">
+          {collapsed ? (
+            <div className="px-2 py-5 text-center text-lg font-extrabold tracking-tight text-brand-navy" title="RestockAI">R</div>
+          ) : (
+            <div className="px-5 py-5 text-lg font-extrabold tracking-tight text-brand-navy">Restock<span className="text-slate-700">AI</span><span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[.18em] text-slate-400">Kitchen purchasing</span></div>
+          )}
+          {renderNav(collapsed)}
+        </div>
       </aside>
 
       {/* Mobile drawer */}
@@ -77,15 +91,18 @@ export default function AppShell() {
           <div className="absolute inset-0 bg-black/40" />
           <aside className="absolute left-0 top-0 h-full w-60 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="px-5 py-5 text-lg font-extrabold text-brand-navy">RestockAI</div>
-            {sidebar}
+            {renderNav(false)}
           </aside>
         </div>
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:justify-end">
+        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:justify-between">
           <button className="rounded-md p-2 text-slate-700 md:hidden" aria-label="Open menu" onClick={() => setOpen(true)}>
             <svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <button type="button" className="mr-auto hidden rounded-md p-2 text-slate-700 hover:bg-brand-surface md:block" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded={!collapsed} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsed((c) => !c)}>
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>{collapsed ? <path d="m14 10 2 2-2 2"/> : <path d="m16 10-2 2 2 2"/>}</svg>
           </button>
           <div className="flex items-center gap-3">
             <RoleSwitcher />
