@@ -3,6 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getHealth } from '../api/client'
 import RoleSwitcher from '../features/auth/RoleSwitcher'
+import HelpChat from '../features/help/HelpChat'
 import { useMe } from '../features/auth/api'
 import type { ReactNode } from 'react'
 
@@ -97,6 +98,7 @@ export default function AppShell() {
           <Outlet />
         </main>
       </div>
+      <HelpChat />
     </div>
   )
 }

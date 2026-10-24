@@ -47,6 +47,7 @@ Event rules that affect the code: Replit must be used (deployment); GPU work mus
 - Data from data/*.csv (synthetic). Never read or commit files outside the repo. No secrets in code.
 - "Today" defaults to the day after the latest sales date (2026-10-22), overridable via env TODAY or Settings. Horizon 1–7 days starting tomorrow. Importing a day of sales therefore moves "today" forward by itself (the daily-use behaviour).
 - First-time setup (modules/setup, table tenant_setup) is country -> POS -> stock -> optional calendar; the frontend sends the owner there until it is done. Malaysia sets MYR and adds data/calendar_my.csv holidays (no duplicates).
+- Help chat (modules/help, frontend features/help): FAQ answers live in modules/help/faq.py and cost nothing; the AI answers only questions not on the list, from that same text, is rate limited and sends no business data. When a screen changes, update the matching FAQ answer.
 - Sales arrive by CSV upload (modules/pos): preview, then confirm; unknown dishes and bad rows are listed and left out, never guessed; a day in the file replaces that day. FeedMe is SIMULATED (pos/feedme.py, synthetic data, invented columns): never present it as the real FeedMe.
 
 ## Conventions

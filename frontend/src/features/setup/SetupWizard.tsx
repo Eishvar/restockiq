@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Badge, Button, Card, EmptyState, useToast } from '../../components/ui'
 import { useMe } from '../auth/api'
 import { useAddEvent } from '../calendar/api'
+import HelpChat from '../help/HelpChat'
 import { useInventory } from '../inventory/api'
 import OnboardingWizard from '../inventory/OnboardingWizard'
 import { inputCls } from '../inventory/QtyInput'
@@ -280,6 +281,7 @@ export default function SetupWizard() {
         {data.step === 'inventory' && <InventoryStep />}
         {data.step === 'calendar' && <CalendarStep />}
       </main>
+      <HelpChat />
     </div>
   )
 }
