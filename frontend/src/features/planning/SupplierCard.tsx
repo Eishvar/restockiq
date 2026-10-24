@@ -263,22 +263,29 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
 
   return (
     <Card>
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          {showSupplierTitle ? (
-            <h3 className="text-base font-semibold">{order.supplier_name}</h3>
-          ) : (
-            <h3 className="text-sm font-semibold">Order #{order.id} · plan #{order.run_id} ({order.plan_today})</h3>
-          )}
-          <p className="text-xs text-slate-500">
-            {lines.length} item{lines.length === 1 ? '' : 's'}
-            {order.created_at ? ` · created ${fmtDay(order.created_at.slice(0, 10))}` : ''}
-            {order.approved_by_name ? ` · approved by ${order.approved_by_name}` : ''}
-          </p>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-brand-royal/10 via-brand-sky/10 to-brand-cyan/10 p-3">
+        <div className="flex min-w-0 items-center gap-3">
+          {showSupplierTitle && <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-royal text-lg font-bold text-white">{order.supplier_name.trim().charAt(0).toUpperCase()}</span>}
+          <div className="min-w-0">
+            {showSupplierTitle ? (
+              <h3 className="truncate text-base font-semibold text-brand-navy">{order.supplier_name}</h3>
+            ) : (
+              <h3 className="text-sm font-semibold text-brand-navy">Order #{order.id}</h3>
+            )}
+            <p className="text-xs text-slate-600">
+              {!showSupplierTitle && `Plan #${order.run_id} (${order.plan_today}) · `}
+              {lines.length} item{lines.length === 1 ? '' : 's'}
+              {order.created_at ? ` · created ${fmtDay(order.created_at.slice(0, 10))}` : ''}
+              {order.approved_by_name ? ` · approved by ${order.approved_by_name}` : ''}
+            </p>
+          </div>
         </div>
-        <div className="text-right text-lg font-semibold">{rm(order.total_rm)}</div>
+        <div className="text-right">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">Order total</div>
+          <div className="text-xl font-bold tabular-nums text-brand-royal">{rm(order.total_rm)}</div>
+        </div>
       </div>
-      <div className="mt-2">
+      <div className="mt-3">
         <Stepper status={order.status} />
         {order.status === 'rejected' && order.reject_reason && (
           <p className="mt-1 text-sm text-red-700">Reason: {order.reject_reason}</p>
@@ -295,24 +302,28 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
       )}
 
       <div className="mt-3 space-y-2">
-        {lines.map((l) => (
-          <section key={l.id} className="rounded-lg border border-slate-200 bg-white p-3 sm:p-4" aria-label={`${l.name} order line`}>
-            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+        {lines.map((l) => {
+          const edited = l.final_packs !== l.suggested_packs
+          return (
+          <section key={l.id} className={`rounded-xl border border-l-4 bg-white p-3 sm:p-4 ${edited ? 'border-amber-200 border-l-amber-400' : 'border-slate-200 border-l-emerald-400'}`} aria-label={`${l.name} order line`}>
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
               <div className="min-w-0">
                 <h4 className="font-semibold text-slate-900">{l.name}</h4>
-                <p className="mt-1 text-sm text-slate-600">Order quantity</p>
-                <div className="mt-1"><Buy line={l} order={order} editable={editable} /></div>
+                <div className="mt-2 inline-flex flex-wrap items-center gap-2 rounded-lg bg-brand-surface px-2.5 py-1.5">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-brand-navy">Buy</span>
+                  <Buy line={l} order={order} editable={editable} />
+                </div>
               </div>
               <div className="flex items-baseline justify-between gap-4 border-t border-slate-100 pt-2 sm:block sm:border-0 sm:pt-0 sm:text-right">
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Line total</span>
-                <span className="text-lg font-semibold tabular-nums text-slate-900 sm:block">{rm(l.line_total_rm)}</span>
+                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Cost</span>
+                <span className="text-lg font-bold tabular-nums text-brand-navy sm:block">{rm(l.line_total_rm)}</span>
               </div>
             </div>
-            <details className="mt-3 border-t border-slate-100 pt-2">
-              <summary className="w-fit cursor-pointer rounded text-sm font-medium text-brand-royal underline decoration-dotted underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-royal">
+            <details className="mt-2 border-t border-slate-100 pt-1">
+              <summary className="flex min-h-9 w-fit cursor-pointer items-center rounded text-sm font-medium text-brand-royal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-royal">
                 Planning details
               </summary>
-              <dl className="mt-3 grid grid-cols-1 gap-x-5 gap-y-3 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+              <dl className="mt-2 grid grid-cols-2 gap-x-5 gap-y-3 rounded-lg bg-brand-surface/60 p-3 text-sm lg:grid-cols-3">
                 <div><dt className="text-xs text-slate-500">Forecast need</dt><dd className="mt-0.5 font-medium">{l.display_need}</dd></div>
                 <div><dt className="text-xs text-slate-500">Safety buffer</dt><dd className="mt-0.5 font-medium"><Buffer line={l} /></dd></div>
                 <div><dt className="text-xs text-slate-500">Usable stock</dt><dd className="mt-0.5 font-medium"><Stock line={l} /></dd></div>
@@ -320,12 +331,13 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
                 <div><dt className="text-xs text-slate-500">Pack price</dt><dd className="mt-0.5 font-medium tabular-nums">{rm(l.pack_price_rm)}</dd></div>
               </dl>
             </details>
-            <Button variant="ghost" className="mt-1 px-0" onClick={() => setOpen(open === l.id ? null : l.id)} aria-expanded={open === l.id} aria-controls={`why-${order.id}-${l.id}`}>
+            <Button variant="ghost" className="px-0" onClick={() => setOpen(open === l.id ? null : l.id)} aria-expanded={open === l.id} aria-controls={`why-${order.id}-${l.id}`}>
               Why?
             </Button>
             {open === l.id && <div id={`why-${order.id}-${l.id}`} className="mt-1"><Why line={l} /></div>}
           </section>
-        ))}
+          )
+        })}
       </div>
 
       {order.note_text && <OrderNote text={order.note_text} />}

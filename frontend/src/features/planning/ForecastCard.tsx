@@ -24,6 +24,13 @@ const splitName = (name: string): [string, string] => {
   return i <= 0 ? [name, ''] : [name.slice(0, i).trim(), name.slice(i).trim()]
 }
 
+const DAY_ACCENTS = [
+  { card: 'border-brand-royal/30 bg-gradient-to-br from-brand-royal/15 via-brand-royal/5 to-white', bar: 'bg-brand-royal', label: 'text-brand-royal', num: 'text-brand-royal' },
+  { card: 'border-brand-sky/40 bg-gradient-to-br from-brand-sky/20 via-brand-sky/5 to-white', bar: 'bg-brand-sky', label: 'text-sky-700', num: 'text-sky-700' },
+  { card: 'border-brand-cyan/50 bg-gradient-to-br from-brand-cyan/20 via-brand-cyan/5 to-white', bar: 'bg-brand-cyan', label: 'text-teal-700', num: 'text-teal-700' },
+  { card: 'border-indigo-300/60 bg-gradient-to-br from-indigo-200/40 via-indigo-100/20 to-white', bar: 'bg-indigo-400', label: 'text-indigo-700', num: 'text-indigo-700' },
+]
+
 export default function ForecastCard({ plan, accuracy }: { plan: Plan; accuracy?: number | null }) {
   const [showAll, setShowAll] = useState(false)
   const { days, dishes, history } = plan.forecast
@@ -33,10 +40,13 @@ export default function ForecastCard({ plan, accuracy }: { plan: Plan; accuracy?
   return (
     <Card title="What we expect you to sell">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {days.map((d) => (
-          <div key={d.date} className="rounded-lg border border-slate-200 p-3">
-            <div className="text-xs font-medium uppercase text-slate-500">{d.is_today ? 'Today (so far)' : fmtDay(d.date)}</div>
-            <div className="mt-1 text-2xl font-semibold">{num(Math.round(d.total), 0)}</div>
+        {days.map((d, i) => {
+          const a = DAY_ACCENTS[i % DAY_ACCENTS.length]
+          return (
+          <div key={d.date} className={`relative overflow-hidden rounded-xl border p-3 pt-4 ${a.card}`}>
+            <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1.5 ${a.bar}`} />
+            <div className={`text-xs font-semibold uppercase tracking-wide ${a.label}`}>{d.is_today ? 'Today (so far)' : fmtDay(d.date)}</div>
+            <div className={`mt-1 text-3xl font-bold ${a.num}`}>{num(Math.round(d.total), 0)}</div>
             <div className="text-xs text-slate-500">dishes</div>
             <div className="mt-2 flex flex-wrap gap-1">
               {driverChips(d.date, d.drivers).map((c) => (
@@ -46,7 +56,8 @@ export default function ForecastCard({ plan, accuracy }: { plan: Plan; accuracy?
               ))}
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-4">
