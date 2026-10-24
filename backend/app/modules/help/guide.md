@@ -26,8 +26,8 @@ The forecast predicts how many dishes you will sell on each future day, using on
 6. Put together: expected dishes for a day = usual level for that period x recent strength x weekday pattern x
    holiday or event effect.
 7. Splitting into dishes. The day's total is shared between dishes by how popular each one has been, mostly the last
-   28 days and partly all history. A brand-new dish uses only the recent weeks. Breakfast items are adjusted for
-   weekdays.
+   28 days and partly all history. A brand-new dish (launched in the last 60 days) uses only the recent weeks.
+   Each menu category's own weekday pattern is also used, for example breakfast dishes can sell more on weekdays.
 If there is little history (under about 8 weeks) the app uses a simpler method, a 4-week average with the weekday
 pattern, and says so.
 Accuracy: the Dashboard shows how far off the forecast was when replayed on your past sales. On the demo data it
