@@ -89,11 +89,37 @@ def test_question_length_is_checked(client, users, fake_ai):
     assert fake_ai == []
 
 
-def test_rate_limit_counts_ai_calls_only(client, users, fake_ai):
-    for n in range(service.LIMIT_PER_MINUTE):
+def test_rate_limit_is_three_ai_questions_a_minute(client, users, fake_ai):
+    assert service.LIMIT_PER_MINUTE == 3
+    for n in range(3):
         assert ask(client, users["manager"], f"Different question number {n}").status_code == 200
-    assert ask(client, users["manager"], "One more different question").status_code == 429
+    blocked = ask(client, users["manager"], "One more different question")
+    assert blocked.status_code == 429 and "3 questions a minute" in blocked.json()["detail"]
+    assert len(fake_ai) == 3  # the blocked question never reached the AI
     # free answers still work, and another person is not affected
     assert ask(client, users["manager"], FAQ[2]["question"]).status_code == 200
     assert ask(client, users["owner"], "One more different question").status_code == 200
 
+
+
+def test_the_faq_no_longer_mentions_the_removed_ai_features():
+    text = " ".join(f["question"] + " " + f["answer"] for f in FAQ).lower()
+    assert "quick add" not in text and "suggest" not in text and "from a note" not in text
+    ai = next(f for f in FAQ if f["id"] == "ai")["answer"].lower()
+    assert "only ai is this help chat" in ai
+
+
+def test_a_markdown_heavy_model_answer_is_shown_as_clean_plain_text(client, users, monkeypatch):
+    messy = "<think>hmm</think>## Steps\n**1.** Open `Plan purchases`.\n* Press *Generate plan*.\n\n\n\n__Done__"
+    monkeypatch.setattr(llm, "ai_available", lambda: True)
+    monkeypatch.setattr(llm, "complete_json", lambda *a: {"answer": messy})
+    r = ask(client, users["manager"], "How do I start a purchase list?").json()
+    assert r["answer"] == "Steps\n1. Open Plan purchases.\n- Press Generate plan.\n\nDone"
+
+
+def test_a_very_long_answer_is_cut_at_a_sentence(client, users, monkeypatch):
+    long = "This is one sentence. " * 100
+    monkeypatch.setattr(llm, "ai_available", lambda: True)
+    monkeypatch.setattr(llm, "complete_json", lambda *a: {"answer": long})
+    answer = ask(client, users["manager"], "Tell me everything please").json()["answer"]
+    assert len(answer) <= service.MAX_ANSWER_CHARS and answer.endswith(".")

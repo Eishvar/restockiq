@@ -140,6 +140,7 @@ export default function HelpChat() {
               Ask
             </button>
           </form>
+          <p className="px-3 pb-3 text-[11px] text-slate-500">You can type 3 questions a minute. Common questions have no limit.</p>
         </section>
       )}
     </>

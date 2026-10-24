@@ -75,9 +75,28 @@ FAQ: list[dict[str, str]] = [
         "question": "How do I add stock I just bought?",
         "answer": (
             "On the Inventory page, press + Add stock on the item and enter the quantity, the date you bought it and "
-            "(if different) its shelf life and price. For a messy list, press Quick add from a note, paste your note "
-            "(English or Bahasa Malaysia is fine), check the rows it reads, and confirm. Nothing is saved until you "
-            "confirm. When a delivery arrives for an order, Mark received adds it for you."
+            "(if different) its shelf life and price. Each purchase date is kept as its own batch. For an item that is "
+            "not in your list yet, press + Add item. When a delivery arrives for an order, Mark received adds it for you."
+        ),
+    },
+    {
+        "id": "add-item",
+        "topic": "Inventory",
+        "question": "How do I add a new item?",
+        "answer": (
+            "Press + Add item on the Inventory page (or in the setup step for your stock). Type the name, choose where "
+            "it is kept and which supplier it comes from, say how it is sold and its price, then write how many days it "
+            "stays good. Add how much you have now and the date you bought it. You can change the bought date at any time."
+        ),
+    },
+    {
+        "id": "lists",
+        "topic": "Inventory",
+        "question": "How do I add or rename a supplier or a storage place?",
+        "answer": (
+            "In the Add item form, next to Supplier and Where is it kept, press Add or rename. Type a new name and press "
+            "Add, or change a name in the list and press Save. You can also open it from the Manage suppliers and places "
+            "button on the Inventory page. Managers and the owner can do this. Renaming keeps all your items and orders."
         ),
     },
     {
@@ -85,10 +104,9 @@ FAQ: list[dict[str, str]] = [
         "topic": "AI",
         "question": "What does the AI do in this app?",
         "answer": (
-            "Only two small jobs: reading a messy stock note into rows, and suggesting a shelf life for a new item. "
-            "A person always checks and confirms. The AI never decides how much to buy: forecasts, buffers and "
-            "quantities come from your own sales history with plain maths. If the AI is off, you can still enter "
-            "everything by hand."
+            "The only AI is this help chat, which explains how to use the app. It cannot see your stock or sales and it "
+            "cannot change anything. Forecasts, safety buffers and quantities come from your own sales history using plain "
+            "maths, not AI, and a person always approves orders."
         ),
     },
     {
@@ -129,7 +147,8 @@ FAQ: list[dict[str, str]] = [
         "question": "How do I change a supplier's WhatsApp number or minimum order?",
         "answer": (
             "On Plan purchases, open the supplier under Supplier orders and use Supplier details. A valid phone "
-            "number is needed for the WhatsApp and Call buttons when you place an order."
+            "number is needed for the WhatsApp and Call buttons when you place an order. To change the supplier's "
+            "name, use Add or rename in the Add item form on the Inventory page."
         ),
     },
     {
@@ -164,7 +183,7 @@ FAQ: list[dict[str, str]] = [
 PAGES = (
     "Dashboard: forecast accuracy, latest plan, sales from your POS (Import sales), stock health. "
     "Plan purchases: pick days, Generate plan, Supplier orders, Supplier details. "
-    "Inventory: stock by batch, Add stock, Quick add from a note, Remove expired. "
+    "Inventory: stock by batch, Add item, Add stock, Manage suppliers and places, Remove expired. "
     "Order history: past orders. Calendar: holidays, periods, events. Activity: record of every action. "
     "Settings (owner): risk setting, demo date, reset."
 )
