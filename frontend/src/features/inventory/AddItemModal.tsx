@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button, Modal, useToast } from '../../components/ui'
+import { useMe } from '../auth/api'
 import { useAddItem, useStorageAreas, useSuppliers } from './api'
 import ManageListsModal from './ManageListsModal'
 import QtyInput, { inputCls } from './QtyInput'
@@ -30,6 +31,7 @@ export default function AddItemModal({ open, today, onClose }: Props) {
   const areas = useStorageAreas()
   const add = useAddItem()
   const toast = useToast()
+  const me = useMe()
 
   const [name, setName] = useState('')
   const [storage, setStorage] = useState('dry')
@@ -88,13 +90,13 @@ export default function AddItemModal({ open, today, onClose }: Props) {
 
   const manageLink = (
     <button type="button" onClick={() => setManaging(true)} className="text-xs font-semibold text-emerald-800 underline underline-offset-2">
-      Add or rename
+      {me.data?.role === 'owner' ? 'Add / rename / remove' : 'Add / rename'}
     </button>
   )
 
   return (
     <>
-      <Modal open={open} title="Add an item" onClose={onClose}>
+      <Modal open={open} title="Add an item, supplier or place" onClose={onClose}>
         <form onSubmit={submit} className="space-y-3">
           <Field label="Item name">
             <input required value={name} onChange={(e) => setName(e.target.value)} className={`${inputCls} w-full`} placeholder="e.g. Sweet soy sauce 2L" />

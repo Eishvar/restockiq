@@ -16,7 +16,8 @@ from threading import Lock
 from fastapi import HTTPException
 
 from app.ai import llm
-from app.modules.help.faq import FAQ, guide_text
+from app.modules.help.faq import FAQ
+from app.modules.help.knowledge import relevant_guide
 from app.modules.help.schemas import AskIn, AskOut, LlmHelpAnswer
 from app.modules.settings.models import User
 
@@ -101,7 +102,7 @@ def ask(user: User, body: AskIn) -> AskOut:
     _check_rate(user.id)
     result = llm.complete_json(
         "help",
-        {"guide": guide_text(), "role": user.role, "page": body.page[:60] or "unknown", "question": question},
+        {"guide": relevant_guide(question), "role": user.role, "page": body.page[:60] or "unknown", "question": question},
         LlmHelpAnswer,
     )
     answer = clean_answer((result or {}).get("answer", ""))

@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Badge, Button, Card, Table, useToast } from '../../components/ui'
 import { useConfirmOnboarding, usePatchItem, useStorageAreas, type InventoryList, type ItemPatch } from './api'
 import AddItemModal from './AddItemModal'
-import ManageListsModal from './ManageListsModal'
 import QtyInput, { inputCls } from './QtyInput'
 import { areaName, StatusBadge, fmtDate } from './shared'
 
@@ -10,7 +9,6 @@ import { areaName, StatusBadge, fmtDate } from './shared'
 export default function OnboardingWizard({ data }: { data: InventoryList }) {
   const [edits, setEdits] = useState<Record<number, ItemPatch>>({})
   const [adding, setAdding] = useState(false)
-  const [managing, setManaging] = useState(false)
   const [busy, setBusy] = useState(false)
   const areas = useStorageAreas()
   const patch = usePatchItem()
@@ -93,10 +91,7 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
       <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
         <div className="flex items-center gap-3 text-sm text-slate-600">
           <Button variant="secondary" onClick={() => setAdding(true)}>
-            + Add item
-          </Button>
-          <Button variant="secondary" onClick={() => setManaging(true)}>
-            Suppliers and places
+            + Add item / supplier / place
           </Button>
           {changed > 0 && <Badge tone="warn">{changed} changed</Badge>}
           <span className="hidden sm:inline">Stock as of {fmtDate(data.today)}</span>
@@ -107,7 +102,6 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
       </div>
 
       <AddItemModal open={adding} today={data.today} onClose={() => setAdding(false)} />
-      <ManageListsModal open={managing} onClose={() => setManaging(false)} />
     </div>
   )
 }

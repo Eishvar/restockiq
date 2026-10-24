@@ -140,3 +140,35 @@ def test_the_ai_is_given_the_detailed_guide_file_plus_the_ready_made_answers():
 def test_the_forecast_question_is_a_free_ready_made_answer(client, users, fake_ai):
     r = ask(client, users["staff"], "How does the forecast work?").json()
     assert r["source"] == "faq" and "no AI" in r["answer"] and fake_ai == []
+
+
+def test_each_typed_question_sends_only_the_relevant_part_of_the_guide(client, users, fake_ai):
+    from app.modules.help.faq import guide_text
+    from app.modules.help.knowledge import relevant_guide
+
+    full = len(guide_text().split())
+    forecast = relevant_guide("explain in detail how the math behind the forecasting works")
+    assert "HOW THE FORECAST WORKS" in forecast and "SALES IMPORT" not in forecast and "THE BIG PICTURE" in forecast
+    assert len(forecast.split()) < full * 0.5 and len(forecast.split()) < 1300
+
+    expiry = relevant_guide("what happens when my chicken expires?")
+    assert "STOCK, EXPIRY AND SHELF LIFE" in expiry and "HOW THE FORECAST WORKS" not in expiry
+
+    # a question the keywords cannot place (here Bahasa Malaysia) still gets the whole guide, never a guess
+    assert relevant_guide("bagaimana saya mula?") == guide_text()
+
+    ask(client, users["manager"], "Explain the math behind how the forecast is made please")
+    sent = fake_ai[0][1]["guide"]
+    assert len(sent.split()) < 1300
+
+
+def test_the_prompt_asks_for_short_bullets_and_the_ready_made_answers_are_bullets():
+    from app.ai import llm
+
+    system, _ = llm.load_prompt("help", {"guide": "g", "role": "owner", "page": "/", "question": "q"})
+    assert 'starts with "- "' in system and "about 15 words" in system
+    for f in FAQ:
+        lines = f["answer"].split("\n")
+        assert len(lines) <= 6, f["id"]  # short
+        assert all(line.startswith(("- ", "1. ", "2. ", "3. ", "4. ", "5. ")) for line in lines), f["id"]
+        assert all(len(line) < 190 for line in lines), f["id"]

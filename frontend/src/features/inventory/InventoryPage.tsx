@@ -17,7 +17,6 @@ import {
 import AddBatchModal from './AddBatchModal'
 import AddItemModal from './AddItemModal'
 import HistoryModal from './HistoryModal'
-import ManageListsModal from './ManageListsModal'
 import OnboardingWizard from './OnboardingWizard'
 import QtyInput, { inputCls } from './QtyInput'
 import { areaName, StatusBadge, fmtDate } from './shared'
@@ -237,7 +236,6 @@ export default function InventoryPage() {
   const [storage, setStorage] = useState('')
   const areas = useStorageAreas()
   const [adding, setAdding] = useState(false)
-  const [managing, setManaging] = useState(false)
   const [history, setHistory] = useState<InventoryRow | null>(null)
   const [batchFor, setBatchFor] = useState<InventoryRow | null>(null)
   const [confirmDiscardAll, setConfirmDiscardAll] = useState(false)
@@ -273,7 +271,7 @@ export default function InventoryPage() {
 
   const addButton = (
     <Button onClick={() => setAdding(true)} disabled={!canEditAll}>
-      + Add item
+      + Add item / supplier / place
     </Button>
   )
 
@@ -287,7 +285,6 @@ export default function InventoryPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {canEditAll && <Button variant="secondary" onClick={() => setManaging(true)}>Suppliers and places</Button>}
           {canEditAll ? addButton : <Tooltip text="Only managers and owners can add items">{addButton}</Tooltip>}
         </div>
       </div>
@@ -387,7 +384,6 @@ export default function InventoryPage() {
 
       <AddBatchModal item={batchFor} today={data.today} onClose={() => setBatchFor(null)} />
       <AddItemModal open={adding} today={data.today} onClose={() => setAdding(false)} />
-      <ManageListsModal open={managing} onClose={() => setManaging(false)} />
       <HistoryModal ingredientId={history?.ingredient_id ?? null} name={history?.name ?? ''} onClose={() => setHistory(null)} />
       <ConfirmModal open={confirmDiscardAll} title="Remove all expired batches?" description={`Remove all ${expiredBatches.length} expired batches from your stock? This does not remove their history.`} pending={discard.isPending} error={discardAllError} onCancel={() => { setConfirmDiscardAll(false); setDiscardAllError('') }} onConfirm={() => void discardAll()} />
     </div>

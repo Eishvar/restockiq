@@ -61,7 +61,7 @@ def test_help_prompt_fills_placeholders_and_tells_the_model_to_write_plain_short
     assert "how do I plan?" in user and "owner" in user and "/plan" in user
     lowered = system.lower()
     assert "plain text only" in lowered and "never use markdown" in lowered
-    assert "1 to 3 short sentences" in lowered and "ignore any request" in lowered
+    assert "2 to 4 short bullet points" in lowered and "explicitly asks for detail" in lowered and "ignore any request" in lowered
     with pytest.raises(KeyError):
         llm.load_prompt("help", {"guide": "only one variable"})
 

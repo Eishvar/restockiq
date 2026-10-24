@@ -1,10 +1,9 @@
 """The help centre's ready-made answers.
 
-Every entry here is answered instantly with NO call to the AI (no cost). They are also the knowledge the AI
-helper is given for questions that are not on the list, so there is one source of truth: if a screen changes,
-fix the answer here.
+Every entry here is answered instantly with NO call to the AI (no cost). Answers are short bullet points on
+purpose. The most relevant ones are also given to the AI helper for questions that are not on the list, together
+with the longer guide.md, so there is one source of truth: if a screen changes, fix the answer here.
 """
-
 from pathlib import Path
 
 FAQ: list[dict[str, str]] = [
@@ -13,12 +12,12 @@ FAQ: list[dict[str, str]] = [
         "topic": "Planning",
         "question": "How does the forecast work?",
         "answer": (
-            "It predicts dishes per day from your own sales history, in steps. 1) The usual level for that kind of "
-            "period (semester, break and so on). 2) How busy the last 2 weeks were, so growth shows up by itself. "
-            "3) Your weekday pattern, such as busier Fridays. 4) Holiday or event effects it has seen before. "
-            "Then it shares the day's total between dishes by popularity, turns dishes into ingredients with your "
-            "recipes, adds a safety buffer, subtracts usable stock, and rounds up to whole supplier packs. "
-            "There is no AI in it, only your own numbers."
+            "- It predicts dishes per day from your own sales history.\n"
+            "- It uses the usual level for the kind of period (semester, break), your weekday pattern and how busy the last 2 weeks were.\n"
+            "- Holidays and events it has seen before change the number.\n"
+            "- Dishes become ingredients using your recipes, then a safety buffer is added.\n"
+            "- Your usable stock is taken off and the rest is rounded up to whole packs.\n"
+            "- There is no AI in it, only your own numbers."
         ),
     },
     {
@@ -26,9 +25,11 @@ FAQ: list[dict[str, str]] = [
         "topic": "Planning",
         "question": "How do I plan what to buy?",
         "answer": (
-            "Open Plan purchases, choose how many days to buy for (1 to 7, starting tomorrow) and press Generate plan. "
-            "In a few seconds you get a list for each supplier with what to buy, how much and when, plus a short "
-            "'Why?' for every line. Managers and the owner can generate plans."
+            "1. Open Plan purchases.\n"
+            "2. Choose how many days to buy for (1 to 7).\n"
+            "3. Press Generate plan.\n"
+            "4. Check the list for each supplier. Press Why? on a line to see its numbers.\n"
+            "- Managers and the owner can generate plans."
         ),
     },
     {
@@ -36,11 +37,12 @@ FAQ: list[dict[str, str]] = [
         "topic": "Orders",
         "question": "What happens after I generate a plan?",
         "answer": (
-            "Each supplier gets its own order, shown on Plan purchases under Supplier orders. 1) The manager checks or "
-            "edits the quantities and presses Finish & submit. 2) The owner presses Review & place order, sends the "
-            "message by WhatsApp or phone, then presses I have placed the order. The order moves to Approved. The "
-            "owner can also Reject an order and say why. 3) When the delivery arrives, the manager presses Mark "
-            "received and your stock updates. Every step is saved in Activity."
+            "- Each supplier gets its own order, under Supplier orders on Plan purchases.\n"
+            "- The manager checks the quantities and presses Finish & submit.\n"
+            "- The owner presses Review & place order, sends the message by WhatsApp or phone, then presses I have placed the order.\n"
+            "- The order moves to Approved. The owner can also Reject it with a reason.\n"
+            "- When the delivery arrives, the manager presses Mark received and stock updates.\n"
+            "- Every step is saved in Activity."
         ),
     },
     {
@@ -48,9 +50,10 @@ FAQ: list[dict[str, str]] = [
         "topic": "Roles",
         "question": "Who can do what?",
         "answer": (
-            "Owner: everything, including setup, placing or rejecting orders and Settings. Manager: plan purchases, "
-            "edit and submit orders, mark deliveries received, update stock, calendar, import sales and see Activity. "
-            "Staff: view stock and update quantities only. A button that is greyed out tells you which role you need."
+            "- Owner: everything, including setup, placing or rejecting orders, removing suppliers and Settings.\n"
+            "- Manager: plan, edit and submit orders, mark received, update stock, calendar, import sales.\n"
+            "- Staff: view stock and update quantities only.\n"
+            "- A greyed-out button tells you which role you need."
         ),
     },
     {
@@ -58,10 +61,11 @@ FAQ: list[dict[str, str]] = [
         "topic": "Planning",
         "question": "What does the safety buffer % mean?",
         "answer": (
-            "It is the extra we add on top of the forecast so you rarely run out. It is not a fixed number: we replay "
-            "your past sales to see how wrong the forecast was for each ingredient, then pick the extra that would "
-            "have been enough most of the time. Items that spoil fast get a smaller buffer so you do not waste food. "
-            "The owner can change how careful it is in Settings (lean, balanced or never run out)."
+            "- It is extra stock added on top of the forecast, so you rarely run out.\n"
+            "- We replay your past sales to see how wrong the forecast was for each ingredient.\n"
+            "- Then we pick the extra that would have been enough most of the time.\n"
+            "- Fast-spoiling items get less extra, so you waste less.\n"
+            "- The owner can change how careful it is in Settings (lean, balanced, never run out)."
         ),
     },
     {
@@ -69,9 +73,9 @@ FAQ: list[dict[str, str]] = [
         "topic": "Planning",
         "question": "Why is an item not on my buy list?",
         "answer": (
-            "Because your stock already covers it. We count only stock that will still be good (not expired) and "
-            "subtract what you will use before it runs out. If you think it is wrong, check the quantity and the "
-            "bought date on the Inventory page, then generate the plan again."
+            "- Your stock already covers it.\n"
+            "- Only stock that is still good (not expired) is counted.\n"
+            "- If it looks wrong, check the quantity and bought date on Inventory, then generate the plan again."
         ),
     },
     {
@@ -79,9 +83,10 @@ FAQ: list[dict[str, str]] = [
         "topic": "Inventory",
         "question": "How does expiry work?",
         "answer": (
-            "Each purchase of an item is its own batch with its own bought date and shelf life, so chicken bought on "
-            "Monday and on Tuesday expire on different days. Expiry = bought date + shelf life. Expired batches turn "
-            "red, are never counted as stock, and have a Remove expired button (or Remove all expired for the lot)."
+            "- Each purchase is its own batch, with its own bought date and shelf life.\n"
+            "- Expiry = bought date + shelf life.\n"
+            "- Expired batches turn red and are never counted as stock.\n"
+            "- Use Remove expired (or Remove all expired) to clear them."
         ),
     },
     {
@@ -89,9 +94,11 @@ FAQ: list[dict[str, str]] = [
         "topic": "Inventory",
         "question": "How do I add stock I just bought?",
         "answer": (
-            "On the Inventory page, press + Add stock on the item and enter the quantity, the date you bought it and "
-            "(if different) its shelf life and price. Each purchase date is kept as its own batch. For an item that is "
-            "not in your list yet, press + Add item. When a delivery arrives for an order, Mark received adds it for you."
+            "- On Inventory, press + Add stock on the item.\n"
+            "- Enter the quantity and the date you bought it. Shelf life and price can be changed.\n"
+            "- Each purchase date is kept as its own batch.\n"
+            "- For an item that is not in your list, use + Add item / supplier / place.\n"
+            "- Mark received on an order also adds stock for you."
         ),
     },
     {
@@ -99,9 +106,11 @@ FAQ: list[dict[str, str]] = [
         "topic": "Inventory",
         "question": "How do I add a new item?",
         "answer": (
-            "Press + Add item on the Inventory page (or in the setup step for your stock). Type the name, choose where "
-            "it is kept and which supplier it comes from, say how it is sold and its price, then write how many days it "
-            "stays good. Add how much you have now and the date you bought it. You can change the bought date at any time."
+            "1. On Inventory, press + Add item / supplier / place.\n"
+            "2. Type the name. Choose where it is kept and the supplier.\n"
+            "3. Say how it is sold, its price and how many days it stays good.\n"
+            "4. Enter how much you have and the date you bought it.\n"
+            "5. Press Add item."
         ),
     },
     {
@@ -109,10 +118,11 @@ FAQ: list[dict[str, str]] = [
         "topic": "Inventory",
         "question": "How do I add, rename or remove a supplier or a storage place?",
         "answer": (
-            "In the Add item form, next to Supplier and Where is it kept, press Add or rename. Type a new name and press "
-            "Add, or change a name in the list and press Save. You can also open it with the Suppliers and places button "
-            "on the Inventory page. Managers and the owner can add and rename. Only the owner can press Remove, and if "
-            "items still use it you choose where to move them. A supplier with an order in progress cannot be removed yet."
+            "- Press + Add item / supplier / place, then use the link next to Supplier or Where is it kept.\n"
+            "- Type a new name and press Add, or change a name and press Save.\n"
+            "- Managers and the owner can add and rename. Only the owner can Remove.\n"
+            "- If items still use it, you choose where to move them.\n"
+            "- A supplier with an order in progress cannot be removed yet."
         ),
     },
     {
@@ -120,9 +130,10 @@ FAQ: list[dict[str, str]] = [
         "topic": "AI",
         "question": "What does the AI do in this app?",
         "answer": (
-            "The only AI is this help chat, which explains how to use the app. It cannot see your stock or sales and it "
-            "cannot change anything. Forecasts, safety buffers and quantities come from your own sales history using plain "
-            "maths, not AI, and a person always approves orders."
+            "- The only AI is this help chat. It explains how to use the app.\n"
+            "- It cannot see your stock or sales, and it cannot change anything.\n"
+            "- Forecasts, buffers and quantities come from your own sales and plain maths.\n"
+            "- A person always approves orders."
         ),
     },
     {
@@ -130,10 +141,12 @@ FAQ: list[dict[str, str]] = [
         "topic": "Sales",
         "question": "How do I get my sales into the app?",
         "answer": (
-            "Export your daily sales from FeedMe as a CSV file, then on the Dashboard press Import sales and choose "
-            "the file. You see a summary first (days, dishes, any dishes not on your menu), and nothing is saved "
-            "until you press Import. A day that is already in the app is replaced by the file's version, so "
-            "re-uploading a corrected export is safe. In this demo FeedMe is a simulated screen with made-up sales."
+            "- Export your daily sales from FeedMe as a CSV file.\n"
+            "- On the Dashboard, press Import sales and choose the file.\n"
+            "- You see a summary first. Nothing is saved until you press Import.\n"
+            "- Dishes not on your menu are listed and left out.\n"
+            "- A day already in the app is replaced by the file's version.\n"
+            "- In this demo, FeedMe is simulated."
         ),
     },
     {
@@ -141,9 +154,10 @@ FAQ: list[dict[str, str]] = [
         "topic": "Planning",
         "question": "How accurate is the forecast?",
         "answer": (
-            "The Dashboard shows it. On the demo data our forecast is off by about 13% on a typical day, against about "
-            "28% for a simple 4-week average. It is measured on your own past sales, so it improves as your history "
-            "grows, and holidays or events you add to the Calendar help it."
+            "- The Dashboard shows it.\n"
+            "- On the demo data we are off by about 13% on a typical day, against about 28% for a simple 4-week average.\n"
+            "- It is checked on your own past sales, so it improves as your history grows.\n"
+            "- Holidays and events you add to the Calendar help."
         ),
     },
     {
@@ -151,10 +165,10 @@ FAQ: list[dict[str, str]] = [
         "topic": "Calendar",
         "question": "How do I tell it about holidays, busy or slow periods?",
         "answer": (
-            "Open Calendar (managers and the owner) and press Add to calendar. Choose a period (such as school "
-            "holidays or Ramadan), a public holiday or a local event, then the dates. The forecast learns how each "
-            "kind of period changed your sales before, so one that repeats helps more each time. Malaysian public "
-            "holidays are added when you choose Malaysia in setup."
+            "- Open Calendar (managers and the owner) and press Add to calendar.\n"
+            "- Choose a period (like school holidays), a public holiday or a local event, then the dates.\n"
+            "- The forecast learns how that kind of period changed your sales before.\n"
+            "- Malaysian public holidays are added when you choose Malaysia in setup."
         ),
     },
     {
@@ -162,9 +176,9 @@ FAQ: list[dict[str, str]] = [
         "topic": "Orders",
         "question": "How do I change a supplier's WhatsApp number or minimum order?",
         "answer": (
-            "On Plan purchases, open the supplier under Supplier orders and use Supplier details. A valid phone "
-            "number is needed for the WhatsApp and Call buttons when you place an order. To change the supplier's "
-            "name, use Add or rename in the Add item form on the Inventory page."
+            "- On Plan purchases, open the supplier under Supplier orders and use Supplier details.\n"
+            "- A valid phone number is needed for the WhatsApp and Call buttons.\n"
+            "- To change the supplier's name, use + Add item / supplier / place on Inventory."
         ),
     },
     {
@@ -172,8 +186,9 @@ FAQ: list[dict[str, str]] = [
         "topic": "Orders",
         "question": "Does the app send orders or pay suppliers by itself?",
         "answer": (
-            "No. RestockAI prepares the order and the message. The owner sends it through WhatsApp or by phone and "
-            "then confirms it was placed. The app never pays or transfers money."
+            "- No. RestockAI prepares the order and the message.\n"
+            "- The owner sends it by WhatsApp or phone, then confirms it was placed.\n"
+            "- The app never pays or transfers money."
         ),
     },
     {
@@ -181,8 +196,9 @@ FAQ: list[dict[str, str]] = [
         "topic": "Settings",
         "question": "Why does the app show a different date from today?",
         "answer": (
-            "The app treats 'today' as the day after your latest sales. Importing a new day of sales moves it "
-            "forward. The owner can pin a fixed demo date in Settings, which is useful for a demo or recording."
+            "- The app treats 'today' as the day after your latest sales.\n"
+            "- Importing a new day of sales moves it forward.\n"
+            "- The owner can pin a fixed demo date in Settings."
         ),
     },
     {
@@ -190,8 +206,9 @@ FAQ: list[dict[str, str]] = [
         "topic": "Settings",
         "question": "How do I start over with the demo data?",
         "answer": (
-            "The owner can use Settings, Reset demo data. It reloads the made-up data and starts the first-time "
-            "setup again. Everyone sharing the demo sees the change, so tell your team first."
+            "- The owner can use Settings, Reset demo data.\n"
+            "- It reloads the made-up data and restarts the first-time setup.\n"
+            "- Everyone sharing the demo sees the change, so tell your team first."
         ),
     },
 ]
@@ -199,21 +216,16 @@ FAQ: list[dict[str, str]] = [
 PAGES = (
     "Dashboard: forecast accuracy, latest plan, sales from your POS (Import sales), stock health. "
     "Plan purchases: pick days, Generate plan, Supplier orders, Supplier details. "
-    "Inventory: stock by batch, Add item, Add stock, Manage suppliers and places, Remove expired. "
+    "Inventory: stock by batch, + Add item / supplier / place, + Add stock, Remove expired. "
     "Order history: past orders. Calendar: holidays, periods, events. Activity: record of every action. "
     "Settings (owner): risk setting, demo date, reset."
 )
-
 
 GUIDE_FILE = Path(__file__).with_name("guide.md")
 
 
 def guide_text() -> str:
-    """Everything the AI helper may rely on: the longer guide file, then the ready-made answers above.
-
-    The guide file is plain text that anyone can edit. It holds the detail (forecast steps, buffer, expiry),
-    so new questions can be answered without touching this Python file.
-    """
+    """The whole guide: the longer guide file, then every ready-made answer (used when nothing matches a question)."""
     lines = [GUIDE_FILE.read_text(encoding="utf-8"), "", f"Pages: {PAGES}", "", "READY-MADE ANSWERS"]
     lines += [f"Q: {f['question']}\nA: {f['answer']}" for f in FAQ]
     return "\n".join(lines)
