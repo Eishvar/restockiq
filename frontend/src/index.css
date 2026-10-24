@@ -3,20 +3,62 @@
 
 :root {
   color-scheme: light;
-  --ink: #253a35;
-  --paper: #f5f7f1;
-  --leaf: #16845f;
-  --line: #dce5dc;
+  --brand-royal: #0050FE;
+  --brand-hover: #0040CC;
+  --brand-navy: #0B1E4D;
+  --brand-deep: #071433;
+  --brand-paper: #F3F6FC;
+  --brand-surface: #E9EFFB;
+  --brand-border: #DCE4F5;
+  --brand-muted: #5B6B8C;
+  --brand-sky: #00B4FE;
+  --brand-cyan: #06DFDA;
+  --ink: var(--brand-navy);
+  --paper: var(--brand-paper);
+  --line: var(--brand-border);
   font-family: 'DM Sans', sans-serif;
   background: var(--paper);
   color: var(--ink);
+}
+
+@theme {
+  --color-brand-royal: #0050FE;
+  --color-brand-hover: #0040CC;
+  --color-brand-navy: #0B1E4D;
+  --color-brand-deep: #071433;
+  --color-brand-paper: #F3F6FC;
+  --color-brand-surface: #E9EFFB;
+  --color-brand-border: #DCE4F5;
+  --color-brand-muted: #5B6B8C;
+  --color-brand-sky: #00B4FE;
+  --color-brand-cyan: #06DFDA;
+  --color-slate-50: #F3F6FC;
+  --color-slate-100: #E9EFFB;
+  --color-slate-200: #DCE4F5;
+  --color-slate-300: #C6D2E9;
+  --color-slate-400: #8998B5;
+  --color-slate-500: #5B6B8C;
+  --color-slate-600: #465879;
+  --color-slate-700: #263B65;
+  --color-slate-800: #0B1E4D;
+  --color-slate-900: #071433;
+  --color-sky-50: #E7F8FF;
+  --color-sky-200: #00B4FE;
+  --color-sky-800: #0B1E4D;
+  --color-sky-900: #0B1E4D;
+  --color-stone-100: #E9EFFB;
+  --color-stone-200: #DCE4F5;
+  --color-stone-300: #C6D2E9;
+  --color-stone-500: #5B6B8C;
+  --color-stone-600: #465879;
+  --color-stone-800: #0B1E4D;
 }
 
 body { @apply antialiased; margin: 0; background: var(--paper); color: var(--ink); }
 h1, h2, h3 { font-family: 'Manrope', sans-serif; }
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
-  outline: 3px solid #75b99b; outline-offset: 2px;
+  outline: 3px solid var(--brand-royal); outline-offset: 2px;
 }
 @keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .page-enter { animation: rise-in .28s ease-out both; }

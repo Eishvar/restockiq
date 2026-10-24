@@ -48,7 +48,7 @@ function Risk({ s }: { s: Settings }) {
             role="radio"
             aria-checked={choice === p.value}
             onClick={() => setChoice(p.value)}
-            className={`rounded-lg border p-3 text-left text-sm transition ${choice === p.value ? 'border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600' : 'border-slate-200 hover:bg-slate-50'}`}
+            className={`rounded-lg border p-3 text-left text-sm transition ${choice === p.value ? 'border-brand-royal bg-brand-surface ring-1 ring-brand-royal' : 'border-slate-200 hover:bg-slate-50'}`}
           >
             <div className="font-semibold">{p.title}{p.value === s.risk_profile && <span className="ml-2 text-xs font-normal text-slate-500">(current)</span>}</div>
             <div className="mt-1 text-slate-600">{p.text}</div>
@@ -63,7 +63,7 @@ function Risk({ s }: { s: Settings }) {
         </thead>
         <tbody>
           {PROFILES.map((p) => (
-            <tr key={p.value} className={choice === p.value ? 'font-semibold text-emerald-800' : 'text-slate-700'}>
+            <tr key={p.value} className={choice === p.value ? 'font-semibold text-brand-navy' : 'text-slate-700'}>
               <td className="py-1">{p.title}</td>
               {s.service_levels[p.value].map((x, i) => <td key={i}>{pct(x)}</td>)}
             </tr>

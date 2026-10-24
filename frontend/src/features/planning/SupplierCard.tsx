@@ -30,7 +30,7 @@ function Stepper({ status }: { status: OrderStatus }) {
         <li key={s.status} className="flex items-center gap-1">
           <span
             aria-current={i === at ? 'step' : undefined}
-            className={`rounded-full px-2 py-0.5 ${i < at ? 'bg-emerald-100 text-emerald-800' : i === at ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'}`}
+            className={`rounded-full px-2 py-0.5 ${i < at ? 'bg-emerald-100 text-emerald-800' : i === at ? 'bg-brand-royal text-white' : 'bg-slate-100 text-slate-500'}`}
           >
             {s.label}
           </span>
@@ -389,7 +389,7 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
             </a>
           )}
           {message?.whatsapp_url && (
-            <a href={message.whatsapp_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+            <a href={message.whatsapp_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-lg bg-brand-royal px-4 py-2 text-sm font-medium text-white hover:bg-brand-hover">
               Open WhatsApp
             </a>
           )}

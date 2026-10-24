@@ -28,7 +28,7 @@ function Stepper({ current }: { current: SetupStep }) {
           <li key={s.key} className="flex items-center gap-2" aria-current={active ? 'step' : undefined}>
             <span
               className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
-                done ? 'bg-emerald-600 text-white' : active ? 'border-2 border-emerald-600 text-emerald-700' : 'border border-slate-300 text-slate-400'
+                done ? 'bg-emerald-600 text-white' : active ? 'border-2 border-brand-royal text-brand-royal' : 'border border-slate-300 text-slate-400'
               }`}
             >
               {done ? '✓' : i + 1}
@@ -69,7 +69,7 @@ function CountryStep() {
         We use this to show prices in the right currency and to add your country&apos;s public holidays to the calendar, because holidays change how many customers you get.
       </p>
       <div className="mt-4 space-y-2">
-        <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${picked === 'MY' ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200'}`}>
+        <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${picked === 'MY' ? 'border-brand-royal bg-brand-surface' : 'border-slate-200'}`}>
           <input type="radio" name="country" checked={picked === 'MY'} onChange={() => setPicked('MY')} className="mt-1" />
           <span>
             <span className="font-medium">Malaysia</span>
@@ -109,7 +109,7 @@ function PosStep() {
         RestockAI learns from what you sell. Pick the system your till uses.
       </p>
       <div className="mt-3 space-y-2">
-        <div className="flex items-start gap-3 rounded-lg border border-emerald-500 bg-emerald-50 p-3">
+        <div className="flex items-start gap-3 rounded-lg border border-brand-royal bg-brand-surface p-3">
           <input type="radio" checked readOnly className="mt-1" />
           <span>
             <span className="font-medium">FeedMe POS</span> <Badge tone="warn">demo: simulated</Badge>
@@ -255,7 +255,7 @@ export default function SetupWizard() {
         <EmptyState
           title="Only the owner can set up the business"
           hint="Sign out and choose Ah Hock (Owner)."
-          action={<Link to="/login" className="text-sm font-medium text-emerald-700 underline">Back to sign in</Link>}
+          action={<Link to="/login" className="text-sm font-medium text-brand-royal underline">Back to sign in</Link>}
         />
       </div>
     )
@@ -266,7 +266,7 @@ export default function SetupWizard() {
     <div className="min-h-screen bg-slate-50">
       <header className="border-b border-slate-200 bg-white px-4 py-3">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="text-lg font-bold text-emerald-700">RestockAI</span>
+          <span className="text-lg font-bold text-brand-royal">RestockAI</span>
           <span className="text-xs text-slate-500">First-time setup · {me.data?.name}</span>
         </div>
       </header>

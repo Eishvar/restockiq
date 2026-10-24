@@ -24,7 +24,7 @@ export default function PosCard() {
         <>
           <p className="text-sm text-slate-600">No POS connected yet. Connect FeedMe so RestockAI can learn from your daily sales.</p>
           {me.data?.role === 'owner' ? (
-            <Link to="/setup" className="mt-2 inline-block text-sm font-medium text-emerald-700 underline">Finish setup</Link>
+            <Link to="/setup" className="mt-2 inline-block text-sm font-medium text-brand-royal underline">Finish setup</Link>
           ) : (
             <p className="mt-2 text-xs text-slate-500">Ask the owner to connect it.</p>
           )}

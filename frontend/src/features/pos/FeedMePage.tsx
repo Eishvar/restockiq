@@ -47,7 +47,7 @@ export default function FeedMePage() {
       </div>
       <header className="flex items-center justify-between border-b border-stone-300 bg-white px-4 py-3">
         <span className="text-lg font-semibold text-stone-800">POS · Sales reports</span>
-        <Link to="/dashboard" className="text-sm font-medium text-emerald-700 underline">← Back to RestockAI</Link>
+        <Link to="/dashboard" className="text-sm font-medium text-brand-royal underline">← Back to RestockAI</Link>
       </header>
 
       <main className="mx-auto max-w-5xl space-y-4 p-4 md:p-6">

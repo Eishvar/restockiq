@@ -26,7 +26,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <div className="text-2xl font-bold text-emerald-700">RestockAI</div>
+          <div className="text-2xl font-bold text-brand-royal">RestockAI</div>
           <p className="mt-1 text-sm text-slate-600">Smart purchase planning for your kitchen</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -41,7 +41,7 @@ export default function LoginPage() {
               <button
                 key={u.id}
                 onClick={() => signIn(u.id)}
-                className="w-full rounded-lg border border-slate-200 p-3 text-left transition hover:border-emerald-500 hover:bg-emerald-50"
+                className="w-full rounded-lg border border-slate-200 p-3 text-left transition hover:border-brand-royal hover:bg-brand-surface"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{u.name}</span>

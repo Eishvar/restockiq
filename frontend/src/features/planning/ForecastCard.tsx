@@ -46,19 +46,19 @@ export default function ForecastCard({ plan }: { plan: Plan }) {
       <div className="mt-4 h-56 w-full" aria-label="Dishes sold per day: last 4 weeks and forecast">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chart} margin={{ top: 5, right: 8, bottom: 0, left: -12 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--brand-border)" />
             <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={24} tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
             <ChartTooltip />
             <Legend />
-            <Line name="Sold (last 4 weeks)" dataKey="actual" stroke="#475569" dot={false} strokeWidth={2} connectNulls={false} />
-            <Line name="Forecast" dataKey="forecast" stroke="#059669" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3 }} connectNulls={false} />
+            <Line name="Sold (last 4 weeks)" dataKey="actual" stroke="var(--brand-muted)" dot={false} strokeWidth={2} connectNulls={false} />
+            <Line name="Forecast" dataKey="forecast" stroke="var(--brand-royal)" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3, fill: 'var(--brand-royal)' }} connectNulls={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       <details className="mt-3">
-        <summary className="cursor-pointer text-sm font-medium text-emerald-700">See the forecast for each dish</summary>
+        <summary className="cursor-pointer text-sm font-medium text-brand-royal">See the forecast for each dish</summary>
         <div className="mt-2">
           <Table head={['Dish', ...days.map((d) => (d.is_today ? 'Today' : fmtDay(d.date))), 'Total']}>
             {shown.map((dish) => (

@@ -50,7 +50,7 @@ export default function AppShell() {
           onClick={() => setOpen(false)}
           className={({ isActive }) =>
             `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-              isActive ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-700 hover:bg-emerald-50 hover:text-emerald-900'
+              isActive ? 'bg-brand-royal text-white shadow-sm' : 'text-slate-700 hover:bg-brand-surface hover:text-brand-navy'
             }`
           }
         >
@@ -65,8 +65,8 @@ export default function AppShell() {
   return (
     <div className="flex min-h-[100dvh]">
       {/* Desktop sidebar */}
-      <aside className="hidden w-60 shrink-0 border-r border-emerald-100 bg-[#fbfcf8] md:block">
-        <div className="px-5 py-5 text-lg font-extrabold tracking-tight text-emerald-800">Restock<span className="text-slate-700">AI</span><span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[.18em] text-slate-400">Kitchen purchasing</span></div>
+      <aside className="hidden w-60 shrink-0 border-r border-brand-border bg-brand-paper md:block">
+        <div className="px-5 py-5 text-lg font-extrabold tracking-tight text-brand-navy">Restock<span className="text-slate-700">AI</span><span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[.18em] text-slate-400">Kitchen purchasing</span></div>
         {sidebar}
       </aside>
 
@@ -75,7 +75,7 @@ export default function AppShell() {
         <div className="fixed inset-0 z-30 md:hidden" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-black/40" />
           <aside className="absolute left-0 top-0 h-full w-60 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="px-5 py-5 text-lg font-extrabold text-emerald-800">RestockAI</div>
+            <div className="px-5 py-5 text-lg font-extrabold text-brand-navy">RestockAI</div>
             {sidebar}
           </aside>
         </div>

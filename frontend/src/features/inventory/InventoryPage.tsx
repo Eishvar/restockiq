@@ -242,7 +242,7 @@ export default function InventoryPage() {
   const [discardAllError, setDiscardAllError] = useState('')
 
   if (isLoading) return <PageSkeleton rows={4} />
-  if (error || !data) return <EmptyState title="Could not load your stock" hint={error?.message ?? 'Please try again.'} action={<button type="button" onClick={() => void refetch()} className="text-sm font-semibold text-emerald-800 underline">Try again</button>} />
+  if (error || !data) return <EmptyState title="Could not load your stock" hint={error?.message ?? 'Please try again.'} action={<button type="button" onClick={() => void refetch()} className="text-sm font-semibold text-brand-royal underline">Try again</button>} />
 
   const role = me.data?.role
   const canEditAll = role === 'owner' || role === 'manager'
@@ -290,7 +290,7 @@ export default function InventoryPage() {
       </div>
 
       {!data.onboarded && (
-        <div className="rounded-xl border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">
+        <div className="rounded-xl border border-brand-sky bg-sky-50 p-3 text-sm text-sky-900">
           The owner has not confirmed the opening stock yet. These numbers are an example until they do.
         </div>
       )}

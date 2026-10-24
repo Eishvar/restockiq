@@ -83,12 +83,12 @@ export default function OrdersPage() {
   const [status, setStatus] = useState<'all' | OrderStatus>('all')
 
   if (orders.isLoading) return <PageSkeleton rows={4} />
-  if (orders.error) return <EmptyState title="Could not load order history" hint={orders.error.message} action={<button type="button" onClick={() => void orders.refetch()} className="text-sm font-semibold text-emerald-800 underline">Try again</button>} />
+  if (orders.error) return <EmptyState title="Could not load order history" hint={orders.error.message} action={<button type="button" onClick={() => void orders.refetch()} className="text-sm font-semibold text-brand-royal underline">Try again</button>} />
   if (!orders.data?.length) {
     return (
       <div className="mx-auto max-w-6xl space-y-4">
         <PageHeading />
-        <EmptyState title="No orders yet" hint="Orders created from purchase plans will appear here." action={<Link to="/plan" className="text-sm font-medium text-emerald-700 underline">Open Plan purchases</Link>} />
+        <EmptyState title="No orders yet" hint="Orders created from purchase plans will appear here." action={<Link to="/plan" className="text-sm font-medium text-brand-royal underline">Open Plan purchases</Link>} />
       </div>
     )
   }
