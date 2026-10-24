@@ -311,3 +311,44 @@ def test_calendar_state_combines_labels_and_marks_neighbours_of_holidays():
     assert f.holiday["2026-01-19"] and f.holiday["2026-01-20"] and f.holiday["2026-01-21"] and not f.holiday["2026-01-22"]
     assert f.event["2026-01-25"] and f.event["2026-01-26"] and not f.event["2026-01-24"]
     assert f.names["2026-01-20"] == ("Holiday",) and f.names["2026-01-25"] == ("Fair",)
+
+
+# ---------- real-world mess: closed days, long closures and dishes that left the menu ----------
+def test_a_shop_closed_every_monday_still_gets_a_sensible_forecast():
+    # Before the fix the Monday profile was 0, dividing by it made "not a number" and every forecast was NaN.
+    sales, dates = synth(200, lambda i, d: 0 if d.dayofweek == 0 else 100)
+    fc = forecast_detail(sales, menu_of(), NO_CAL, dates[-1] + timedelta(days=1), 7)
+    t = totals(fc)
+    assert np.isfinite(t.values).all() and np.isfinite(fc.lines.qty.values).all()
+    for day, value in t.items():
+        assert value == pytest.approx(0 if day.dayofweek == 0 else 100, abs=3)
+
+
+def test_a_long_closure_just_before_the_plan_does_not_drag_the_forecast_to_zero():
+    # nine closed days in a row (a festival break), then the plan for the reopening week
+    sales, dates = synth(200, lambda i, d: 0 if i >= 191 else 100)
+    t = totals(forecast_detail(sales, menu_of(), NO_CAL, dates[-1] + timedelta(days=1), 7))
+    assert t.values == pytest.approx([100] * 7, rel=0.05)
+
+
+def test_a_month_long_closure_does_not_make_the_whole_menu_look_discontinued():
+    dates = pd.date_range("2025-01-01", periods=200)
+    rows = [(d, item, qty if i < 170 else 0.0) for i, d in enumerate(dates) for item, qty in (("A", 70.0), ("B", 30.0))]
+    sales = pd.DataFrame(rows, columns=["date", "item_id", "qty"])
+    fc = forecast_detail(sales, menu_of(("A", "B")), NO_CAL, dates[-1] + timedelta(days=1), 3).lines
+    by_item = fc.groupby("item_id").qty.sum()
+    assert by_item["A"] > 0 and by_item["B"] > 0
+    assert by_item["A"] / by_item.sum() == pytest.approx(0.7, abs=0.05)
+
+
+def test_a_dish_that_left_the_menu_gets_no_forecast_but_a_rare_dish_keeps_a_share():
+    dates = pd.date_range("2025-01-01", periods=200)
+    rows = [(d, "A", 80.0) for d in dates]
+    rows += [(d, "B", 20.0) for i, d in enumerate(dates) if i < 140]  # B stopped selling 60 days ago
+    rows += [(d, "C", 1.0) for i, d in enumerate(dates) if i % 40 == 0 and i < 160]  # C is rare: 4 sales in 200 days
+    sales = pd.DataFrame(rows, columns=["date", "item_id", "qty"])
+    lines = forecast_detail(sales, menu_of(("A", "B", "C")), NO_CAL, dates[-1] + timedelta(days=1), 7).lines
+    by_item = lines.groupby("item_id").qty.sum()
+    assert by_item["B"] == 0  # it used to keep about 30% of its old share, so ingredients were bought for it
+    assert by_item["C"] > 0  # no sale for 80 days is normal for a dish that sells every 40 days
+    assert by_item["A"] == pytest.approx(7 * 80, rel=0.06)  # the shop now sells 80 a day: all of it is A

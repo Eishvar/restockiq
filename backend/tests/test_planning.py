@@ -353,3 +353,33 @@ def test_whatsapp_url_and_number():
     assert whatsapp_number("+60 10-000 0001") == "60100000001"
     assert whatsapp_number("") is None and whatsapp_url(None, "hi") is None
     assert whatsapp_url("60100000001", "Hi there & more") == "https://wa.me/60100000001?text=Hi%20there%20%26%20more"
+
+
+def test_a_restaurant_closed_every_monday_still_gets_a_plan_and_buffers(client, db, users, loaded):
+    """End to end: no sales on Mondays at all (a closed day), then measure buffers and plan a week that contains a Monday."""
+    from sqlalchemy import delete
+
+    from app.modules.planning.quality import recompute_safety
+    from app.modules.sales.models import SalesDaily
+    from app.modules.settings.models import Tenant
+
+    monday_ids = [r.id for r in db.scalars(select(SalesDaily)) if r.date.weekday() == 0]
+    assert monday_ids
+    for i in range(0, len(monday_ids), 500):
+        db.execute(delete(SalesDaily).where(SalesDaily.id.in_(monday_ids[i : i + 500])))
+    db.commit()
+
+    summary = recompute_safety(db, db.get(Tenant, users["owner"].tenant_id))
+    db.commit()
+    assert summary["origins"] > 0 and summary["profiles"] > 0
+
+    plan = make_plan(client, users, 7)  # today is Thu 22 Oct, so the week includes Monday 26 Oct
+    days = {d["date"]: d["total"] for d in plan["forecast"]["days"]}
+    assert all(v == v and v >= 0 for v in days.values())  # no NaN, nothing negative
+    assert days["2026-10-26"] == 0  # the closed Monday
+    assert days["2026-10-27"] > 100 and days["2026-10-23"] > 100  # the days around it are normal
+    assert plan["grand_total_rm"] == plan["grand_total_rm"] and plan["grand_total_rm"] > 0
+    for order in plan["orders"]:
+        for line in order["lines"]:
+            assert line["final_packs"] > 0 and line["line_total_rm"] == line["line_total_rm"]
+            assert 0 <= line["buffer_pct"] <= 60

@@ -87,11 +87,23 @@ def forecast_wide(q, menu, calf, origin, horizon) -> tuple[pd.DataFrame, pd.Data
             },
             index=days,
         )
+    elif total.sum() <= 0:
+        # nothing was ever sold: there is nothing to learn from, so forecast zero rather than guess
+        info = pd.DataFrame(
+            {"level": 0.0, "strength": 1.0, "weekday_factor": 1.0, "holiday_effect": 1.0, "event_effect": 1.0}, index=days
+        )
+        tot = np.zeros(horizon)
     else:
         cf = calf.loc[h.index]
         normal = ~cf.holiday & ~cf.event
         dow = _weekday_profile(total, cf)
-        des = total / dow.reindex(total.index.dayofweek).values
+        dow_at = dow.reindex(total.index.dayofweek).values
+        # A weekday the shop is always closed on has a profile of 0: its days say nothing about how busy it is.
+        dow_at = np.where(dow_at > 1e-6, dow_at, np.nan)
+        des = total / dow_at
+        # A day with no sales at all on an ordinary day is a closure (or missing data), not "demand was zero".
+        # Holidays and events keep their zeros: closing on a holiday is exactly what the holiday effect should learn.
+        des = des.where(~((total == 0) & normal))
         local = des.where(normal).rolling(15, center=True, min_periods=5).median()
         hol, ev = (des / local)[cf.holiday].dropna(), (des / local)[cf.event].dropna()
         hol_eff = shrink(hol.mean(), len(hol)) if len(hol) else 1.0
@@ -99,15 +111,21 @@ def forecast_wide(q, menu, calf, origin, horizon) -> tuple[pd.DataFrame, pd.Data
         clean = des.copy()
         clean[cf.holiday] /= hol_eff
         clean[cf.event] /= ev_eff
-        level = clean.groupby(cf.state).median()
+        level = clean.groupby(cf.state).median().dropna()  # a state seen only on closed days has no level
         fallback = clean.iloc[-14:].median()
+        if not np.isfinite(fallback):  # the last two weeks were all closed: use the long-run level instead
+            fallback = clean.median()
+        if not np.isfinite(fallback):
+            fallback = float(total[total > 0].mean())
         level_by_date = calf.state.map(lambda s: level.get(s, fallback))
 
         def smooth_level(d):  # people drift in/out around period boundaries, so blend +-4 days of levels
             window = level_by_date.reindex(pd.date_range(d - timedelta(days=4), d + timedelta(days=4))).dropna()
             return float(window.mean())
 
-        strength = float(np.median([clean[d] / smooth_level(d) for d in clean.index[-14:]]))
+        recent = np.array([clean[d] / smooth_level(d) for d in clean.index[-14:]])
+        recent = recent[np.isfinite(recent)]  # closed days carry no information about how busy the shop is
+        strength = float(np.median(recent)) if len(recent) else 1.0
         tf = calf.loc[days]
         lvl = np.array([smooth_level(d) for d in days])
         wd = dow.reindex(days.dayofweek).values
@@ -143,6 +161,14 @@ def _split_dishes(h, menu, origin, days, tot, total) -> pd.DataFrame:
     launch = menu.launch_date.reindex(h.columns)
     new = launch.notna() & (launch > origin - timedelta(days=60))
     share = pd.Series(np.where(new, s28, 0.7 * s28 + 0.3 * s_all), index=h.columns)
+    # A dish that sold nothing for four weeks although, given how busy the shop was, it would normally have sold at
+    # least 5 has left the menu (or is out of season): it gets no share, instead of keeping 30% of its old one.
+    # "Normally" = its usual share of all sales x the shop's total sales of those four weeks, so a quiet spell or a
+    # closure (when the total is small) never makes a dish look discontinued. If it were still on the menu, the
+    # chance of selling none while expecting 5 is under 1%.
+    expected_recent = s_all * float(total.iloc[-28:].sum())
+    gone = (h.iloc[-28:].sum() == 0) & (expected_recent >= 5) & ~new
+    share = share.where(~gone, 0.0)
     cats = menu.category.reindex(h.columns).fillna("other")
     cat_tot = h.T.groupby(cats).sum().T
     cat_dow = cat_tot.div(total.replace(0, np.nan), axis=0).groupby(cat_tot.index.dayofweek).mean()
