@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Badge, Card, EmptyState, PageSkeleton, Stat } from '../../components/ui'
 import { fmtDay, rm } from '../planning/format'
-import PosCard from '../pos/PosCard'
 import { useDashboard, type Dashboard } from './api'
 import { accuracyBars, compareFourWeekBaseline, forecastAccuracyPercent } from './accuracy'
 
@@ -81,8 +80,6 @@ export default function DashboardPage() {
             </>
           )}
         </Card>
-
-        <PosCard />
 
         <Card title="Stock health">
           <div className="grid grid-cols-3 gap-3 text-center">

@@ -6,7 +6,7 @@ import { useUsers, type Role } from './api'
 
 const ROLE: Record<Role, { label: string; can: string }> = {
   owner: { label: 'Owner', can: 'Sets up the business, approves and sends orders, changes settings.' },
-  manager: { label: 'Manager', can: 'Plans purchases, edits and submits them, imports sales, updates stock.' },
+  manager: { label: 'Manager', can: 'Plans purchases, edits and submits them, updates stock.' },
   staff: { label: 'Staff', can: 'Views stock and updates quantities. Cannot plan or approve.' },
 }
 

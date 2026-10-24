@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../../api/client'
 
-export type SetupStep = 'country' | 'pos' | 'inventory' | 'calendar' | 'done'
+export type SetupStep = 'country' | 'inventory' | 'calendar' | 'done'
 
 export type SetupStatus = {
   step: SetupStep
@@ -9,8 +9,6 @@ export type SetupStatus = {
   country: string | null
   country_name: string | null
   currency: string | null
-  pos_provider: string | null
-  pos_connected_at: string | null
   inventory_done: boolean
   calendar_skipped: boolean
 }

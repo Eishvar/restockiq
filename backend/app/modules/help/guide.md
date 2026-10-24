@@ -84,15 +84,14 @@ forecast learns from how each kind of period changed past sales, so one that rep
 new kind of period with no history cannot change the forecast yet, but it is recorded and starts to help once it has
 happened before. Malaysian public holidays are added when you choose Malaysia in setup.
 
-== SALES IMPORT ==
-Sales come in by CSV file exported from the till (FeedMe in this demo, which is simulated). On the Dashboard,
-Import sales shows a summary first. Dishes not on your menu are listed and left out, never guessed. A day in the
-file replaces that day in the app. The app's "today" is the day after your latest sales.
+== SALES HISTORY ==
+Forecasts use the sales history already stored in the app. The demo includes synthetic sales for its sample
+menu. There is no sales-system connection or sales upload feature. The app's "today" is the day after its latest sales.
 
 == WHO CAN DO WHAT ==
 Owner: everything, including setup, placing and rejecting orders, removing suppliers and places, and Settings.
 Manager: plan purchases, edit and submit orders, mark received, update stock, add or rename suppliers and places,
-calendar, import sales, Activity. Staff: view stock and update quantities only.
+calendar, Activity. Staff: view stock and update quantities only.
 
 == LIMITS OF THIS HELP CHAT ==
 It explains how the app works. It cannot see your stock, sales, plans or orders, cannot change anything, and cannot

@@ -1,6 +1,6 @@
-"""First-time setup: country (currency + public holidays), POS, stock, optional calendar.
+"""First-time setup: country (currency + public holidays), stock, optional calendar.
 
-The wizard order is country -> pos -> inventory -> calendar. Each step stores its own result, and
+The wizard order is country -> inventory -> calendar. Each step stores its own result, and
 `status()` derives which step is next, so a refresh or a different browser resumes in the right place.
 """
 import csv
@@ -37,8 +37,6 @@ def status(db: Session, tenant_id: int) -> SetupStatus:
     inventory_done = tenant.onboarded_at is not None
     if row.country is None:
         step = "country"
-    elif row.pos_provider is None:
-        step = "pos"
     elif not inventory_done:
         step = "inventory"
     elif row.setup_done_at is None:
@@ -52,8 +50,6 @@ def status(db: Session, tenant_id: int) -> SetupStatus:
         country=row.country,
         country_name=country["name"] if country else None,
         currency=row.currency,
-        pos_provider=row.pos_provider,
-        pos_connected_at=row.pos_connected_at,
         inventory_done=inventory_done,
         calendar_skipped=row.calendar_skipped,
     )
@@ -99,9 +95,9 @@ def choose_country(db: Session, user: User, code: str) -> CountryResult:
 
 
 def complete(db: Session, user: User, skip_calendar: bool) -> SetupStatus:
-    """Finish the wizard. Needs the first three steps done; the calendar step may be skipped."""
+    """Finish the wizard after country and stock; the calendar step may be skipped."""
     current = status(db, user.tenant_id)
-    if current.step in ("country", "pos", "inventory"):
+    if current.step in ("country", "inventory"):
         raise HTTPException(409, f"Finish the '{current.step}' step first")
     row = get_setup(db, user.tenant_id)
     if row.setup_done_at is None:

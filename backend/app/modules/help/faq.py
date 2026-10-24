@@ -51,7 +51,7 @@ FAQ: list[dict[str, str]] = [
         "question": "Who can do what?",
         "answer": (
             "- Owner: everything, including setup, placing or rejecting orders, removing suppliers and Settings.\n"
-            "- Manager: plan, edit and submit orders, mark received, update stock, calendar, import sales.\n"
+            "- Manager: plan, edit and submit orders, mark received, update stock and calendar.\n"
             "- Staff: view stock and update quantities only.\n"
             "- A greyed-out button tells you which role you need."
         ),
@@ -139,14 +139,11 @@ FAQ: list[dict[str, str]] = [
     {
         "id": "sales",
         "topic": "Sales",
-        "question": "How do I get my sales into the app?",
+        "question": "Where do the sales used for forecasts come from?",
         "answer": (
-            "- Export your daily sales from FeedMe as a CSV file.\n"
-            "- On the Dashboard, press Import sales and choose the file.\n"
-            "- You see a summary first. Nothing is saved until you press Import.\n"
-            "- Dishes not on your menu are listed and left out.\n"
-            "- A day already in the app is replaced by the file's version.\n"
-            "- In this demo, FeedMe is simulated."
+            "- Forecasts use the sales history already stored in the app.\n"
+            "- This demo includes made-up sales for the sample menu.\n"
+            "- There is no sales-system connection or sales upload feature."
         ),
     },
     {
@@ -214,7 +211,7 @@ FAQ: list[dict[str, str]] = [
 ]
 
 PAGES = (
-    "Dashboard: forecast accuracy, latest plan, sales from your POS (Import sales), stock health. "
+    "Dashboard: forecast accuracy, latest plan and stock health. "
     "Plan purchases: pick days, Generate plan, Supplier orders, Supplier details. "
     "Inventory: stock by batch, + Add item / supplier / place, + Add stock, Remove expired. "
     "Order history: past orders. Calendar: holidays, periods, events. Activity: record of every action. "
