@@ -17,11 +17,11 @@ export function bridgeForecastHistory(
       ...(i === anchorIndex ? { bridge: h.total } : {}),
     })),
     // Today is not a forecast: it is still in progress. Keep its slot on the axis but plot nothing.
-    ...days.map((d) => {
-      if (d.is_today) return { label: fmtShort(d.date) }
+    ...days.flatMap((d) => {
+      if (d.is_today) return history.some((h) => h.date === d.date) ? [] : [{ label: fmtShort(d.date) }]
       const value = Math.round(d.total)
       const first = !days.some((o) => !o.is_today && o.date < d.date)
-      return { label: fmtShort(d.date), forecast: value, ...(first && anchorIndex >= 0 ? { bridge: value } : {}) }
+      return [{ label: fmtShort(d.date), forecast: value, ...(first && anchorIndex >= 0 ? { bridge: value } : {}) }]
     }),
   ]
 }

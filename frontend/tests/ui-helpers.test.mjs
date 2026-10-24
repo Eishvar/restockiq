@@ -66,6 +66,17 @@ test('today is kept on the axis but never plotted as a forecast', () => {
   ])
 })
 
+test('today with real sales is drawn once, as sold', () => {
+  const chart = bridgeForecastHistory(
+    [{ date: '2026-10-21', total: 267 }],
+    [{ date: '2026-10-21', total: 250, is_today: true }, { date: '2026-10-22', total: 200 }],
+  )
+  assert.deepEqual(chart, [
+    { label: '21 Oct', actual: 267, bridge: 267 },
+    { label: '22 Oct', forecast: 200, bridge: 200 },
+  ])
+})
+
 test('forecast handles missing history, missing forecast, and a zero anchor', () => {
   assert.deepEqual(bridgeForecastHistory([], []), [])
   assert.deepEqual(bridgeForecastHistory([], [{ date: '2026-10-22', total: 12 }]), [{ label: '22 Oct', forecast: 12 }])

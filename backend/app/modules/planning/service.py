@@ -229,12 +229,12 @@ def get_plan_detail(db: Session, user: User, run_id: int) -> PlanDetail:
     actual = dict(
         db.execute(
             select(SalesDaily.date, func.sum(SalesDaily.qty))
-            .where(SalesDaily.tenant_id == user.tenant_id, SalesDaily.date >= start, SalesDaily.date < run.today)
+            .where(SalesDaily.tenant_id == user.tenant_id, SalesDaily.date >= start, SalesDaily.date <= run.today)
             .group_by(SalesDaily.date)
         ).all()
     )
     history = [{"date": (start + timedelta(days=i)).isoformat(), "total": int(actual.get(start + timedelta(days=i), 0))}
-               for i in range(28)]
+               for i in range(29)]  # 28 days before today, plus today when it has sales
 
     q = db.scalars(
         select(ForecastQuality)

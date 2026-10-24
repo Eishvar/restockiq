@@ -43,7 +43,7 @@ def test_generate_plan_saves_run_forecast_and_one_draft_order_per_supplier(clien
     days = plan["forecast"]["days"]
     assert [d["is_today"] for d in days] == [True, False, False, False] and days[0]["weekday"] == "Thu"
     assert days[1]["drivers"]["state"] and days[1]["total"] > 0
-    assert len(plan["forecast"]["history"]) == 28 and plan["forecast"]["history"][-1]["date"] == "2026-10-21"
+    assert len(plan["forecast"]["history"]) == 29 and plan["forecast"]["history"][-1]["date"] == "2026-10-22"
     assert plan["forecast"]["dishes"][0]["qty"] and len(plan["forecast"]["dishes"][0]["qty"]) == 4
 
     # engine output stored
@@ -74,7 +74,7 @@ def test_horizon_1_to_7_only_and_manager_needed(client, users, loaded):
 
 def test_today_can_be_overridden(client, users, loaded):
     plan = make_plan(client, users, 2, today="2026-10-20")
-    assert plan["today"] == "2026-10-20" and plan["forecast"]["history"][-1]["date"] == "2026-10-19"
+    assert plan["today"] == "2026-10-20" and plan["forecast"]["history"][-1]["date"] == "2026-10-20"
 
 
 def test_longer_horizons_cost_more(client, users, loaded):

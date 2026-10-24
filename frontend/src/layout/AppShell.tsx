@@ -77,9 +77,9 @@ export default function AppShell() {
       <aside className={`hidden shrink-0 border-r border-brand-border bg-brand-paper transition-[width] duration-200 md:block ${collapsed ? 'w-[4.5rem]' : 'w-60'}`}>
         <div className="sticky top-0">
           {collapsed ? (
-            <div className="px-2 py-5 text-center text-lg font-extrabold tracking-tight text-brand-navy" title="RestockAI">R</div>
+            <div className="flex justify-center px-2 py-5"><img src="/logo-mark.png" alt="RestockAI" className="h-7 w-auto" /></div>
           ) : (
-            <div className="px-5 py-5 text-lg font-extrabold tracking-tight text-brand-navy">Restock<span className="text-slate-700">AI</span><span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[.18em] text-slate-400">Kitchen purchasing</span></div>
+            <div className="px-5 py-5"><img src="/logo.png" alt="RestockAI" className="h-6 w-auto" /></div>
           )}
           {renderNav(collapsed)}
         </div>
@@ -90,7 +90,7 @@ export default function AppShell() {
         <div className="fixed inset-0 z-30 md:hidden" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-black/40" />
           <aside className="absolute left-0 top-0 h-full w-60 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="px-5 py-5 text-lg font-extrabold text-brand-navy">RestockAI</div>
+            <div className="px-5 py-5"><img src="/logo.png" alt="RestockAI" className="h-6 w-auto" /></div>
             {renderNav(false)}
           </aside>
         </div>

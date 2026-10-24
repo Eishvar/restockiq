@@ -249,7 +249,7 @@ export default function SetupWizard() {
     <div className="min-h-screen bg-slate-50">
       <header className="border-b border-slate-200 bg-white px-4 py-3">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <span className="text-lg font-bold text-brand-royal">RestockAI</span>
+          <img src="/logo.png" alt="RestockAI" className="h-6 w-auto" />
           <span className="text-xs text-slate-500">First-time setup · {me.data?.name}</span>
         </div>
       </header>
