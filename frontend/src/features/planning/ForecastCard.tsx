@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts'
+import { Area, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts'
 import { Button, Card, Chip, Table } from '../../components/ui'
 import type { Drivers, Plan } from './api'
 import { fmtDay, num, prettyState, weekdayLong } from './format'
@@ -45,15 +45,21 @@ export default function ForecastCard({ plan }: { plan: Plan }) {
 
       <div className="mt-4 h-56 w-full" aria-label="Dishes sold per day: last 4 weeks and forecast">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chart} margin={{ top: 5, right: 8, bottom: 0, left: -12 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--brand-border)" />
-            <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={24} tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} />
+          <ComposedChart data={chart} margin={{ top: 8, right: 12, bottom: 0, left: -16 }}>
+            <defs>
+              <linearGradient id="soldFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--brand-muted)" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="var(--brand-muted)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} stroke="var(--brand-border)" strokeOpacity={0.7} />
+            <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={32} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} allowDecimals={false} />
             <ChartTooltip />
-            <Legend />
-            <Line name="Sold (last 4 weeks)" dataKey="actual" stroke="var(--brand-muted)" dot={false} strokeWidth={2} connectNulls={false} />
-            <Line name="Forecast" dataKey="forecast" stroke="var(--brand-royal)" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3, fill: 'var(--brand-royal)' }} connectNulls={false} />
-          </LineChart>
+            <Legend iconType="circle" />
+            <Area name="Sold (last 4 weeks)" dataKey="actual" type="monotone" stroke="var(--brand-muted)" strokeWidth={2.5} fill="url(#soldFill)" dot={false} connectNulls={false} />
+            <Line name="Forecast" dataKey="forecast" type="monotone" stroke="var(--brand-royal)" strokeWidth={2.5} strokeDasharray="6 4" dot={{ r: 3.5, fill: '#fff', stroke: 'var(--brand-royal)', strokeWidth: 2 }} activeDot={{ r: 5 }} connectNulls={false} />
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
 

@@ -57,7 +57,10 @@ test('forecast starts at the final observed point without changing history or fo
 test('forecast handles missing history, missing forecast, and a zero anchor', () => {
   assert.deepEqual(bridgeForecastHistory([], []), [])
   assert.deepEqual(bridgeForecastHistory([], [{ date: '2026-10-22', total: 12 }]), [{ label: '22 Oct', forecast: 12 }])
-  assert.deepEqual(bridgeForecastHistory([{ date: '2026-10-21', total: 0 }], []), [{ label: '21 Oct', actual: 0, forecast: 0 }])
+  // Days after the last recorded sales are empty, not zero sales.
+  assert.deepEqual(bridgeForecastHistory([{ date: '2026-10-21', total: 0 }], []), [])
+  const trimmed = bridgeForecastHistory([{ date: '2026-10-20', total: 90 }, { date: '2026-10-21', total: 0 }], [{ date: '2026-10-23', total: 50 }])
+  assert.deepEqual(trimmed, [{ label: '20 Oct', actual: 90, forecast: 90 }, { label: '23 Oct', forecast: 50 }])
 })
 
 test('audit details use everyday labels and Yes/No instead of raw JSON', () => {
