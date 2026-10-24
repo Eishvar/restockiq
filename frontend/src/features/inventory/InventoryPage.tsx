@@ -8,18 +8,19 @@ import {
   usePatchBatch,
   useRemoveBatch,
   useRemoveItem,
+  useStorageAreas,
   type Batch,
   type BatchPatch,
   type InventoryRow,
   type Status,
 } from './api'
-import QuickNoteModal from '../assistant/QuickNoteModal'
 import AddBatchModal from './AddBatchModal'
 import AddItemModal from './AddItemModal'
 import HistoryModal from './HistoryModal'
+import ManageListsModal from './ManageListsModal'
 import OnboardingWizard from './OnboardingWizard'
 import QtyInput, { inputCls } from './QtyInput'
-import { StatusBadge, STORAGE_LABEL, fmtDate } from './shared'
+import { areaName, StatusBadge, fmtDate } from './shared'
 
 type Filter = 'all' | Status
 
@@ -168,6 +169,7 @@ function ItemGroup({
   row, today, canEditAll, onHistory, onAddBatch,
 }: { row: InventoryRow; today: string; canEditAll: boolean; onHistory: () => void; onAddBatch: () => void }) {
   const remove = useRemoveItem()
+  const areas = useStorageAreas()
   const toast = useToast()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmError, setConfirmError] = useState('')
@@ -191,7 +193,7 @@ function ItemGroup({
         <td colSpan={3}>
           <div className="font-semibold">{row.name}</div>
           <div className="text-xs text-slate-500">
-            {STORAGE_LABEL[row.storage]}
+            {areaName(areas.data, row.storage)}
             {row.supplier_name ? ` · ${row.supplier_name}` : ''}
             {row.batches.length > 1 ? ` · ${row.batches.length} batches` : ''}
           </div>
@@ -233,8 +235,9 @@ export default function InventoryPage() {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
   const [storage, setStorage] = useState('')
+  const areas = useStorageAreas()
   const [adding, setAdding] = useState(false)
-  const [noting, setNoting] = useState(false)
+  const [managing, setManaging] = useState(false)
   const [history, setHistory] = useState<InventoryRow | null>(null)
   const [batchFor, setBatchFor] = useState<InventoryRow | null>(null)
   const [confirmDiscardAll, setConfirmDiscardAll] = useState(false)
@@ -284,9 +287,7 @@ export default function InventoryPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => setNoting(true)} className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-100">
-            Quick add from a note <span className="mt-0.5 block text-left text-xs font-normal text-emerald-800">English or Bahasa Malaysia · “beras 12 bag, telur 3 tray…”</span>
-          </button>
+          {canEditAll && <Button variant="secondary" onClick={() => setManaging(true)}>Suppliers and places</Button>}
           {canEditAll ? addButton : <Tooltip text="Only managers and owners can add items">{addButton}</Tooltip>}
         </div>
       </div>
@@ -360,9 +361,9 @@ export default function InventoryPage() {
           />
           <select aria-label="Filter by storage" value={storage} onChange={(e) => setStorage(e.target.value)} className={inputCls}>
             <option value="">All storage</option>
-            <option value="freezer">Freezer</option>
-            <option value="chiller">Chiller</option>
-            <option value="dry">Dry store</option>
+            {(areas.data ?? []).map((a) => (
+              <option key={a.key} value={a.key}>{a.name}</option>
+            ))}
           </select>
         </div>
 
@@ -386,7 +387,7 @@ export default function InventoryPage() {
 
       <AddBatchModal item={batchFor} today={data.today} onClose={() => setBatchFor(null)} />
       <AddItemModal open={adding} today={data.today} onClose={() => setAdding(false)} />
-      <QuickNoteModal open={noting} data={data} onClose={() => setNoting(false)} />
+      <ManageListsModal open={managing} onClose={() => setManaging(false)} />
       <HistoryModal ingredientId={history?.ingredient_id ?? null} name={history?.name ?? ''} onClose={() => setHistory(null)} />
       <ConfirmModal open={confirmDiscardAll} title="Remove all expired batches?" description={`Remove all ${expiredBatches.length} expired batches from your stock? This does not remove their history.`} pending={discard.isPending} error={discardAllError} onCancel={() => { setConfirmDiscardAll(false); setDiscardAllError('') }} onConfirm={() => void discardAll()} />
     </div>

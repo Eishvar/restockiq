@@ -85,10 +85,6 @@ export default function DashboardPage() {
         <PosCard />
 
         <Card title="Stock health">
-          <div className="mb-3 flex items-center justify-between gap-2 rounded-lg border border-emerald-200 bg-emerald-50/70 px-3 py-2">
-            <span className="text-sm font-medium text-emerald-900">Quick add stock from an English or Bahasa Malaysia note</span>
-            <Link to="/inventory" className="shrink-0 text-sm font-semibold text-emerald-800 underline underline-offset-2">Open stock</Link>
-          </div>
           <div className="grid grid-cols-3 gap-3 text-center">
             <Stat label="Fine" value={d.inventory.ok} />
             <Stat label="Use soon" value={d.inventory.expiring_soon} />

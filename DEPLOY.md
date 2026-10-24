@@ -35,11 +35,11 @@ Never put a real key in the repo. `.env.example` lists the names only.
 
 ## 4. AI (which model answers)
 
-1. **Tools â†’ AI Integrations â†’ Anthropic**, approve it. Replit then provides `AI_INTEGRATIONS_ANTHROPIC_API_KEY`
-   and `AI_INTEGRATIONS_ANTHROPIC_BASE_URL` to the app, which `backend/app/ai/llm.py` reads first.
-2. Check: sign in as Siti (manager), **Inventory â†’ âš¡ Quick add from a note â†’ Use the example â†’ Read my note**.
-   If it says "AI unavailable, enter manually", the integration is not approved in this environment
-   (workspace vs deployment) or the model name is not allowed. The rest of the app keeps working without AI.
+The only AI in the app is the **Help chat** (the green Help button). Common questions are answered from a stored list and never call the AI; only typed questions do, at most 3 per minute per person.
+It uses `OPENROUTER_API_KEY` and `OPENROUTER_MODEL` (the model id, for example `deepseek/deepseek-v4.1-flash`). Set both in the **Deployment** secrets too. Never paste a key in the repo or in chat.
+1. Check: open the app, press **Help**, and type a question that is not in the list, such as "where can I see old orders?".
+   A short plain answer labelled "AI answer" means it works. If it says the AI helper is not available, the key or the model id is missing in this environment (workspace vs deployment).
+   The rest of the app keeps working without AI.
 
 ## 5. Run it in the workspace
 

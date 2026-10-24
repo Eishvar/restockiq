@@ -1,23 +1,27 @@
 import { useState } from 'react'
 import { Badge, Button, Card, Table, useToast } from '../../components/ui'
-import { useConfirmOnboarding, usePatchItem, type InventoryList, type ItemPatch } from './api'
-import QuickNoteModal from '../assistant/QuickNoteModal'
+import { useConfirmOnboarding, usePatchItem, useStorageAreas, type InventoryList, type ItemPatch } from './api'
 import AddItemModal from './AddItemModal'
+import ManageListsModal from './ManageListsModal'
 import QtyInput, { inputCls } from './QtyInput'
-import { StatusBadge, STORAGE_LABEL, STORAGE_ORDER, fmtDate } from './shared'
+import { areaName, StatusBadge, fmtDate } from './shared'
 
 /** One-time setup for the owner: check the opening stock, fix anything wrong, then confirm. */
 export default function OnboardingWizard({ data }: { data: InventoryList }) {
   const [edits, setEdits] = useState<Record<number, ItemPatch>>({})
   const [adding, setAdding] = useState(false)
-  const [noting, setNoting] = useState(false)
+  const [managing, setManaging] = useState(false)
   const [busy, setBusy] = useState(false)
+  const areas = useStorageAreas()
   const patch = usePatchItem()
   const confirm = useConfirmOnboarding()
   const toast = useToast()
 
   const edit = (id: number, change: ItemPatch) => setEdits((e) => ({ ...e, [id]: { ...e[id], ...change } }))
   const changed = Object.keys(edits).length
+  // Places in their saved order, then any key an item uses that is not in the list (should not happen, but never hide stock).
+  const known = (areas.data ?? []).map((a) => a.key)
+  const placeKeys = [...known, ...Array.from(new Set(data.items.map((i) => i.storage))).filter((k) => !known.includes(k))]
 
   async function finish() {
     setBusy(true)
@@ -42,11 +46,11 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
         </p>
       </div>
 
-      {STORAGE_ORDER.map((storage) => {
+      {placeKeys.map((storage) => {
         const rows = data.items.filter((i) => i.storage === storage)
         if (!rows.length) return null
         return (
-          <Card key={storage} title={`${STORAGE_LABEL[storage]} (${rows.length})`}>
+          <Card key={storage} title={`${areaName(areas.data, storage)} (${rows.length})`}>
             <Table head={['Item', 'How much you have', 'Last bought', 'Good for (days)', '']}>
               {rows.map((r) => {
                 const e = edits[r.ingredient_id] ?? {}
@@ -88,11 +92,11 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
 
       <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
         <div className="flex items-center gap-3 text-sm text-slate-600">
-          <button type="button" onClick={() => setNoting(true)} className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-100">
-            Quick add from a note <span className="mt-0.5 block text-left text-xs font-normal text-emerald-800">English or Bahasa Malaysia · “beras 12 bag, telur 3 tray…”</span>
-          </button>
           <Button variant="secondary" onClick={() => setAdding(true)}>
             + Add item
+          </Button>
+          <Button variant="secondary" onClick={() => setManaging(true)}>
+            Suppliers and places
           </Button>
           {changed > 0 && <Badge tone="warn">{changed} changed</Badge>}
           <span className="hidden sm:inline">Stock as of {fmtDate(data.today)}</span>
@@ -103,7 +107,7 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
       </div>
 
       <AddItemModal open={adding} today={data.today} onClose={() => setAdding(false)} />
-      <QuickNoteModal open={noting} data={data} onClose={() => setNoting(false)} />
+      <ManageListsModal open={managing} onClose={() => setManaging(false)} />
     </div>
   )
 }

@@ -1,8 +1,11 @@
 import { Badge } from '../../components/ui'
-import type { Status } from './api'
+import type { StorageArea, Status } from './api'
 
-export const STORAGE_LABEL = { freezer: 'Freezer', chiller: 'Chiller', dry: 'Dry store' } as const
-export const STORAGE_ORDER = ['freezer', 'chiller', 'dry'] as const
+const STANDARD_NAME: Record<string, string> = { freezer: 'Freezer', chiller: 'Chiller', dry: 'Dry store' }
+
+/** The name people see for a storage place. Falls back to the standard names while the list is loading. */
+export const areaName = (areas: StorageArea[] | undefined, key: string) =>
+  areas?.find((a) => a.key === key)?.name ?? STANDARD_NAME[key] ?? key
 
 export const fmtDate = (iso: string | null) =>
   iso ? new Date(iso + 'T00:00').toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'

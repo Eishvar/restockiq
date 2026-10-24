@@ -42,12 +42,12 @@ Event rules that affect the code: Replit must be used (deployment); GPU work mus
 - Purchasing must respect shelf life: expired stock is never counted; perishables are bought in trips.
 - Consequential actions (generate plan, edit line, submit/approve/reject/send/receive, inventory add/edit/remove/discard, settings or calendar change, accept AI suggestion) MUST call core.activity.log_action(). Inventory quantity changes also write inventory_movements.
 - Role checks only via Depends(require_role(...)); owner > manager > staff.
-- LLM only via app/ai/llm.py complete_json(); prompts in app/ai/prompts/. LLM output = pending ai_suggestions until a human confirms. The LLM never decides purchase quantities.
+- LLM only via app/ai/llm.py complete_json(); prompts in app/ai/prompts/. The only AI feature is the Help chat (modules/help): it explains how to use the app, sees no business data and changes nothing. The earlier stock-note reader and shelf-life suggester were removed on purpose (the ai_suggestions table is kept, unused). The LLM never decides purchase quantities.
 - AI unavailable => graceful fallback (manual forms still work).
 - Data from data/*.csv (synthetic). Never read or commit files outside the repo. No secrets in code.
 - "Today" defaults to the day after the latest sales date (2026-10-22), overridable via env TODAY or Settings. Horizon 1–7 days starting tomorrow. Importing a day of sales therefore moves "today" forward by itself (the daily-use behaviour).
 - First-time setup (modules/setup, table tenant_setup) is country -> POS -> stock -> optional calendar; the frontend sends the owner there until it is done. Malaysia sets MYR and adds data/calendar_my.csv holidays (no duplicates).
-- Help chat (modules/help, frontend features/help): FAQ answers live in modules/help/faq.py and cost nothing; the AI answers only questions not on the list, from that same text, is rate limited and sends no business data. When a screen changes, update the matching FAQ answer.
+- Help chat (modules/help, frontend features/help): FAQ answers live in modules/help/faq.py and cost nothing; the AI answers only questions not on the list (3 per person per minute), from that same text, in short plain text (the prompt asks for it and `clean_answer` strips markdown), and sends no business data. Suppliers and storage places (where an item is kept) are lists people add to and rename (modules/catalog/service.py). When a screen changes, update the matching FAQ answer.
 - Sales arrive by CSV upload (modules/pos): preview, then confirm; unknown dishes and bad rows are listed and left out, never guessed; a day in the file replaces that day. FeedMe is SIMULATED (pos/feedme.py, synthetic data, invented columns): never present it as the real FeedMe.
 
 ## Conventions

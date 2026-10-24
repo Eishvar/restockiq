@@ -76,7 +76,6 @@ export type NewItem = {
   shelf_life_days: number
   qty_base: number
   last_purchased_on: string | null
-  suggestion_id?: number | null
 }
 
 export type Movement = {
@@ -100,9 +99,15 @@ export type Supplier = {
   whatsapp: string
 }
 
+export type StorageArea = { key: string; name: string; items: number }
+
 export const useInventory = () => useQuery({ queryKey: ['inventory'], queryFn: () => api<InventoryList>('/inventory') })
 
 export const useSuppliers = () => useQuery({ queryKey: ['suppliers'], queryFn: () => api<Supplier[]>('/catalog/suppliers') })
+
+/** The places stock can be kept: Freezer, Chiller, Dry store and any the business added. */
+export const useStorageAreas = () =>
+  useQuery({ queryKey: ['storage-areas'], queryFn: () => api<StorageArea[]>('/catalog/storage-areas'), staleTime: 30_000 })
 
 export const useMovements = (ingredientId: number | null) =>
   useQuery({
@@ -133,6 +138,25 @@ export const usePatchItem = () =>
   )
 
 export const useAddItem = () => useWrite((item: NewItem) => api<InventoryRow>('/inventory/items', send('POST', item)))
+
+/** Names of suppliers and places feed many screens (stock, orders, settings), so refresh them all. */
+function useListWrite<TVars, TOut>(fn: (v: TVars) => Promise<TOut>) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => {
+      for (const key of ['suppliers', 'storage-areas', 'inventory', 'activity', 'planning', 'settings', 'orders'])
+        qc.invalidateQueries({ queryKey: [key] })
+    },
+  })
+}
+
+export const useAddSupplier = () => useListWrite((name: string) => api<Supplier>('/catalog/suppliers', send('POST', { name })))
+export const useRenameSupplier = () =>
+  useListWrite(({ id, name }: { id: number; name: string }) => api<Supplier>(`/catalog/suppliers/${id}`, send('PATCH', { name })))
+export const useAddStorageArea = () => useListWrite((name: string) => api<StorageArea>('/catalog/storage-areas', send('POST', { name })))
+export const useRenameStorageArea = () =>
+  useListWrite(({ key, name }: { key: string; name: string }) => api<StorageArea>(`/catalog/storage-areas/${key}`, send('PATCH', { name })))
 
 export const useRemoveItem = () =>
   useWrite((id: number) => api<void>(`/inventory/${id}`, send('DELETE')))
