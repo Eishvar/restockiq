@@ -65,7 +65,7 @@ export default function ForecastCard({ plan, accuracy }: { plan: Plan; accuracy?
             <ChartTooltip />
             <Legend iconType="circle" />
             <Area name="Sold (last 4 weeks)" dataKey="actual" type="monotone" stroke="var(--brand-muted)" strokeWidth={2.5} fill="url(#soldFill)" dot={false} connectNulls={false} />
-            <Line dataKey="bridge" type="monotone" stroke="var(--brand-royal)" strokeOpacity={0.35} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={false} legendType="none" tooltipType="none" connectNulls={false} isAnimationActive={false} />
+            <Line dataKey="bridge" type="monotone" stroke="var(--brand-royal)" strokeOpacity={0.35} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={false} legendType="none" tooltipType="none" isAnimationActive={false} connectNulls />
             <Line name="Forecast" dataKey="forecast" type="monotone" stroke="var(--brand-royal)" strokeWidth={2.5} strokeDasharray="6 4" dot={{ r: 3.5, fill: '#fff', stroke: 'var(--brand-royal)', strokeWidth: 2 }} activeDot={{ r: 5 }} connectNulls={false} />
           </ComposedChart>
         </ResponsiveContainer>
