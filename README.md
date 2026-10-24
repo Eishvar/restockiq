@@ -12,8 +12,8 @@
 | **Team Domain** | Domain 2: Orbyte Smart SME Challenge |
 | **SDG Track (1-17)** | SDG 12 (Responsible Consumption and Production), target 12.3. Also supports SDG 8 (targets 8.2 and 8.3). |
 | **Team Leader** | Eishvar |
-| **University** | AIMST University **[confirm for every member]** |
-| **Number of Members** | 3 (Eishvar, Joey Khor, Aswindra Selvam) |
+| **University** | AIMST University |
+| **Number of Members** | 4 (Eishvar, Joey Khor, Aswindra Selvam, Virochan) |
 | **Solution** | RestockAI |
 
 ## Links
@@ -21,10 +21,10 @@
 | Resource | Link |
 |---|---|
 | GitHub Repository | https://github.com/Eishvar/restockiq |
-| Replit Project | **[ADD LINK: your Replit project, replit.com/@username/restockiq]** |
+| Replit Project | https://replit.com/@eishvar2020/restockiq |
 | Live Demo | https://restockiq.replit.app |
 | RunPod Endpoint | Not used (no GPU work, see "How we used Replit and RunPod") |
-| Slide Deck | **[ADD LINK, or write "None"]** |
+| Slide Deck | https://canva.link/9qbxm0hc9hg3pfl |
 | Demo Video | **[ADD LINK]** |
 To try the demo, open the live link and pick a user on the sign-in screen: **Ah Hock (owner)**, **Siti (manager)** or **Ravi (staff)**. Sign-in is simulated in this prototype.
 
