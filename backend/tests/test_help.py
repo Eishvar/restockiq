@@ -123,3 +123,20 @@ def test_a_very_long_answer_is_cut_at_a_sentence(client, users, monkeypatch):
     monkeypatch.setattr(llm, "complete_json", lambda *a: {"answer": long})
     answer = ask(client, users["manager"], "Tell me everything please").json()["answer"]
     assert len(answer) <= service.MAX_ANSWER_CHARS and answer.endswith(".")
+
+
+def test_the_ai_is_given_the_detailed_guide_file_plus_the_ready_made_answers():
+    from app.modules.help.faq import guide_text
+
+    guide = guide_text()
+    for heading in ("HOW THE FORECAST WORKS", "THE SAFETY BUFFER", "STOCK, EXPIRY AND SHELF LIFE", "WHO CAN DO WHAT"):
+        assert heading in guide
+    assert "Recent strength" in guide and "rounded UP to whole supplier packs" in guide
+    assert "READY-MADE ANSWERS" in guide and FAQ[0]["answer"] in guide
+    assert len(guide.split()) < 3500  # every typed question sends this text, so it must stay cheap
+    assert "sk-" not in guide and "api_key" not in guide.lower()  # it is sent to a third party: no secrets, no data
+
+
+def test_the_forecast_question_is_a_free_ready_made_answer(client, users, fake_ai):
+    r = ask(client, users["staff"], "How does the forecast work?").json()
+    assert r["source"] == "faq" and "no AI" in r["answer"] and fake_ai == []

@@ -5,7 +5,22 @@ helper is given for questions that are not on the list, so there is one source o
 fix the answer here.
 """
 
+from pathlib import Path
+
 FAQ: list[dict[str, str]] = [
+    {
+        "id": "forecast",
+        "topic": "Planning",
+        "question": "How does the forecast work?",
+        "answer": (
+            "It predicts dishes per day from your own sales history, in steps. 1) The usual level for that kind of "
+            "period (semester, break and so on). 2) How busy the last 2 weeks were, so growth shows up by itself. "
+            "3) Your weekday pattern, such as busier Fridays. 4) Holiday or event effects it has seen before. "
+            "Then it shares the day's total between dishes by popularity, turns dishes into ingredients with your "
+            "recipes, adds a safety buffer, subtracts usable stock, and rounds up to whole supplier packs. "
+            "There is no AI in it, only your own numbers."
+        ),
+    },
     {
         "id": "plan",
         "topic": "Planning",
@@ -190,8 +205,15 @@ PAGES = (
 )
 
 
+GUIDE_FILE = Path(__file__).with_name("guide.md")
+
+
 def guide_text() -> str:
-    """Everything the AI helper may rely on, built from the answers above."""
-    lines = [f"Pages: {PAGES}", ""]
+    """Everything the AI helper may rely on: the longer guide file, then the ready-made answers above.
+
+    The guide file is plain text that anyone can edit. It holds the detail (forecast steps, buffer, expiry),
+    so new questions can be answered without touching this Python file.
+    """
+    lines = [GUIDE_FILE.read_text(encoding="utf-8"), "", f"Pages: {PAGES}", "", "READY-MADE ANSWERS"]
     lines += [f"Q: {f['question']}\nA: {f['answer']}" for f in FAQ]
     return "\n".join(lines)
