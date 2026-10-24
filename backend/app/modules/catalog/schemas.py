@@ -26,6 +26,13 @@ class SupplierOut(BaseModel):
     lead_time_days: int
     min_order_rm: float
     whatsapp: str
+    items: int = 0  # how many ingredients are bought from this supplier
+
+
+class RemovedOut(BaseModel):
+    removed: str
+    moved_items: int
+    moved_to: str | None
 
 
 class NameIn(BaseModel):

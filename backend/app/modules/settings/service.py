@@ -15,7 +15,7 @@ from app.modules.settings.schemas import SettingsOut, SettingsPatch, SupplierPat
 
 def get_settings(db: Session, user: User) -> SettingsOut:
     tenant = db.get(Tenant, user.tenant_id)
-    suppliers = db.scalars(select(Supplier).where(Supplier.tenant_id == user.tenant_id).order_by(Supplier.name))
+    suppliers = db.scalars(select(Supplier).where(Supplier.tenant_id == user.tenant_id, Supplier.active.is_(True)).order_by(Supplier.name))
     updated = db.scalar(select(func.max(SafetyProfile.computed_at)).where(SafetyProfile.tenant_id == user.tenant_id))
     return SettingsOut(
         tenant_name=tenant.name,

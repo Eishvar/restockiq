@@ -238,7 +238,7 @@ def _make_code(db: Session, tenant_id: int, name: str) -> str:
 def add_item(db: Session, user: User, body: ItemCreate) -> InventoryRow:
     if body.supplier_id is not None:
         supplier = db.get(Supplier, body.supplier_id)
-        if supplier is None or supplier.tenant_id != user.tenant_id:
+        if supplier is None or supplier.tenant_id != user.tenant_id or not supplier.active:
             raise HTTPException(422, "Unknown supplier")
     if body.storage not in {a.key for a in catalog_service.ensure_areas(db, user.tenant_id)}:
         raise HTTPException(422, "Unknown place. Add it first, then choose it.")

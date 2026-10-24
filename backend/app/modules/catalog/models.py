@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import Boolean, Date, Float, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, Date, Float, ForeignKey, Integer, String, UniqueConstraint, true
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -36,6 +36,8 @@ class Supplier(Base):
     lead_time_days: Mapped[int] = mapped_column(Integer, default=0)
     min_order_rm: Mapped[float] = mapped_column(Float, default=0)
     whatsapp: Mapped[str] = mapped_column(String(30), default="")
+    # A removed supplier is hidden, not deleted, so past orders keep its name.
+    active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())
 
 
 class StorageArea(Base):

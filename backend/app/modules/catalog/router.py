@@ -6,7 +6,7 @@ from app.core.auth import current_user, require_role
 from app.db import get_db
 from app.modules.catalog import service
 from app.modules.catalog.models import Ingredient, MenuItem, Recipe, Supplier
-from app.modules.catalog.schemas import IngredientOut, MenuItemOut, NameIn, RecipeOut, StorageAreaOut, SupplierOut
+from app.modules.catalog.schemas import IngredientOut, MenuItemOut, NameIn, RecipeOut, RemovedOut, StorageAreaOut, SupplierOut
 from app.modules.settings.models import User
 
 router = APIRouter(prefix="/catalog", tags=["catalog"])
@@ -19,7 +19,7 @@ def menu(user: User = Depends(current_user), db: Session = Depends(get_db)):
 
 @router.get("/suppliers", response_model=list[SupplierOut])
 def suppliers(user: User = Depends(current_user), db: Session = Depends(get_db)):
-    return db.scalars(select(Supplier).where(Supplier.tenant_id == user.tenant_id).order_by(Supplier.code)).all()
+    return service.list_suppliers(db, user)
 
 
 @router.post("/suppliers", response_model=SupplierOut, status_code=201)
@@ -32,6 +32,20 @@ def add_supplier(body: NameIn, user: User = Depends(require_role("manager")), db
 def rename_supplier(supplier_id: int, body: NameIn, user: User = Depends(require_role("manager")),
                     db: Session = Depends(get_db)):
     return service.rename_supplier(db, user, supplier_id, body.name)
+
+
+@router.delete("/suppliers/{supplier_id}", response_model=RemovedOut)
+def remove_supplier(supplier_id: int, move_to: int | None = None, user: User = Depends(require_role("owner")),
+                    db: Session = Depends(get_db)):
+    """Owner: remove a supplier. Pass `move_to` (another supplier's id) when it still has items."""
+    return service.remove_supplier(db, user, supplier_id, move_to)
+
+
+@router.delete("/storage-areas/{key}", response_model=RemovedOut)
+def remove_storage_area(key: str, move_to: str | None = None, user: User = Depends(require_role("owner")),
+                        db: Session = Depends(get_db)):
+    """Owner: remove a place. Pass `move_to` (another place's key) when items are kept there."""
+    return service.remove_area(db, user, key, move_to)
 
 
 @router.get("/storage-areas", response_model=list[StorageAreaOut])

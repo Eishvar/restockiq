@@ -92,11 +92,12 @@ FAQ: list[dict[str, str]] = [
     {
         "id": "lists",
         "topic": "Inventory",
-        "question": "How do I add or rename a supplier or a storage place?",
+        "question": "How do I add, rename or remove a supplier or a storage place?",
         "answer": (
             "In the Add item form, next to Supplier and Where is it kept, press Add or rename. Type a new name and press "
-            "Add, or change a name in the list and press Save. You can also open it from the Manage suppliers and places "
-            "button on the Inventory page. Managers and the owner can do this. Renaming keeps all your items and orders."
+            "Add, or change a name in the list and press Save. You can also open it with the Suppliers and places button "
+            "on the Inventory page. Managers and the owner can add and rename. Only the owner can press Remove, and if "
+            "items still use it you choose where to move them. A supplier with an order in progress cannot be removed yet."
         ),
     },
     {

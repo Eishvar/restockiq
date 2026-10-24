@@ -2,7 +2,7 @@
 from collections.abc import Iterator
 from importlib import import_module
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import settings
@@ -52,10 +52,28 @@ def import_all_models() -> None:
         import_module(f"app.modules.{name}.models")
 
 
+# Columns added after the first release. create_all() never alters an existing table, so a database made before
+# these existed (such as the live one) gets them added here. Each entry: (table, column, SQL type and default).
+ADDED_COLUMNS = [
+    ("suppliers", "active", {"postgresql": "BOOLEAN NOT NULL DEFAULT TRUE", "default": "BOOLEAN NOT NULL DEFAULT 1"}),
+]
+
+
+def _add_missing_columns(bind) -> None:
+    inspector = inspect(bind)
+    for table, column, ddl in ADDED_COLUMNS:
+        if not inspector.has_table(table) or column in {c["name"] for c in inspector.get_columns(table)}:
+            continue
+        with bind.begin() as conn:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {ddl.get(bind.dialect.name, ddl['default'])}"))
+
+
 def init_db(bind=None) -> None:
-    """Create any missing tables (never alters existing ones)."""
+    """Create any missing tables and the few columns added since the first release."""
     import_all_models()
-    Base.metadata.create_all(bind or engine)
+    bind = bind or engine
+    Base.metadata.create_all(bind)
+    _add_missing_columns(bind)
 
 
 def get_db() -> Iterator[Session]:
