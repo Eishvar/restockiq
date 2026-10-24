@@ -49,15 +49,41 @@ test('forecast starts at the final observed point without changing history or fo
   const chart = bridgeForecastHistory(history, days)
   assert.equal(chart.length, 3)
   assert.deepEqual(chart[0], { label: '20 Oct', actual: 90 })
-  assert.deepEqual(chart[1], { label: '21 Oct', actual: 100, forecast: 100 })
-  assert.deepEqual(chart[2], { label: '22 Oct', forecast: 123 })
+  assert.deepEqual(chart[1], { label: '21 Oct', actual: 100, bridge: 100 })
+  assert.deepEqual(chart[2], { label: '22 Oct', forecast: 123, bridge: 123 })
   assert.deepEqual({ history, days }, before)
+})
+
+test('today is kept on the axis but never plotted as a forecast', () => {
+  const chart = bridgeForecastHistory(
+    [{ date: '2026-10-21', total: 100 }],
+    [{ date: '2026-10-22', total: 250, is_today: true }, { date: '2026-10-23', total: 200 }],
+  )
+  assert.deepEqual(chart, [
+    { label: '21 Oct', actual: 100, bridge: 100 },
+    { label: '22 Oct' },
+    { label: '23 Oct', forecast: 200, bridge: 200 },
+  ])
+})
+
+test('today with real sales is drawn once, as sold', () => {
+  const chart = bridgeForecastHistory(
+    [{ date: '2026-10-21', total: 267 }],
+    [{ date: '2026-10-21', total: 250, is_today: true }, { date: '2026-10-22', total: 200 }],
+  )
+  assert.deepEqual(chart, [
+    { label: '21 Oct', actual: 267, bridge: 267 },
+    { label: '22 Oct', forecast: 200, bridge: 200 },
+  ])
 })
 
 test('forecast handles missing history, missing forecast, and a zero anchor', () => {
   assert.deepEqual(bridgeForecastHistory([], []), [])
   assert.deepEqual(bridgeForecastHistory([], [{ date: '2026-10-22', total: 12 }]), [{ label: '22 Oct', forecast: 12 }])
-  assert.deepEqual(bridgeForecastHistory([{ date: '2026-10-21', total: 0 }], []), [{ label: '21 Oct', actual: 0, forecast: 0 }])
+  // Days after the last recorded sales are empty, not zero sales.
+  assert.deepEqual(bridgeForecastHistory([{ date: '2026-10-21', total: 0 }], []), [])
+  const trimmed = bridgeForecastHistory([{ date: '2026-10-20', total: 90 }, { date: '2026-10-21', total: 0 }], [{ date: '2026-10-23', total: 50 }])
+  assert.deepEqual(trimmed, [{ label: '20 Oct', actual: 90, bridge: 90 }, { label: '23 Oct', forecast: 50, bridge: 50 }])
 })
 
 test('audit details use everyday labels and Yes/No instead of raw JSON', () => {

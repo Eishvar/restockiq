@@ -26,7 +26,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <div className="text-2xl font-bold text-brand-royal">RestockAI</div>
+          <img src="/logo.png" alt="RestockAI" className="mx-auto h-9 w-auto" />
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h1 className="text-lg font-semibold">Sign in</h1>

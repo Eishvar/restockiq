@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts'
+import { Area, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts'
 import { Button, Card, Chip, Table } from '../../components/ui'
 import type { Drivers, Plan } from './api'
 import { fmtDay, num, prettyState, weekdayLong } from './format'
@@ -18,7 +18,7 @@ export function driverChips(date: string, d: Drivers): { text: string; hint: str
   return chips
 }
 
-export default function ForecastCard({ plan }: { plan: Plan }) {
+export default function ForecastCard({ plan, accuracy }: { plan: Plan; accuracy?: number | null }) {
   const [showAll, setShowAll] = useState(false)
   const { days, dishes, history } = plan.forecast
   const chart = bridgeForecastHistory(history, days)
@@ -43,23 +43,37 @@ export default function ForecastCard({ plan }: { plan: Plan }) {
         ))}
       </div>
 
-      <div className="mt-4 h-56 w-full" aria-label="Dishes sold per day: last 4 weeks and forecast">
+      <div className="mt-4 flex items-center justify-between gap-4">
+        <h3 className="text-sm font-semibold text-slate-800">Sold vs forecast</h3>
+        <div className="flex items-baseline gap-2 rounded-xl bg-brand-surface px-3 py-1.5" title="How close past forecasts were to actual sales on a typical day">
+          <span className="text-xs text-slate-600">Forecast accuracy</span>
+          <span aria-label={accuracy == null ? 'Accuracy unavailable' : 'Accuracy on a typical day'} className="text-2xl font-extrabold tracking-tight text-brand-navy">{accuracy == null ? '—' : `${accuracy}%`}</span>
+        </div>
+      </div>
+      <div className="mt-2 h-56 w-full" aria-label="Dishes sold per day: last 4 weeks and forecast">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chart} margin={{ top: 5, right: 8, bottom: 0, left: -12 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--brand-border)" />
-            <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={24} tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} />
+          <ComposedChart data={chart} margin={{ top: 8, right: 12, bottom: 0, left: -16 }}>
+            <defs>
+              <linearGradient id="soldFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--brand-muted)" stopOpacity={0.25} />
+                <stop offset="100%" stopColor="var(--brand-muted)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid vertical={false} stroke="var(--brand-border)" strokeOpacity={0.7} />
+            <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={32} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} allowDecimals={false} />
             <ChartTooltip />
-            <Legend />
-            <Line name="Sold (last 4 weeks)" dataKey="actual" stroke="var(--brand-muted)" dot={false} strokeWidth={2} connectNulls={false} />
-            <Line name="Forecast" dataKey="forecast" stroke="var(--brand-royal)" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3, fill: 'var(--brand-royal)' }} connectNulls={false} />
-          </LineChart>
+            <Legend iconType="circle" />
+            <Area name="Sold (last 4 weeks)" dataKey="actual" type="monotone" stroke="var(--brand-muted)" strokeWidth={2.5} fill="url(#soldFill)" dot={false} connectNulls={false} />
+            <Line dataKey="bridge" type="monotone" stroke="var(--brand-royal)" strokeOpacity={0.35} strokeWidth={2} strokeDasharray="2 4" dot={false} activeDot={false} legendType="none" tooltipType="none" isAnimationActive={false} connectNulls />
+            <Line name="Forecast" dataKey="forecast" type="monotone" stroke="var(--brand-royal)" strokeWidth={2.5} strokeDasharray="6 4" dot={{ r: 3.5, fill: '#fff', stroke: 'var(--brand-royal)', strokeWidth: 2 }} activeDot={{ r: 5 }} connectNulls={false} />
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
 
-      <details className="mt-3">
-        <summary className="cursor-pointer text-sm font-medium text-brand-royal">See the forecast for each dish</summary>
-        <div className="mt-2">
+      <div className="mt-4">
+        <h3 className="mb-2 text-sm font-semibold text-slate-800">Forecast for each dish</h3>
+        <div>
           <Table head={['Dish', ...days.map((d) => (d.is_today ? 'Today' : fmtDay(d.date))), 'Total']}>
             {shown.map((dish) => (
               <tr key={dish.menu_item_id}>
@@ -77,7 +91,7 @@ export default function ForecastCard({ plan }: { plan: Plan }) {
             </Button>
           )}
         </div>
-      </details>
+      </div>
     </Card>
   )
 }

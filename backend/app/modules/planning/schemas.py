@@ -87,7 +87,7 @@ class ForecastDish(BaseModel):
 class ForecastOut(BaseModel):
     days: list[ForecastDay]
     dishes: list[ForecastDish]
-    history: list[dict]  # last 28 days of real totals: {date, total}
+    history: list[dict]  # last 28 days plus today (if it has sales) of real totals: {date, total}
 
 
 class QualityOut(BaseModel):
