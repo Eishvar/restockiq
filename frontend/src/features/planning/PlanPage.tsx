@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router-dom'
 import { Card, EmptyState, PageSkeleton, SegmentedControl, Table, useToast } from '../../components/ui'
 import { ApiError } from '../../api/client'
 import { useGeneratePlan, usePlan, usePlanContext, type Plan } from './api'
@@ -10,59 +9,6 @@ import GatedButton, { useRole } from './GatedButton'
 import SupplierOrdersBoard from './SupplierOrdersBoard'
 
 const HORIZONS = [1, 2, 3, 4, 5, 6, 7].map((n) => ({ value: n, label: String(n) }))
-
-/** Compact list of stock and recipe checks that may need action. */
-function Attention({ plan }: { plan: Plan }) {
-  const items: { name: string; issue: string }[] = []
-  const unused: string[] = []
-  for (const e of plan.exceptions) {
-    const name = String(e.name ?? '')
-    if (e.type === 'short_today')
-      items.push({ name, issue: `Short by ${formatQty(Number(e.short_base), String(e.base_uom))}` })
-    else if (e.type === 'dish_without_recipe') items.push({ name: name || 'Unnamed dish', issue: 'No recipe' })
-    else if (e.type === 'no_supplier')
-      for (const itemName of (e.names as string[])) items.push({ name: itemName, issue: 'No supplier' })
-    else if (e.type === 'no_forecast_use') unused.push(name)
-  }
-  if (!items.length && !unused.length) return null
-  const count = items.length + unused.length
-  const visibleItems = items.slice(0, 4)
-  const remainingItems = items.slice(4)
-  const renderItems = (rows: typeof items) => rows.map((item, i) => (
-    <li key={`${item.name}-${i}`} className="flex items-center justify-between gap-3 py-2">
-      <span className="min-w-0 truncate font-medium text-slate-800">{item.name}</span>
-      <span className="shrink-0 text-right text-slate-600">{item.issue}</span>
-    </li>
-  ))
-  return (
-    <Card title={`Plan checks (${count})`}>
-      {items.length > 0 && (
-        <ul className="divide-y divide-slate-100 text-sm">
-          {renderItems(visibleItems)}
-        </ul>
-      )}
-      {remainingItems.length > 0 && (
-        <details className="mt-2 border-t border-slate-100 pt-2 text-sm">
-          <summary className="cursor-pointer font-medium text-slate-700">Show {remainingItems.length} more checks</summary>
-          <ul className="mt-1 divide-y divide-slate-100">{renderItems(remainingItems)}</ul>
-        </details>
-      )}
-      {plan.exceptions.some((e) => e.type === 'dish_without_recipe') && (
-        <p className="mt-2 border-t border-slate-100 pt-2 text-sm text-slate-600">
-          A dish with no recipe is left out of the shopping list. <Link to="/recipes" className="font-medium text-brand-royal underline">Add its recipe</Link> and generate the plan again.
-        </p>
-      )}
-      {unused.length > 0 && (
-        <details className={`${items.length ? 'mt-2 border-t border-slate-100 pt-2' : ''} text-sm`}>
-          <summary className="cursor-pointer font-medium text-slate-700">{unused.length} items with no forecast use</summary>
-          <ul className="mt-2 grid grid-cols-1 gap-1 text-slate-600 sm:grid-cols-2">
-            {unused.map((name, i) => <li key={`${name}-${i}`} className="truncate">{name}</li>)}
-          </ul>
-        </details>
-      )}
-    </Card>
-  )
-}
 
 function DiscardList({ plan }: { plan: Plan }) {
   if (!plan.discard.length) return null
@@ -144,7 +90,6 @@ export default function PlanPage() {
             Plan #{p.id} · {p.horizon_days} day{p.horizon_days === 1 ? '' : 's'} from tomorrow · {p.risk_profile.replace(/_/g, ' ')} stock setting
           </p>
           <ForecastCard plan={p} />
-          <Attention plan={p} />
           <DiscardList plan={p} />
           {p.orders.length === 0 && <EmptyState title="Nothing to buy" hint="Your current stock covers everything for these days." />}
           {p.covered.length > 0 && (

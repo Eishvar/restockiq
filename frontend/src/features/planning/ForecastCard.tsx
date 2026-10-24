@@ -57,9 +57,9 @@ export default function ForecastCard({ plan }: { plan: Plan }) {
         </ResponsiveContainer>
       </div>
 
-      <details className="mt-3">
-        <summary className="cursor-pointer text-sm font-medium text-brand-royal">See the forecast for each dish</summary>
-        <div className="mt-2">
+      <div className="mt-4">
+        <h3 className="mb-2 text-sm font-semibold text-slate-800">Forecast for each dish</h3>
+        <div>
           <Table head={['Dish', ...days.map((d) => (d.is_today ? 'Today' : fmtDay(d.date))), 'Total']}>
             {shown.map((dish) => (
               <tr key={dish.menu_item_id}>
@@ -77,7 +77,7 @@ export default function ForecastCard({ plan }: { plan: Plan }) {
             </Button>
           )}
         </div>
-      </details>
+      </div>
     </Card>
   )
 }
