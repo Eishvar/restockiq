@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Card, ConfirmModal, EmptyState, PageSkeleton, SegmentedControl, Table, Tooltip, useToast } from '../../components/ui'
+import { Button, Card, ConfirmModal, EmptyState, PageSkeleton, SegmentedControl, Tooltip, useToast } from '../../components/ui'
 import { useMe } from '../auth/api'
 import {
   useDiscardBatch,
@@ -72,94 +72,98 @@ function BatchRowView({ item, batch, today, canEditAll }: { item: InventoryRow; 
 
   const editAll = editing && canEditAll
   return (
-    <tr className={expired ? 'bg-red-50' : ''}>
-      <td className="pl-8 whitespace-nowrap">
-        {editAll ? (
-          <input
-            type="date"
-            aria-label="Bought on"
-            max={today}
-            value={draft.procured_on ?? batch.procured_on}
-            onChange={(e) => e.target.value && setDraft((d) => ({ ...d, procured_on: e.target.value }))}
-            className={inputCls}
-          />
-        ) : (
-          <span className="text-slate-700">Bought {fmtDate(batch.procured_on)}</span>
-        )}
-      </td>
-      <td className="whitespace-nowrap">
-        {editing ? (
-          <QtyInput baseQty={draft.qty_base ?? batch.qty_base} item={item} onChange={(q) => setDraft((d) => ({ ...d, qty_base: q }))} />
-        ) : (
-          batch.display_qty
-        )}
-      </td>
-      <td className="whitespace-nowrap">
-        {editAll ? (
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            aria-label="Price per pack"
-            value={draft.pack_price_rm ?? batch.pack_price_rm}
-            onChange={(e) => e.target.value !== '' && setDraft((d) => ({ ...d, pack_price_rm: parseFloat(e.target.value) }))}
-            className={`${inputCls} w-24`}
-          />
-        ) : (
-          `${rm(batch.pack_price_rm)} / pack`
-        )}
-      </td>
-      <td className="whitespace-nowrap">{rm(batch.value_rm)}</td>
-      <td className="whitespace-nowrap">
-        {editAll ? (
-          <input
-            type="number"
-            min={1}
-            aria-label="Shelf life in days"
-            value={draft.shelf_life_days ?? batch.shelf_life_days}
-            onChange={(e) => e.target.value && setDraft((d) => ({ ...d, shelf_life_days: parseInt(e.target.value) }))}
-            className={`${inputCls} w-20`}
-          />
-        ) : (
-          `${batch.shelf_life_days} days`
-        )}
-      </td>
-      <td className="whitespace-nowrap">{fmtDate(batch.expires_on)}</td>
-      <td>
-        <StatusBadge row={batch} />
-      </td>
-      <td className="whitespace-nowrap text-right">
-        <div className="flex justify-end gap-1">
-          {editing ? (
-            <>
-              <Button onClick={save} disabled={patch.isPending}>
-                Save
-              </Button>
-              <Button variant="secondary" onClick={() => { setEditing(false); setDraft({}) }}>
-                Cancel
-              </Button>
-            </>
-          ) : (
-            <>
-              {expired && (
-                  <Button variant="danger" onClick={() => { setConfirmAction('discard'); setConfirmError('') }} disabled={discard.isPending}>
-                  Remove expired
-                </Button>
-              )}
-              <Button variant="ghost" onClick={() => setEditing(true)}>
-                Edit
-              </Button>
-              {canEditAll && !expired && (
-                <Button variant="ghost" onClick={() => { setConfirmAction('delete'); setConfirmError('') }} disabled={remove.isPending}>
-                  Delete
-                </Button>
-              )}
-            </>
-          )}
+    <article className={`rounded-lg border p-3 sm:p-4 ${expired ? 'border-red-200 bg-red-50/70' : 'border-slate-200 bg-white'}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Stock batch</p>
+          <div className="mt-1 font-semibold text-slate-900">
+            {editAll ? (
+              <label className="flex flex-wrap items-center gap-2 text-sm font-normal">
+                <span>Bought on</span>
+                <input
+                  type="date"
+                  aria-label="Bought on"
+                  max={today}
+                  value={draft.procured_on ?? batch.procured_on}
+                  onChange={(e) => e.target.value && setDraft((d) => ({ ...d, procured_on: e.target.value }))}
+                  className={inputCls}
+                />
+              </label>
+            ) : `Bought ${fmtDate(batch.procured_on)}`}
+          </div>
+          <div className="mt-2"><StatusBadge row={batch} /></div>
         </div>
-      </td>
+        <div className="text-right">
+          <div className="text-xs text-slate-500">Batch value</div>
+          <div className="font-semibold tabular-nums text-slate-900">{rm(batch.value_rm)}</div>
+        </div>
+      </div>
+
+      <dl className="mt-3 grid gap-x-4 gap-y-3 border-t border-slate-200/80 pt-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="min-w-0">
+          <dt className="text-xs text-slate-500">Quantity</dt>
+          <dd className="mt-1 font-medium text-slate-900">
+            {editing ? (
+              <QtyInput baseQty={draft.qty_base ?? batch.qty_base} item={item} onChange={(q) => setDraft((d) => ({ ...d, qty_base: q }))} />
+            ) : batch.display_qty}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-slate-500">Price per pack</dt>
+          <dd className="mt-1 font-medium tabular-nums text-slate-900">
+            {editAll ? (
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                aria-label="Price per pack"
+                value={draft.pack_price_rm ?? batch.pack_price_rm}
+                onChange={(e) => e.target.value !== '' && setDraft((d) => ({ ...d, pack_price_rm: parseFloat(e.target.value) }))}
+                className={`${inputCls} w-28`}
+              />
+            ) : `${rm(batch.pack_price_rm)} / pack`}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-slate-500">Good for</dt>
+          <dd className="mt-1 font-medium text-slate-900">
+            {editAll ? (
+              <label className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={1}
+                  aria-label="Shelf life in days"
+                  value={draft.shelf_life_days ?? batch.shelf_life_days}
+                  onChange={(e) => e.target.value && setDraft((d) => ({ ...d, shelf_life_days: parseInt(e.target.value) }))}
+                  className={`${inputCls} w-20`}
+                />
+                <span className="text-sm font-normal">days</span>
+              </label>
+            ) : `${batch.shelf_life_days} days`}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-xs text-slate-500">Expires</dt>
+          <dd className="mt-1 font-medium text-slate-900">{fmtDate(batch.expires_on)}</dd>
+        </div>
+      </dl>
+
+      <div className="mt-3 flex flex-wrap justify-end gap-2 border-t border-slate-200/80 pt-3">
+        {editing ? (
+          <>
+            <Button onClick={save} disabled={patch.isPending}>{patch.isPending ? 'Saving…' : 'Save'}</Button>
+            <Button variant="secondary" onClick={() => { setEditing(false); setDraft({}) }}>Cancel</Button>
+          </>
+        ) : (
+          <>
+            {expired && <Button variant="danger" onClick={() => { setConfirmAction('discard'); setConfirmError('') }} disabled={discard.isPending}>Remove expired</Button>}
+            <Button variant="ghost" onClick={() => setEditing(true)}>Edit</Button>
+            {canEditAll && !expired && <Button variant="ghost" onClick={() => { setConfirmAction('delete'); setConfirmError('') }} disabled={remove.isPending}>Delete</Button>}
+          </>
+        )}
+      </div>
       <ConfirmModal open={!!confirmAction} title={confirmAction === 'discard' ? 'Remove expired stock?' : 'Delete stock batch?'} description={confirmAction === 'discard' ? `Remove the expired ${item.name} (${batch.display_qty}) bought ${fmtDate(batch.procured_on)} from your stock?` : `Delete this batch of ${item.name} bought ${fmtDate(batch.procured_on)}? Its history is kept.`} pending={discard.isPending || remove.isPending} error={confirmError} onCancel={() => { setConfirmAction(null); setConfirmError('') }} onConfirm={() => void (confirmAction === 'discard' ? onDiscard() : onRemove())} />
-    </tr>
+    </article>
   )
 }
 
@@ -187,42 +191,42 @@ function ItemGroup({
     canEditAll ? button : <Tooltip text={`Only managers and owners can ${label}`}>{button}</Tooltip>
 
   return (
-    <>
-      <tr className="bg-slate-50">
-        <td colSpan={3}>
-          <div className="font-semibold">{row.name}</div>
-          <div className="text-xs text-slate-500">
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <header className="flex flex-col gap-3 bg-slate-50/80 p-3 sm:p-4 xl:flex-row xl:items-start xl:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-lg font-semibold text-slate-900">{row.name}</h2>
+          <p className="mt-0.5 text-sm text-slate-600">
             {areaName(areas.data, row.storage)}
             {row.supplier_name ? ` · ${row.supplier_name}` : ''}
-            {row.batches.length > 1 ? ` · ${row.batches.length} batches` : ''}
+            {` · ${row.batches.length} batch${row.batches.length === 1 ? '' : 'es'}`}
+          </p>
+          {row.batches.length > 0 && <div className="mt-2"><StatusBadge row={row} /></div>}
+        </div>
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-1 rounded-lg border border-slate-200 bg-white px-3 py-2 sm:min-w-64">
+          <div>
+            <dt className="text-xs text-slate-500">In stock</dt>
+            <dd className="font-semibold tabular-nums text-slate-900">{row.display_qty}</dd>
           </div>
-        </td>
-        <td className="whitespace-nowrap font-medium">
-          {row.display_qty} · {rm(row.stock_value_rm)}
-        </td>
-        <td colSpan={2} />
-        <td>{row.batches.length > 0 && <StatusBadge row={row} />}</td>
-        <td className="whitespace-nowrap text-right">
-          <div className="flex justify-end gap-1">
-            {manager('add stock', <Button variant="secondary" onClick={onAddBatch} disabled={!canEditAll}>+ Add stock</Button>)}
-            <Button variant="ghost" onClick={onHistory}>
-              History
-            </Button>
-            {manager('remove items', <Button variant="ghost" title="Remove this item and all its batches" onClick={() => { setConfirmOpen(true); setConfirmError('') }} disabled={!canEditAll}>Remove</Button>)}
+          <div>
+            <dt className="text-xs text-slate-500">Stock value</dt>
+            <dd className="font-semibold tabular-nums text-slate-900">{rm(row.stock_value_rm)}</dd>
           </div>
-        </td>
-      </tr>
-      {row.batches.length === 0 ? (
-        <tr>
-          <td colSpan={8} className="pl-8 text-slate-500">
-            None in stock.
-          </td>
-        </tr>
-      ) : (
-        row.batches.map((b) => <BatchRowView key={b.id} item={row} batch={b} today={today} canEditAll={canEditAll} />)
-      )}
+        </dl>
+        <div className="flex flex-wrap gap-2 xl:justify-end">
+          {manager('add stock', <Button variant="secondary" onClick={onAddBatch} disabled={!canEditAll}>+ Add stock</Button>)}
+          <Button variant="ghost" onClick={onHistory}>History</Button>
+          {manager('remove items', <Button variant="ghost" title="Remove this item and all its batches" onClick={() => { setConfirmOpen(true); setConfirmError('') }} disabled={!canEditAll}>Remove</Button>)}
+        </div>
+      </header>
+      <div className="space-y-2 p-3 sm:p-4">
+        {row.batches.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-slate-300 px-3 py-5 text-center text-sm text-slate-500">None in stock.</p>
+        ) : (
+          row.batches.map((b) => <BatchRowView key={b.id} item={row} batch={b} today={today} canEditAll={canEditAll} />)
+        )}
+      </div>
       <ConfirmModal open={confirmOpen} title="Remove this item?" description={`Remove ${row.name} and all its batches from your stock? Its history is kept.`} pending={remove.isPending} error={confirmError} onCancel={() => { setConfirmOpen(false); setConfirmError('') }} onConfirm={() => void onRemove()} />
-    </>
+    </section>
   )
 }
 
@@ -336,14 +340,14 @@ export default function InventoryPage() {
       )}
 
       <Card>
-        <div className="mb-3 flex flex-wrap items-center gap-3">
+        <div className="mb-4 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <input
             type="search"
             aria-label="Search items"
             placeholder="Search items"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className={`${inputCls} w-48`}
+            className={`${inputCls} w-full sm:w-56`}
           />
           <SegmentedControl<Filter>
             label="Filter by status"
@@ -356,7 +360,7 @@ export default function InventoryPage() {
               { value: 'expired', label: 'Expired' },
             ]}
           />
-          <select aria-label="Filter by storage" value={storage} onChange={(e) => setStorage(e.target.value)} className={inputCls}>
+          <select aria-label="Filter by storage" value={storage} onChange={(e) => setStorage(e.target.value)} className={`${inputCls} w-full sm:w-auto`}>
             <option value="">All storage</option>
             {(areas.data ?? []).map((a) => (
               <option key={a.key} value={a.key}>{a.name}</option>
@@ -367,7 +371,7 @@ export default function InventoryPage() {
         {rows.length === 0 ? (
           <EmptyState title="No items match" hint="Try a different search or filter." />
         ) : (
-          <Table head={['Item / batch', 'In stock', 'Price', 'Value', 'Good for', 'Expires', 'Status', '']}>
+          <div className="space-y-3">
             {rows.map((r) => (
               <ItemGroup
                 key={r.ingredient_id}
@@ -378,7 +382,7 @@ export default function InventoryPage() {
                 onAddBatch={() => setBatchFor(r)}
               />
             ))}
-          </Table>
+          </div>
         )}
       </Card>
 
