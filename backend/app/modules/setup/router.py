@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy.orm import Session
 
 from app.core.auth import current_user, require_role
 from app.db import get_db
+from app.modules.catalog import recipes
+from app.modules.planning import refresh
 from app.modules.setup import service
 from app.modules.setup.schemas import CompleteIn, CountryIn, CountryResult, SetupStatus
 from app.modules.settings.models import User
@@ -24,7 +26,17 @@ def choose_country(body: CountryIn, user: User = Depends(require_role("owner")),
     return service.choose_country(db, user, body.country)
 
 
+@router.post("/recipes/confirm", response_model=SetupStatus)
+def confirm_recipes(background: BackgroundTasks, user: User = Depends(require_role("owner")), db: Session = Depends(get_db)):
+    """Step 4 (cannot be skipped): every dish has a recipe. Recipes edited by hand re-measure the safety buffers."""
+    before = service.status(db, user.tenant_id)
+    result = service.confirm_recipes(db, user)
+    if not before.recipes_done and recipes.recipes_edited(db, user.tenant_id):
+        background.add_task(refresh.run_recompute, user.tenant_id, user.id, "recipes")
+    return result
+
+
 @router.post("/complete", response_model=SetupStatus)
 def complete(body: CompleteIn, user: User = Depends(require_role("owner")), db: Session = Depends(get_db)):
-    """Step 4 (optional calendar) done or skipped: the wizard is finished."""
+    """Step 5 (optional calendar) done or skipped: the wizard is finished."""
     return service.complete(db, user, body.skip_calendar)

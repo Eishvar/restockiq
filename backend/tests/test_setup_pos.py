@@ -1,4 +1,4 @@
-"""First-time setup wizard (country, POS, stock, calendar) and the simulated-FeedMe sales import."""
+"""First-time setup wizard (country, POS, stock, recipes, calendar) and the simulated-FeedMe sales import."""
 from datetime import timedelta
 
 import pytest
@@ -45,14 +45,21 @@ def test_wizard_steps_in_order(client, users, db, loaded):
     assert client.post("/api/pos/connect", json={"provider": "feedme"}, headers=as_user(owner)).status_code == 200
     assert setup_status(client, owner)["step"] == "inventory"
 
-    # Finishing early is refused; confirming the stock moves the wizard to the optional calendar step.
+    # Finishing early is refused; confirming the stock moves the wizard to the recipes step, which cannot be skipped.
     assert client.post("/api/setup/complete", json={}, headers=as_user(owner)).status_code == 409
+    assert client.post("/api/setup/recipes/confirm", headers=as_user(owner)).status_code == 409  # stock not confirmed yet
     assert client.post("/api/inventory/onboarding/confirm", headers=as_user(owner)).status_code == 200
-    assert setup_status(client, owner)["step"] == "calendar"
+    assert setup_status(client, owner)["step"] == "recipes"
+    assert client.post("/api/setup/complete", json={"skip_calendar": True}, headers=as_user(owner)).status_code == 409
+
+    # The demo recipes are already filled in, so confirming them moves on to the optional calendar step.
+    assert client.post("/api/setup/recipes/confirm", headers=as_user(owner)).json()["step"] == "calendar"
 
     done = client.post("/api/setup/complete", json={"skip_calendar": True}, headers=as_user(owner)).json()
     assert (done["complete"], done["calendar_skipped"], done["step"]) == (True, True, "done")
-    assert {"setup_country_chosen", "pos_connected", "onboarding_confirmed", "setup_completed"} <= set(actions(db))
+    assert {"setup_country_chosen", "pos_connected", "onboarding_confirmed", "setup_recipes_confirmed", "setup_completed"} <= set(
+        actions(db)
+    )
 
 
 def test_only_malaysia_and_only_the_owner(client, users, loaded):

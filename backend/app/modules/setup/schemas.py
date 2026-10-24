@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-Step = Literal["country", "pos", "inventory", "calendar", "done"]
+Step = Literal["country", "pos", "inventory", "recipes", "calendar", "done"]
 
 
 class SetupStatus(BaseModel):
@@ -15,6 +15,7 @@ class SetupStatus(BaseModel):
     pos_provider: str | None
     pos_connected_at: datetime | None
     inventory_done: bool
+    recipes_done: bool
     calendar_skipped: bool
 
 

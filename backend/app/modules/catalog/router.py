@@ -1,13 +1,18 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.auth import current_user, require_role
 from app.db import get_db
+from app.modules.catalog import recipes as recipe_service
 from app.modules.catalog import service
 from app.modules.catalog.models import Ingredient, MenuItem, Recipe, Supplier
-from app.modules.catalog.schemas import IngredientOut, MenuItemOut, NameIn, RecipeOut, RemovedOut, StorageAreaOut, SupplierOut
+from app.modules.catalog.schemas import (
+    DishIn, DishRecipeOut, IngredientOut, MenuItemOut, NameIn, RecipeOut, RecipeSaveIn, RemovedOut, StorageAreaOut, SupplierOut,
+)
+from app.modules.planning import refresh
 from app.modules.settings.models import User
+from app.modules.setup.models import TenantSetup
 
 router = APIRouter(prefix="/catalog", tags=["catalog"])
 
@@ -90,6 +95,30 @@ def ingredients(user: User = Depends(current_user), db: Session = Depends(get_db
         )
         for i, supplier_name in db.execute(stmt)
     ]
+
+
+@router.get("/recipe-book", response_model=list[DishRecipeOut])
+def recipe_book(user: User = Depends(current_user), db: Session = Depends(get_db)):
+    """Every dish with its recipe (an empty one for a dish that has none yet). Everyone can read it."""
+    return recipe_service.recipe_book(db, user)
+
+
+@router.put("/menu/{menu_item_id}/recipe", response_model=DishRecipeOut)
+def save_recipe(menu_item_id: int, body: RecipeSaveIn, background: BackgroundTasks,
+                user: User = Depends(require_role("manager")), db: Session = Depends(get_db)):
+    """Replace the ingredients of one dish. Takes effect in the next plan."""
+    dish, changed = recipe_service.save_recipe(db, user, menu_item_id, body.lines)
+    setup = db.get(TenantSetup, user.tenant_id)
+    # During first-time setup the buffers are re-measured once when the recipes are confirmed, not after every edit.
+    if changed and setup is not None and setup.setup_done_at is not None:
+        background.add_task(refresh.run_recompute, user.tenant_id, user.id, "recipe")
+    return dish
+
+
+@router.post("/menu", response_model=DishRecipeOut, status_code=201)
+def add_dish(body: DishIn, user: User = Depends(require_role("manager")), db: Session = Depends(get_db)):
+    """Add a new dish with its recipe. Sales files can then include it (matched by name)."""
+    return recipe_service.add_dish(db, user, body.name, body.category, body.price_rm, body.lines)
 
 
 @router.get("/recipes", response_model=list[RecipeOut])

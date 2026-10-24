@@ -9,6 +9,6 @@ exist in the tenant's calendar (same type, same start date) are skipped, so runn
   Deepavali, Thaipusam) and **state** holidays (Kedah's Sultan's birthday etc.) must be checked against the
   official government list before a real deployment. Owners can add them on the Calendar page.
 - School terms, Ramadan and other periods are NOT loaded here: the owner adds them on the Calendar page
-  (optional wizard step 4), because they depend on the restaurant's location.
+  (optional wizard step 5), because they depend on the restaurant's location.
 
 Synthetic / public-calendar data only; no personal or company records.

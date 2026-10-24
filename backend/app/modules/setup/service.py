@@ -1,6 +1,6 @@
-"""First-time setup: country (currency + public holidays), POS, stock, optional calendar.
+"""First-time setup: country (currency + public holidays), POS, stock, recipes, optional calendar.
 
-The wizard order is country -> pos -> inventory -> calendar. Each step stores its own result, and
+The wizard order is country -> pos -> inventory -> recipes -> calendar. Each step stores its own result, and
 `status()` derives which step is next, so a refresh or a different browser resumes in the right place.
 """
 import csv
@@ -14,6 +14,7 @@ from app.config import settings
 from app.core.activity import log_action
 from app.core.clock import now_kl
 from app.modules.calendar.models import CalendarEvent
+from app.modules.catalog import recipes
 from app.modules.setup.models import TenantSetup
 from app.modules.setup.schemas import CountryResult, SetupStatus
 from app.modules.settings.models import Tenant, User
@@ -41,6 +42,8 @@ def status(db: Session, tenant_id: int) -> SetupStatus:
         step = "pos"
     elif not inventory_done:
         step = "inventory"
+    elif row.setup_done_at is None and row.recipes_confirmed_at is None:
+        step = "recipes"  # a business that finished setup before this step existed is not sent back to it
     elif row.setup_done_at is None:
         step = "calendar"
     else:
@@ -55,6 +58,7 @@ def status(db: Session, tenant_id: int) -> SetupStatus:
         pos_provider=row.pos_provider,
         pos_connected_at=row.pos_connected_at,
         inventory_done=inventory_done,
+        recipes_done=row.recipes_confirmed_at is not None or row.setup_done_at is not None,
         calendar_skipped=row.calendar_skipped,
     )
 
@@ -98,10 +102,28 @@ def choose_country(db: Session, user: User, code: str) -> CountryResult:
     return CountryResult(status=status(db, user.tenant_id), holidays_added=added, holidays_already_there=there)
 
 
-def complete(db: Session, user: User, skip_calendar: bool) -> SetupStatus:
-    """Finish the wizard. Needs the first three steps done; the calendar step may be skipped."""
+def confirm_recipes(db: Session, user: User) -> SetupStatus:
+    """Step 4 (not optional): every dish on the menu must have a recipe before the wizard can go on."""
     current = status(db, user.tenant_id)
     if current.step in ("country", "pos", "inventory"):
+        raise HTTPException(409, f"Finish the '{current.step}' step first")
+    row = get_setup(db, user.tenant_id)
+    if row.recipes_confirmed_at is None:
+        missing = recipes.dishes_without_recipe(db, user.tenant_id)
+        if missing:
+            shown = ", ".join(missing[:5]) + ("…" if len(missing) > 5 else "")
+            raise HTTPException(409, f"{len(missing)} dish(es) still have no recipe: {shown}")
+        row.recipes_confirmed_at = now_kl()
+        log_action(db, user, "setup_recipes_confirmed", "tenant", user.tenant_id,
+                   {"dishes": len(recipes.recipe_book(db, user)), "changed_by_hand": recipes.recipes_edited(db, user.tenant_id)})
+    db.commit()
+    return status(db, user.tenant_id)
+
+
+def complete(db: Session, user: User, skip_calendar: bool) -> SetupStatus:
+    """Finish the wizard. Needs the first four steps done; the calendar step may be skipped."""
+    current = status(db, user.tenant_id)
+    if current.step in ("country", "pos", "inventory", "recipes"):
         raise HTTPException(409, f"Finish the '{current.step}' step first")
     row = get_setup(db, user.tenant_id)
     if row.setup_done_at is None:

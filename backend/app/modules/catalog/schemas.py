@@ -1,6 +1,6 @@
 from datetime import date
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class MenuItemOut(BaseModel):
@@ -58,6 +58,39 @@ class IngredientOut(BaseModel):
     pack_price_rm: float
     shelf_life_days: int
     active: bool
+
+
+class RecipeLineIn(BaseModel):
+    ingredient_id: int
+    qty_per_serving: float = Field(gt=0, le=1_000_000)  # in the ingredient's own unit (g, ml or pcs)
+
+
+class RecipeLineOut(BaseModel):
+    ingredient_id: int
+    ingredient_name: str
+    qty_per_serving: float
+    base_uom: str
+
+
+class RecipeSaveIn(BaseModel):
+    lines: list[RecipeLineIn]
+
+
+class DishIn(BaseModel):
+    name: str
+    category: str
+    price_rm: float = Field(ge=0, le=100_000)
+    lines: list[RecipeLineIn]
+
+
+class DishRecipeOut(BaseModel):
+    id: int
+    code: str
+    name: str
+    category: str
+    price_rm: float
+    has_recipe: bool
+    lines: list[RecipeLineOut]
 
 
 class RecipeOut(BaseModel):

@@ -56,6 +56,7 @@ def import_all_models() -> None:
 # these existed (such as the live one) gets them added here. Each entry: (table, column, SQL type and default).
 ADDED_COLUMNS = [
     ("suppliers", "active", {"postgresql": "BOOLEAN NOT NULL DEFAULT TRUE", "default": "BOOLEAN NOT NULL DEFAULT 1"}),
+    ("tenant_setup", "recipes_confirmed_at", {"default": "TIMESTAMP"}),
 ]
 
 
