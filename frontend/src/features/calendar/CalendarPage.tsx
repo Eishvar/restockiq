@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Badge, Button, Card, ConfirmModal, EmptyState, Modal, SegmentedControl, Table, useToast } from '../../components/ui'
+import { Badge, Button, Card, ConfirmModal, EmptyState, Modal, SegmentedControl, useToast } from '../../components/ui'
 import { useMe } from '../auth/api'
 import { inputCls } from '../inventory/QtyInput'
-import { fmtDay } from '../planning/format'
+import { fmtDay, fmtDayYear } from '../planning/format'
+import MonthGrid, { TYPE_STYLE, eventsOn } from './MonthGrid'
 import RestrictedRoleSwitch from '../auth/RestrictedRoleSwitch'
 import {
   useAddEvent,
@@ -27,16 +28,16 @@ const range = (e: { start_date: string; end_date: string }) =>
   e.start_date === e.end_date ? fmtDay(e.start_date) : `${fmtDay(e.start_date)} – ${fmtDay(e.end_date)}`
 
 function EventForm({
-  event, labels, onClose,
-}: { event: CalendarEvent | null; labels: string[]; onClose: () => void }) {
+  event, labels, defaultDate, onClose,
+}: { event: CalendarEvent | null; labels: string[]; defaultDate?: string; onClose: () => void }) {
   const add = useAddEvent()
   const edit = useEditEvent()
   const toast = useToast()
   const [type, setType] = useState<EventType>(event?.type ?? 'period')
   const [label, setLabel] = useState(event?.label ?? '')
   const [name, setName] = useState(event?.name ?? '')
-  const [start, setStart] = useState(event?.start_date ?? '')
-  const [end, setEnd] = useState(event?.end_date ?? '')
+  const [start, setStart] = useState(event?.start_date ?? defaultDate ?? '')
+  const [end, setEnd] = useState(event?.end_date ?? defaultDate ?? '')
   const busy = add.isPending || edit.isPending
   const valid = name.trim() && start && end && end >= start && (type !== 'period' || label.trim())
 
@@ -102,7 +103,9 @@ export default function CalendarPage() {
   const recompute = useRecompute()
   const toast = useToast()
   const [filter, setFilter] = useState<Filter>('all')
-  const [form, setForm] = useState<{ open: boolean; event: CalendarEvent | null }>({ open: false, event: null })
+  const [form, setForm] = useState<{ open: boolean; event: CalendarEvent | null; date?: string }>({ open: false, event: null })
+  const [view, setView] = useState<{ year: number; month: number } | null>(null)
+  const [selected, setSelected] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<CalendarEvent | null>(null)
   const [deleteError, setDeleteError] = useState('')
 
@@ -117,7 +120,17 @@ export default function CalendarPage() {
   if (isLoading) return <p className="text-sm text-slate-500">Loading…</p>
   if (error || !data) return <EmptyState title="Could not load the calendar" hint={error?.message} />
 
-  const rows = data.events.filter((e) => filter === 'all' || e.type === filter)
+  const shown = data.events.filter((e) => filter === 'all' || e.type === filter)
+  const todayDate = new Date(`${data.today}T00:00:00`)
+  const { year, month } = view ?? { year: todayDate.getFullYear(), month: todayDate.getMonth() }
+  const day = selected ?? data.today
+  const dayEvents = eventsOn(shown, day)
+  const go = (delta: number) => {
+    const d = new Date(year, month + delta, 1)
+    setView({ year: d.getFullYear(), month: d.getMonth() })
+  }
+  const monthTitle = new Date(year, month, 1).toLocaleDateString('en-MY', { month: 'long', year: 'numeric' })
+  const isCurrent = year === todayDate.getFullYear() && month === todayDate.getMonth()
 
   async function remove() {
     if (!deleteTarget) return
@@ -176,38 +189,65 @@ export default function CalendarPage() {
           Calendar changes apply to the next plan. Recompute waits for the safety buffers to finish updating.
         </p>
 
-        <div className="mt-3">
-          {rows.length === 0 ? (
-            <EmptyState title="Nothing here yet" hint="Add a period, holiday or event." />
-          ) : (
-            <Table head={['When', 'What', 'Type', '']}>
-              {rows.map((e) => {
-                const upcoming = e.end_date >= data.today
-                return (
-                  <tr key={e.id} className={upcoming ? '' : 'text-slate-500'}>
-                    <td className="whitespace-nowrap">{range(e)}</td>
-                    <td>
-                      <div className="font-medium">{e.name}</div>
-                      {e.type === 'period' && e.label && <div className="text-xs text-slate-500">label: {e.label}</div>}
-                    </td>
-                    <td className="whitespace-nowrap">
-                      <Badge tone={e.type === 'period' ? 'good' : e.type === 'public_holiday' ? 'warn' : 'neutral'}>{TYPE_LABEL[e.type]}</Badge>
-                      {e.source === 'manual' &&<span className="ml-1 text-xs text-slate-400">added by hand</span>}
-                    </td>
-                    <td className="whitespace-nowrap text-right">
-                      <Button variant="ghost" onClick={() => setForm({ open: true, event: e })}>Edit</Button>
-                      <Button variant="ghost" onClick={() => { setDeleteTarget(e); setDeleteError('') }} disabled={del.isPending}>Delete</Button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </Table>
-          )}
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-slate-900">{monthTitle}</h2>
+          <div className="flex items-center gap-1">
+            <Button variant="secondary" onClick={() => { setView(null); setSelected(data.today) }} disabled={isCurrent && day === data.today}>Today</Button>
+            <Button variant="secondary" aria-label="Previous month" onClick={() => go(-1)}>‹</Button>
+            <Button variant="secondary" aria-label="Next month" onClick={() => go(1)}>›</Button>
+          </div>
         </div>
+
+        <div className="mt-3">
+          <MonthGrid
+            year={year}
+            month={month}
+            today={data.today}
+            events={shown}
+            selected={day}
+            onSelect={setSelected}
+            onOpen={(e) => setForm({ open: true, event: e })}
+          />
+        </div>
+
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+          {(Object.keys(TYPE_STYLE) as EventType[]).map((t) => (
+            <span key={t} className="inline-flex items-center gap-1.5"><span className={`h-2.5 w-2.5 rounded-full ${TYPE_STYLE[t].dot}`} />{TYPE_STYLE[t].label}</span>
+          ))}
+        </div>
+
+        <section aria-label="Selected day" className="mt-4 rounded-xl border border-slate-200 bg-brand-surface/50 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-slate-900">{fmtDayYear(day)}{day === data.today && <span className="ml-2 text-xs font-medium text-brand-royal">Today</span>}</h3>
+            <Button variant="secondary" onClick={() => setForm({ open: true, event: null, date: day })}>+ Add on this day</Button>
+          </div>
+          {dayEvents.length === 0 ? (
+            <p className="mt-2 text-sm text-slate-500">Nothing on this day.</p>
+          ) : (
+            <ul className="mt-2 divide-y divide-slate-200">
+              {dayEvents.map((e) => (
+                <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-medium text-slate-900">{e.name}</span>
+                      <Badge tone={e.type === 'period' ? 'good' : e.type === 'public_holiday' ? 'warn' : 'neutral'}>{TYPE_LABEL[e.type]}</Badge>
+                      {e.source === 'manual' && <span className="text-xs text-slate-400">added by hand</span>}
+                    </div>
+                    <div className="text-xs text-slate-500">{range(e)}{e.type === 'period' && e.label ? ` · label: ${e.label}` : ''}</div>
+                  </div>
+                  <div className="whitespace-nowrap">
+                    <Button variant="ghost" onClick={() => setForm({ open: true, event: e })}>Edit</Button>
+                    <Button variant="ghost" onClick={() => { setDeleteTarget(e); setDeleteError('') }} disabled={del.isPending}>Delete</Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </Card>
 
       <Modal open={form.open} title={form.event ? 'Edit calendar entry' : 'Add to calendar'} onClose={() => setForm({ open: false, event: null })}>
-        <EventForm key={form.event?.id ?? 'new'} event={form.event} labels={data.labels} onClose={() => setForm({ open: false, event: null })} />
+        <EventForm key={form.event?.id ?? `new-${form.date ?? ''}`} event={form.event} defaultDate={form.date} labels={data.labels} onClose={() => setForm({ open: false, event: null })} />
       </Modal>
       <ConfirmModal open={!!deleteTarget} title="Delete calendar entry?" description={deleteTarget ? `Delete “${deleteTarget.name}” from the calendar? This cannot be undone.` : ''} pending={del.isPending} error={deleteError} onCancel={() => { setDeleteTarget(null); setDeleteError('') }} onConfirm={remove} />
     </div>

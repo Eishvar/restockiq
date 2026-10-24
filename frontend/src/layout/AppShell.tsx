@@ -39,7 +39,7 @@ function LockIcon() {
 
 export default function AppShell() {
   const [open, setOpen] = useState(false)
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('restockai_sidebar') === 'collapsed')
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('restockai_sidebar') !== 'expanded')
   useEffect(() => {
     localStorage.setItem('restockai_sidebar', collapsed ? 'collapsed' : 'expanded')
     document.documentElement.style.setProperty('--sidebar-w', collapsed ? '4.5rem' : '15rem')
@@ -73,15 +73,21 @@ export default function AppShell() {
     </nav>
   )
 
+  const toggle = (
+    <button type="button" className="rounded-md p-1.5 text-slate-500 hover:bg-brand-surface hover:text-brand-navy" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded={!collapsed} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsed((c) => !c)}>
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>{collapsed ? <path d="m14 10 2 2-2 2"/> : <path d="m16 10-2 2 2 2"/>}</svg>
+    </button>
+  )
+
   return (
     <div className="flex min-h-[100dvh]">
       {/* Desktop sidebar */}
       <aside className={`hidden shrink-0 border-r border-brand-border bg-brand-paper transition-[width] duration-200 md:block ${collapsed ? 'w-[4.5rem]' : 'w-60'}`}>
         <div className="sticky top-0">
           {collapsed ? (
-            <div className="flex justify-center px-2 py-5"><img src="/logo-mark.png" alt="RestockAI" className="h-7 w-auto" /></div>
+            <div className="flex flex-col items-center gap-3 px-2 py-5"><img src="/logo-mark.png" alt="RestockAI" className="h-7 w-auto" />{toggle}</div>
           ) : (
-            <div className="px-5 py-5"><img src="/logo.png" alt="RestockAI" className="h-6 w-auto" /></div>
+            <div className="flex items-center justify-between gap-2 px-5 py-5"><img src="/logo.png" alt="RestockAI" className="h-6 w-auto" />{toggle}</div>
           )}
           {renderNav(collapsed)}
         </div>
@@ -99,12 +105,9 @@ export default function AppShell() {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:justify-between">
+        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:justify-end">
           <button className="rounded-md p-2 text-slate-700 md:hidden" aria-label="Open menu" onClick={() => setOpen(true)}>
             <svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-          </button>
-          <button type="button" className="mr-auto hidden rounded-md p-2 text-slate-700 hover:bg-brand-surface md:block" aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} aria-expanded={!collapsed} title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setCollapsed((c) => !c)}>
-            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>{collapsed ? <path d="m14 10 2 2-2 2"/> : <path d="m16 10-2 2 2 2"/>}</svg>
           </button>
           <div className="flex items-center gap-3">
             <RoleSwitcher />
