@@ -26,6 +26,7 @@
 | RunPod Endpoint | Not used (no GPU work, see "How we used Replit and RunPod") |
 | Slide Deck | https://canva.link/9qbxm0hc9hg3pfl |
 | Demo Video | **[ADD LINK]** |
+
 To try the demo, open the live link and pick a user on the sign-in screen: **Ah Hock (owner)**, **Siti (manager)** or **Ravi (staff)**. Sign-in is simulated in this prototype.
 
 ---
