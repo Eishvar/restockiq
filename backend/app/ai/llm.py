@@ -57,7 +57,7 @@ def _get_client() -> tuple[anthropic.Anthropic | openai.OpenAI, str] | None:
     if key:
         client = openai.OpenAI(
             api_key=key, base_url=OPENROUTER_URL, timeout=TIMEOUT_SECONDS, max_retries=1,
-            default_headers={"X-Title": "RestockIQ"},  # shows the app's name in OpenRouter's usage list
+            default_headers={"X-Title": "RestockAI"},  # shows the app's name in OpenRouter's usage list
         )
         return client, "openrouter"
     return None

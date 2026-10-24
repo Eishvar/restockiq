@@ -6,6 +6,7 @@ from app.modules.catalog.router import router as catalog_router
 from app.modules.assistant.router import router as assistant_router
 from app.modules.calendar.router import router as calendar_router
 from app.modules.dashboard.router import router as dashboard_router
+from app.modules.help.router import router as help_router
 from app.modules.inventory.router import router as inventory_router
 from app.modules.planning.router import router as planning_router
 from app.modules.pos.router import router as pos_router
@@ -14,5 +15,5 @@ from app.modules.setup.router import router as setup_router
 
 ROUTERS: list[APIRouter] = [
     settings_router, catalog_router, inventory_router, planning_router, assistant_router, calendar_router,
-    dashboard_router, activity_router, setup_router, pos_router,
+    dashboard_router, activity_router, setup_router, pos_router, help_router,
 ]
