@@ -1,35 +1,44 @@
 # RestockAI
 
-**Smart purchase planning for small food businesses: from about two days of manual calculation to a few minutes, with a person approving every order.**
+> Smart purchase planning for small food businesses: from about two days of manual calculation to a few minutes, with a person approving every order.
 
-Built for the SDC Hackathon 2026 (XMUM), Domain 2, "Orbyte Smart SME Challenge". All data in this repository is **synthetic**.
+---
 
-## Team
+## Team Information
 
-| | |
+| Field | Details |
 |---|---|
-| **Team name** | Small x Big y |
-| **Team domain** | Domain 2: Orbyte Smart SME Challenge |
-| **Team members** | Eishvar (leader), Joey Khor, Aswindra Selvam |
+| **Team Name** | Small x Big y |
+| **Team Domain** | Domain 2: Orbyte Smart SME Challenge |
+| **SDG Track (1-17)** | SDG 12 (Responsible Consumption and Production), target 12.3. Also supports SDG 8 (targets 8.2 and 8.3). |
+| **Team Leader** | Eishvar |
 | **University** | AIMST University **[confirm for every member]** |
+| **Number of Members** | 3 (Eishvar, Joey Khor, Aswindra Selvam) |
 | **Solution** | RestockAI |
 
 ## Links
 
-| | |
+| Resource | Link |
 |---|---|
-| **Live demo** | https://restockiq.replit.app |
-| **Pitch video** | **[ADD LINK]** |
-| **Code** | https://github.com/Eishvar/restockiq |
-| **Proposal and tool declaration** | submitted separately to SDC |
-
+| GitHub Repository | https://github.com/Eishvar/restockiq |
+| Replit Project | **[ADD LINK: your Replit project, replit.com/@username/restockiq]** |
+| Live Demo | https://restockiq.replit.app |
+| RunPod Endpoint | Not used (no GPU work, see "How we used Replit and RunPod") |
+| Slide Deck | **[ADD LINK, or write "None"]** |
+| Demo Video | **[ADD LINK]** |
 To try the demo, open the live link and pick a user on the sign-in screen: **Ah Hock (owner)**, **Siti (manager)** or **Ravi (staff)**. Sign-in is simulated in this prototype.
 
-## The problem
+---
+
+## Overview
+
+Built for the SDC Hackathon 2026 (XMUM), Domain 2, "Orbyte Smart SME Challenge". All data in this repository is **synthetic**.
+
+### Problem
 
 Owners of kopitiams, cafés and campus eateries decide every week what to buy, usually by hand from memory, notebooks, WhatsApp and spreadsheets. We estimate this takes about two days per purchasing cycle (a team estimate, to be checked with owners). Buy too much and fresh stock expires; buy too little and dishes sell out. Food service causes 28% of the world's food waste (UNEP Food Waste Index Report 2024).
 
-## What RestockAI does (the journey)
+### Solution: what RestockAI does (the journey)
 
 1. **Trigger:** a manager or the owner picks how many days ahead to plan and presses **Generate plan**.
 2. **Connected data:** sales history, recipes, stock with expiry dates, suppliers, and a calendar of holidays and events.
