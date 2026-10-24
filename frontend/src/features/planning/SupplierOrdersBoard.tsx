@@ -155,7 +155,6 @@ export default function SupplierOrdersBoard({ planId }: { planId?: number }) {
     <div className="space-y-3">
       <div>
         <h2 className="text-lg font-semibold">Supplier orders</h2>
-        <p className="text-sm text-slate-600">Expand a supplier to manage its number and minimum order, edit draft quantities, and track orders through delivery.</p>
       </div>
       {suppliers.map((supplier) => (
         <SupplierGroup key={supplier.id} supplier={supplier} orders={grouped.get(supplier.id) ?? []} planId={planId} />

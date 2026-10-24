@@ -61,8 +61,8 @@ function Attention({ plan }: { plan: Plan }) {
 function DiscardList({ plan }: { plan: Plan }) {
   if (!plan.discard.length) return null
   return (
-    <Card title={`Throw away (${plan.discard.length})`}>
-      <p className="mb-2 text-sm text-slate-600">These have passed their shelf life. They are not counted as stock. Discard them on the Inventory page.</p>
+    <Card title={`Expired stock (${plan.discard.length})`}>
+      <p className="mb-2 text-sm text-slate-600">Excluded from this plan. Remove expired batches in Inventory.</p>
       <Table head={['Item', 'How much', 'Expired']}>
         {plan.discard.map((d, i) => (
           <tr key={`${d.ingredient_id}-${i}`}>
@@ -103,7 +103,6 @@ export default function PlanPage() {
     <div className="mx-auto max-w-6xl space-y-4 pb-36 md:pb-24">
       <div>
         <h1 className="text-xl font-semibold">Plan purchases</h1>
-        <p className="text-sm text-slate-600">Pick how many days to buy for. We work out what to buy, how much and when.</p>
       </div>
 
       <Card>
@@ -136,7 +135,7 @@ export default function PlanPage() {
       {p && (
         <>
           <p className="text-sm text-slate-600">
-            Plan #{p.id} · bought for {p.horizon_days} day{p.horizon_days === 1 ? '' : 's'} from tomorrow · {p.risk_profile.replace(/_/g, ' ')} stock setting
+            Plan #{p.id} · {p.horizon_days} day{p.horizon_days === 1 ? '' : 's'} from tomorrow · {p.risk_profile.replace(/_/g, ' ')} stock setting
           </p>
           <ForecastCard plan={p} />
           <Attention plan={p} />

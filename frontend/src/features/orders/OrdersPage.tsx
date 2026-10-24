@@ -138,7 +138,6 @@ function PageHeading() {
   return (
     <div>
       <h1 className="text-xl font-semibold">Order history</h1>
-      <p className="text-sm text-slate-600">All supplier orders, newest first.</p>
     </div>
   )
 }

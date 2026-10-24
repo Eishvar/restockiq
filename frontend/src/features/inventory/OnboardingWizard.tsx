@@ -37,10 +37,10 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
   return (
     <div className="mx-auto max-w-5xl space-y-4">
       <div>
-        <h1 className="text-xl font-semibold">Tell RestockAI what you have in stock (one time)</h1>
+        <h1 className="text-xl font-semibold">Check your opening stock</h1>
         <p className="mt-1 text-sm text-slate-600">
-          We have filled in an example. Check each line: how much you have, when you last bought it and how many days it
-          stays good. Change anything that is wrong, then confirm. You can edit this later on the Inventory page.
+          Check the example quantities, purchase dates and shelf lives. Correct anything that is wrong, then confirm.
+          You can edit stock later in Inventory.
         </p>
       </div>
 

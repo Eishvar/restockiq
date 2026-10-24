@@ -64,7 +64,7 @@ function CountryStep() {
   return (
     <Card title="Where is your business?">
       <p className="text-sm text-slate-600">
-        We use this to show prices in the right currency and to add your country&apos;s public holidays to the calendar, because holidays change how many customers you get.
+        Sets prices to MYR and adds Malaysian public holidays to your calendar.
       </p>
       <div className="mt-4 space-y-2">
         <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${picked === 'MY' ? 'border-brand-royal bg-brand-surface' : 'border-slate-200'}`}>
@@ -137,8 +137,7 @@ function CalendarStep() {
   return (
     <Card title="Mark your busy and slow times (optional)">
       <p className="text-sm text-slate-600">
-        Tell us when you expect to be busier or quieter than usual. You can skip this and add them later on the Calendar page.
-        The forecast learns from how your sales behaved in similar periods, so a period that repeats helps more each time.
+        Add dates when sales may be busier or quieter than usual. You can skip this and add dates later in Calendar.
       </p>
 
       <form onSubmit={addPeriod} className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -214,7 +213,6 @@ export default function SetupWizard() {
       <main className="mx-auto max-w-5xl space-y-5 p-4 md:p-6">
         <div>
           <h1 className="text-xl font-semibold">Let&apos;s set up {me.data?.tenant_name}</h1>
-          <p className="mt-1 text-sm text-slate-600">Three steps: country, opening stock, and an optional calendar.</p>
         </div>
         <Stepper current={data.step} />
         {data.step === 'country' && <CountryStep />}

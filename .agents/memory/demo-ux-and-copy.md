@@ -14,6 +14,12 @@ Do not add explicit claims about time saved, minutes to complete a plan, or comp
 
 **How to apply:** Use short, plain-English labels, real data, and clear actions; avoid reintroducing time-saved claims during dashboard or demo polish.
 
+Keep copy cleanup focused on first-time-user clarity without redesigning the existing UI. Remove repeated introductions and obvious-control instructions, but retain operational warnings, units, permissions, and clear next actions.
+
+**Why:** The user requested a page-by-page removal of redundant AI-written text while preserving the current interface.
+
+**How to apply:** Prefer concise labels and short contextual guidance over explanatory paragraphs. Do not equate fewer words with removing information needed to place orders or manage stock safely.
+
 The app's colour scheme should follow Orbyte's official website, https://www.orbyte.my/.
 
 **Why:** The user explicitly requested matching Orbyte's colours, rather than retaining the original green branding.

@@ -281,7 +281,7 @@ export default function InventoryPage() {
         <div>
           <h1 className="text-xl font-semibold">Inventory</h1>
           <p className="text-sm text-slate-600">
-            What you have now, as of {fmtDate(data.today)}. The same item bought on different days is kept as separate batches.
+            Stock as of {fmtDate(data.today)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

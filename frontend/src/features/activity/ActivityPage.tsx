@@ -62,7 +62,6 @@ export default function ActivityPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-4">
       <h1 className="text-xl font-semibold">Activity</h1>
-      <p className="text-sm text-slate-600">A simple record of who did what, so everything can be traced.</p>
       <Card>{body}</Card>
     </div>
   )

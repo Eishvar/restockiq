@@ -27,12 +27,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
           <div className="text-2xl font-bold text-brand-royal">RestockAI</div>
-          <p className="mt-1 text-sm text-slate-600">Smart purchase planning for your kitchen</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h1 className="text-lg font-semibold">Sign in</h1>
           <p className="mt-1 text-sm text-slate-600">
-            This is a demo with made-up people. Choose who you want to be; there is no password.
+            Demo sign-in: choose a role. No password is needed.
           </p>
           <div className="mt-4 space-y-2">
             {users.isLoading && <p className="text-sm text-slate-500">Loading…</p>}
@@ -52,7 +51,7 @@ export default function LoginPage() {
             ))}
           </div>
           <p className="mt-4 text-xs text-slate-500">
-            First time here? Sign in as the Owner to set up the business. Everyone in the demo uses made-up data.
+            First time here? Choose Owner to set up the business. Demo data is fictional.
           </p>
         </div>
       </div>
