@@ -95,6 +95,12 @@ export default function PlanPage() {
           <p className="text-sm text-slate-600">
             Plan #{p.id} · {p.horizon_days} day{p.horizon_days === 1 ? '' : 's'} from tomorrow · {p.risk_profile.replace(/_/g, ' ')} stock setting
           </p>
+          {p.data_changed_since && (
+            <p role="alert" className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <svg aria-hidden="true" className="mt-0.5 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3 2.7 20h18.6L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>
+              Your sales data changed after this plan was made. Press Generate plan to make a new one with the latest numbers. Orders already approved stay as they are.
+            </p>
+          )}
           <ForecastCard plan={p} accuracy={accuracy} />
           {dash.data && <PlanOverview d={dash.data} />}
           <DiscardList plan={p} />

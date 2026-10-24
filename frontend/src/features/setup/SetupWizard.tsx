@@ -9,10 +9,15 @@ import OnboardingWizard from '../inventory/OnboardingWizard'
 import { inputCls } from '../inventory/QtyInput'
 import RecipeBook from '../recipes/RecipeBook'
 import { useRecipeBook } from '../recipes/api'
-import { useChooseCountry, useCompleteSetup, useConfirmRecipes, useSetupStatus, type SetupStep } from './api'
+import SalesPanel from '../sales/SalesPanel'
+import { useSalesOverview } from '../sales/api'
+import { useChooseCountry, useCompleteSetup, useConfirmRecipes, useConfirmSales, useSetupStatus, type SetupStep } from './api'
+
+const MIN_SALES_DAYS = 28 // the same four weeks the server asks for
 
 const STEPS: { key: SetupStep; label: string; optional?: boolean }[] = [
   { key: 'country', label: 'Country' },
+  { key: 'sales', label: 'Sales history' },
   { key: 'inventory', label: 'Your stock' },
   { key: 'recipes', label: 'Recipes' },
   { key: 'calendar', label: 'Calendar', optional: true },
@@ -90,6 +95,45 @@ function CountryStep() {
 }
 
 // ---------- Step 2 ----------
+function SalesStep() {
+  const overview = useSalesOverview()
+  const confirm = useConfirmSales()
+  const toast = useToast()
+  const days = overview.data?.coverage.days ?? 0
+
+  async function next() {
+    try {
+      await confirm.mutateAsync()
+      toast('Sales history saved.', 'success')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not save', 'error')
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card title="Your sales history">
+        <p className="text-sm text-slate-600">
+          RestockAI learns from what you sold. We have loaded an example year of sales for this demo. Look it over, or add your own report as a CSV,
+          Excel or PDF file. This step cannot be skipped: the forecast needs at least {MIN_SALES_DAYS} days of sales, and about 3 months works best.
+          You can add or fix sales any time later on the Sales data page.
+        </p>
+      </Card>
+      <SalesPanel mode="setup" />
+      {/* pr-32 keeps the button clear of the floating Help button */}
+      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 pr-32 backdrop-blur md:-mx-6 md:px-6 md:pr-32">
+        <span className="text-sm text-slate-600">
+          {overview.isLoading ? 'Loading…' : days >= MIN_SALES_DAYS ? `${days} days of sales are loaded.` : `${days} day${days === 1 ? '' : 's'} loaded. Add at least ${MIN_SALES_DAYS}.`}
+        </span>
+        <Button onClick={next} disabled={overview.isLoading || days < MIN_SALES_DAYS || confirm.isPending}>
+          {confirm.isPending ? 'Saving…' : 'Confirm sales history'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// ---------- Step 3 ----------
 function InventoryStep() {
   const { data, isLoading, error } = useInventory()
   if (isLoading) return <p className="text-sm text-slate-500">Loading your stock…</p>
@@ -97,7 +141,7 @@ function InventoryStep() {
   return <OnboardingWizard data={data} />
 }
 
-// ---------- Step 3 ----------
+// ---------- Step 4 ----------
 function RecipesStep() {
   const book = useRecipeBook()
   const confirm = useConfirmRecipes()
@@ -137,7 +181,7 @@ function RecipesStep() {
   )
 }
 
-// ---------- Step 4 ----------
+// ---------- Step 5 ----------
 const KINDS = {
   busy: { label: 'Busy period', hint: 'More customers than usual, e.g. school holidays or a festival week.' },
   slow: { label: 'Slow period', hint: 'Fewer customers than usual, e.g. exam week or the fasting month.' },
@@ -259,6 +303,7 @@ export default function SetupWizard() {
         </div>
         <Stepper current={data.step} />
         {data.step === 'country' && <CountryStep />}
+        {data.step === 'sales' && <SalesStep />}
         {data.step === 'inventory' && <InventoryStep />}
         {data.step === 'recipes' && <RecipesStep />}
         {data.step === 'calendar' && <CalendarStep />}

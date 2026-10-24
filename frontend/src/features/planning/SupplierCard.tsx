@@ -12,6 +12,7 @@ import {
 } from './api'
 import { effectiveSchedule, fmtDay, rm } from './format'
 import GatedButton, { useRole } from './GatedButton'
+import OrderNote from './OrderNote'
 import { bufferTooltip, whySentences } from './why'
 
 function Stepper({ status }: { status: OrderStatus }) {
@@ -286,6 +287,12 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
       {order.warnings.map((w) => (
         <p key={w} className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><svg aria-hidden="true" className="mt-0.5 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3 2.7 20h18.6L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>{w}</p>
       ))}
+      {order.plan_is_stale && (
+        <p role="alert" className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          <svg aria-hidden="true" className="mt-0.5 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3 2.7 20h18.6L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>
+          Your sales data changed after this plan was made. Generate a new plan before you approve this order, so it uses the latest numbers.
+        </p>
+      )}
 
       <div className="mt-3 space-y-2">
         {lines.map((l) => (
@@ -320,6 +327,8 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
           </section>
         ))}
       </div>
+
+      {order.note_text && <OrderNote text={order.note_text} />}
 
       <div className="mt-4 border-t border-slate-100 pt-3">{actions}</div>
 

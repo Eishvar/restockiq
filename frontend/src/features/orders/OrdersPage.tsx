@@ -4,6 +4,7 @@ import { Badge, EmptyState, PageSkeleton } from '../../components/ui'
 import { inputCls } from '../inventory/QtyInput'
 import { fmtDayYear, rm } from '../planning/format'
 import { useOrders, type Order, type OrderStatus } from '../planning/api'
+import OrderNote from '../planning/OrderNote'
 
 type StatusInfo = { label: string; tone: 'neutral' | 'good' | 'warn' | 'bad' }
 const STATUS: Record<OrderStatus, StatusInfo> = {
@@ -62,6 +63,7 @@ function OrderRecord({ order }: { order: Order }) {
           {order.received_at && <span>Received {showDate(order.received_at)}</span>}
           {order.approved_by_name && <span>Approved by {order.approved_by_name}</span>}
         </div>
+        {order.note_text && <OrderNote text={order.note_text} />}
         {order.reject_reason && (
           <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
             Rejection reason: {order.reject_reason}

@@ -74,6 +74,8 @@ export type Order = {
   sent_at: string | null
   received_at: string | null
   lines: Line[]
+  plan_is_stale: boolean // still waiting for approval, but sales data changed after this plan was made
+  note_text: string | null // the order note written when the owner approved
 }
 
 export type Drivers = {
@@ -114,6 +116,7 @@ export type Plan = {
     baseline_naive_wape: number | null
     baseline_flat_wape: number | null
   } | null
+  data_changed_since: boolean // sales data was added, removed or restored after this plan was made
 }
 
 export type SendResult = { order: Order; whatsapp_text: string; whatsapp_url: string | null; call_url: string | null }

@@ -16,6 +16,7 @@ const PAGES: Record<string, React.ReactNode> = {
   '/plan': page(() => import('./features/planning/PlanPage')),
   '/inventory': page(() => import('./features/inventory/InventoryPage')),
   '/recipes': page(() => import('./features/recipes/RecipesPage')),
+  '/sales': page(() => import('./features/sales/SalesPage')),
   '/orders': page(() => import('./features/orders/OrdersPage')),
   '/calendar': page(() => import('./features/calendar/CalendarPage')),
   '/activity': page(() => import('./features/activity/ActivityPage')),
