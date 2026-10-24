@@ -26,6 +26,12 @@ def choose_country(body: CountryIn, user: User = Depends(require_role("owner")),
     return service.choose_country(db, user, body.country)
 
 
+@router.post("/sales/confirm", response_model=SetupStatus)
+def confirm_sales(user: User = Depends(require_role("owner")), db: Session = Depends(get_db)):
+    """Step 2 (cannot be skipped): at least 4 weeks of sales history are loaded."""
+    return service.confirm_sales(db, user)
+
+
 @router.post("/recipes/confirm", response_model=SetupStatus)
 def confirm_recipes(background: BackgroundTasks, user: User = Depends(require_role("owner")), db: Session = Depends(get_db)):
     """Step 4 (cannot be skipped): every dish has a recipe. Recipes edited by hand re-measure the safety buffers."""

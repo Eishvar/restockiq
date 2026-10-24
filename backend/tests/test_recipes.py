@@ -145,6 +145,7 @@ def test_a_new_dish_without_sales_does_not_break_the_plan(client, db, users, loa
 def reach_recipes_step(client, users):
     owner = users["owner"]
     client.post("/api/setup/country", json={"country": "MY"}, headers=as_user(owner))
+    client.post("/api/setup/sales/confirm", headers=as_user(owner))
     client.post("/api/inventory/onboarding/confirm", headers=as_user(owner))
     return owner
 

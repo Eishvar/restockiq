@@ -20,9 +20,11 @@ def test_country_goes_directly_to_stock_and_setup_completes(client, users, db, l
     assert status(client, owner)["step"] == "country"
     result = client.post("/api/setup/country", json={"country": "MY"}, headers=as_user(owner))
     assert result.status_code == 200
-    assert result.json()["status"]["step"] == "inventory"
+    assert result.json()["status"]["step"] == "sales"
     assert result.json()["status"]["currency"] == "MYR"
     assert client.post("/api/setup/complete", json={}, headers=as_user(owner)).status_code == 409
+    # The sales history step cannot be skipped; the demo's year of sales is already loaded, so confirming moves on.
+    assert client.post("/api/setup/sales/confirm", headers=as_user(owner)).json()["step"] == "inventory"
     assert client.post("/api/setup/recipes/confirm", headers=as_user(owner)).status_code == 409  # stock not confirmed yet
     assert client.post("/api/inventory/onboarding/confirm", headers=as_user(owner)).status_code == 200
     # The recipes step cannot be skipped; the demo recipes are already filled in, so confirming it moves on.
@@ -36,7 +38,7 @@ def test_country_goes_directly_to_stock_and_setup_completes(client, users, db, l
     assert "pos_connected_at" not in done.json()
     assert db.scalar(select(func.count()).select_from(SalesDaily)) == sales_before > 0
     actions = set(db.scalars(select(ActivityLog.action)))
-    assert {"setup_country_chosen", "onboarding_confirmed", "setup_recipes_confirmed", "setup_completed"} <= actions
+    assert {"setup_country_chosen", "setup_sales_confirmed", "onboarding_confirmed", "setup_recipes_confirmed", "setup_completed"} <= actions
     assert "pos_connected" not in actions
     assert client.get("/api/dashboard", headers=as_user(owner)).status_code == 200
 
@@ -69,6 +71,8 @@ def test_existing_database_with_retired_connection_columns_still_works(client, u
     db.execute(text("ALTER TABLE tenant_setup ADD COLUMN pos_connected_at DATETIME"))
     db.execute(text("UPDATE tenant_setup SET pos_provider = 'feedme'"))
     db.commit()
+    assert status(client, owner)["step"] == "sales"
+    assert client.post("/api/setup/sales/confirm", headers=as_user(owner)).status_code == 200
     assert status(client, owner)["step"] == "inventory"
     assert client.post("/api/inventory/onboarding/confirm", headers=as_user(owner)).status_code == 200
     assert client.post("/api/setup/recipes/confirm", headers=as_user(owner)).status_code == 200

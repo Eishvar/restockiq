@@ -1,6 +1,6 @@
-"""First-time setup: country (currency + public holidays), stock, recipes, optional calendar.
+"""First-time setup: country (currency + public holidays), sales history, stock, recipes, optional calendar.
 
-The wizard order is country -> inventory -> recipes -> calendar. Each step stores its own result, and
+The wizard order is country -> sales -> inventory -> recipes -> calendar. Each step stores its own result, and
 `status()` derives which step is next, so a refresh or a different browser resumes in the right place.
 """
 import csv
@@ -15,6 +15,7 @@ from app.core.activity import log_action
 from app.core.clock import now_kl
 from app.modules.calendar.models import CalendarEvent
 from app.modules.catalog import recipes
+from app.modules.sales_data import service as sales_service
 from app.modules.setup.models import TenantSetup
 from app.modules.setup.schemas import CountryResult, SetupStatus
 from app.modules.settings.models import Tenant, User
@@ -38,6 +39,8 @@ def status(db: Session, tenant_id: int) -> SetupStatus:
     inventory_done = tenant.onboarded_at is not None
     if row.country is None:
         step = "country"
+    elif row.setup_done_at is None and row.sales_confirmed_at is None:
+        step = "sales"  # a business that finished setup before this step existed is not sent back to it
     elif not inventory_done:
         step = "inventory"
     elif row.setup_done_at is None and row.recipes_confirmed_at is None:
@@ -53,6 +56,7 @@ def status(db: Session, tenant_id: int) -> SetupStatus:
         country=row.country,
         country_name=country["name"] if country else None,
         currency=row.currency,
+        sales_done=row.sales_confirmed_at is not None or row.setup_done_at is not None,
         inventory_done=inventory_done,
         recipes_done=row.recipes_confirmed_at is not None or row.setup_done_at is not None,
         calendar_skipped=row.calendar_skipped,
@@ -98,10 +102,31 @@ def choose_country(db: Session, user: User, code: str) -> CountryResult:
     return CountryResult(status=status(db, user.tenant_id), holidays_added=added, holidays_already_there=there)
 
 
-def confirm_recipes(db: Session, user: User) -> SetupStatus:
-    """Step 3 (not optional): every dish on the menu must have a recipe before the wizard can go on."""
+MIN_SALES_DAYS = 28  # four weeks is the least the forecast can learn a weekday pattern from
+
+
+def confirm_sales(db: Session, user: User) -> SetupStatus:
+    """Step 2 (not optional): there must be enough sales history to forecast from. The demo's is already loaded."""
     current = status(db, user.tenant_id)
-    if current.step in ("country", "inventory"):
+    if current.step == "country":
+        raise HTTPException(409, "Finish the 'country' step first")
+    row = get_setup(db, user.tenant_id)
+    if row.sales_confirmed_at is None:
+        have = sales_service.coverage(db, user.tenant_id)
+        if have.days < MIN_SALES_DAYS:
+            raise HTTPException(409, f"Add at least {MIN_SALES_DAYS} days of sales first (you have {have.days}). "
+                                     "Upload a CSV, Excel or PDF sales report.")
+        row.sales_confirmed_at = now_kl()
+        log_action(db, user, "setup_sales_confirmed", "tenant", user.tenant_id,
+                   {"days": have.days, "date_from": have.first_date.isoformat(), "date_to": have.last_date.isoformat()})
+    db.commit()
+    return status(db, user.tenant_id)
+
+
+def confirm_recipes(db: Session, user: User) -> SetupStatus:
+    """Step 4 (not optional): every dish on the menu must have a recipe before the wizard can go on."""
+    current = status(db, user.tenant_id)
+    if current.step in ("country", "sales", "inventory"):
         raise HTTPException(409, f"Finish the '{current.step}' step first")
     row = get_setup(db, user.tenant_id)
     if row.recipes_confirmed_at is None:
@@ -117,9 +142,9 @@ def confirm_recipes(db: Session, user: User) -> SetupStatus:
 
 
 def complete(db: Session, user: User, skip_calendar: bool) -> SetupStatus:
-    """Finish the wizard. Needs country, stock and recipes done; the calendar step may be skipped."""
+    """Finish the wizard. Needs country, sales, stock and recipes done; the calendar step may be skipped."""
     current = status(db, user.tenant_id)
-    if current.step in ("country", "inventory", "recipes"):
+    if current.step in ("country", "sales", "inventory", "recipes"):
         raise HTTPException(409, f"Finish the '{current.step}' step first")
     row = get_setup(db, user.tenant_id)
     if row.setup_done_at is None:

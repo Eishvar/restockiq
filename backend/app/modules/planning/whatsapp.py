@@ -49,5 +49,41 @@ def build_order_message(supplier_name: str, tenant_name: str, lines: list[dict],
     return "\n".join(parts)
 
 
+def build_order_note(po_id: int, supplier_name: str, tenant_name: str, order_date: date, lines: list[dict],
+                     total_rm: float) -> str:
+    """The note sent to the supplier (a purchase order, not a tax invoice; RestockAI never pays or files anything).
+
+    lines: name, pack_uom, pack_price_rm, schedule [{date, packs}]. One block per delivery day, each line with its
+    price and line total, then the order total.
+    """
+    by_date: dict[str, list[tuple[str, int, str, float]]] = {}
+    for line in lines:
+        for trip in line["schedule"]:
+            by_date.setdefault(trip["date"], []).append((line["name"], trip["packs"], line["pack_uom"], line["pack_price_rm"]))
+    parts = [
+        f"PURCHASE ORDER PO-{po_id:04d}",
+        f"From: {tenant_name}",
+        f"To: {supplier_name}",
+        f"Date: {_day(order_date.isoformat())} {order_date.year}",
+        "",
+    ]
+    for iso in sorted(by_date):
+        parts.append(f"Delivery on {_day(iso)}:")
+        subtotal = 0.0
+        for n, (name, packs, uom, price) in enumerate(sorted(by_date[iso]), start=1):
+            subtotal += packs * price
+            parts.append(f"{n}. {name} - {format_packs(packs, uom)} x RM {price:,.2f} = RM {packs * price:,.2f}")
+        if len(by_date) > 1:
+            parts.append(f"Subtotal for this delivery: RM {subtotal:,.2f}")
+        parts.append("")
+    parts += [
+        f"ORDER TOTAL: RM {total_rm:,.2f}",
+        "",
+        "Please confirm that you can supply this and the delivery time. Thank you!",
+        f"- {tenant_name}",
+    ]
+    return "\n".join(parts)
+
+
 def whatsapp_url(number: str | None, text: str) -> str | None:
     return f"https://wa.me/{number}?text={quote(text, safe='')}" if number else None

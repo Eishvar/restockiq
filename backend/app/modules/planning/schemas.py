@@ -59,6 +59,8 @@ class OrderOut(BaseModel):
     sent_at: datetime | None
     received_at: datetime | None
     lines: list[LineOut]
+    plan_is_stale: bool = False  # still waiting for approval, but sales data changed after this plan was made
+    note_text: str | None = None  # the order note written when the owner approved it
 
 
 class SendOut(BaseModel):
@@ -117,3 +119,4 @@ class PlanDetail(BaseModel):
     covered: list[dict]
     exceptions: list[dict]
     forecast_quality: QualityOut | None
+    data_changed_since: bool = False  # sales data was added, removed or restored after this plan was made

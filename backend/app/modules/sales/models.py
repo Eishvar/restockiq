@@ -18,3 +18,5 @@ class SalesDaily(Base):
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id"))
     qty: Mapped[int] = mapped_column(Integer)
     net_sales_rm: Mapped[float] = mapped_column(Float)
+    # The uploaded file these numbers came from (sales_imports.id); empty for the original demo history.
+    import_id: Mapped[int | None] = mapped_column(Integer, default=None)

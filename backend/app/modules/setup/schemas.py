@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-Step = Literal["country", "inventory", "recipes", "calendar", "done"]
+Step = Literal["country", "sales", "inventory", "recipes", "calendar", "done"]
 
 
 class SetupStatus(BaseModel):
@@ -11,6 +11,7 @@ class SetupStatus(BaseModel):
     country: str | None
     country_name: str | None
     currency: str | None
+    sales_done: bool
     inventory_done: bool
     recipes_done: bool
     calendar_skipped: bool

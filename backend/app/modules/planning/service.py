@@ -33,7 +33,8 @@ from app.modules.planning.schemas import (
     QualityOut,
     SendOut,
 )
-from app.modules.planning.whatsapp import build_order_message, call_url, effective_schedule, whatsapp_number, whatsapp_url
+from app.modules.planning.whatsapp import build_order_note, call_url, effective_schedule, whatsapp_number, whatsapp_url
+from app.modules.setup.models import TenantSetup
 from app.modules.sales.models import SalesDaily
 from app.modules.settings.models import Tenant, User
 
@@ -143,6 +144,16 @@ def context(db: Session, user: User) -> dict:
 
 
 
+def _sales_changed_at(db: Session, tenant_id: int) -> datetime | None:
+    row = db.get(TenantSetup, tenant_id)
+    return row.sales_changed_at if row else None
+
+
+def _older(made_at: datetime | None, changed: datetime | None) -> bool:
+    """True when sales data changed after something was made, so it used the older numbers."""
+    return bool(made_at and changed and made_at < changed)
+
+
 def _orders_out(db: Session, tenant_id: int, orders: list[PurchaseOrder]) -> list[OrderOut]:
     if not orders:
         return []
@@ -151,6 +162,7 @@ def _orders_out(db: Session, tenant_id: int, orders: list[PurchaseOrder]) -> lis
     ingredients = {i.id: i for i in db.scalars(select(Ingredient).where(Ingredient.tenant_id == tenant_id))}
     users = {u.id: u.name for u in db.scalars(select(User).where(User.tenant_id == tenant_id))}
     runs = {r.id: r for r in db.scalars(select(PlanRun).where(PlanRun.id.in_({o.run_id for o in orders})))}
+    changed = _sales_changed_at(db, tenant_id)
     lines: dict[int, list[POLine]] = {}
     for l in db.scalars(select(POLine).where(POLine.po_id.in_(ids)).order_by(POLine.id)):
         lines.setdefault(l.po_id, []).append(l)
@@ -182,7 +194,8 @@ def _orders_out(db: Session, tenant_id: int, orders: list[PurchaseOrder]) -> lis
                 status=o.status, total_rm=o.total_rm, warnings=warnings, reject_reason=o.reject_reason,
                 created_at=o.created_at, submitted_at=o.submitted_at, approved_by=o.approved_by,
                 approved_by_name=users.get(o.approved_by), approved_at=o.approved_at, sent_at=o.sent_at,
-                received_at=o.received_at, lines=line_out,
+                received_at=o.received_at, lines=line_out, note_text=o.note_text,
+                plan_is_stale=o.status in ("draft", "pending_approval") and _older(runs[o.run_id].created_at, changed),
             )
         )
     return out
@@ -248,6 +261,7 @@ def get_plan_detail(db: Session, user: User, run_id: int) -> PlanDetail:
         duration_ms=run.duration_ms, calc_count=run.calc_count, manual_planning_hours=tenant.manual_planning_hours,
         grand_total_rm=round(sum(o.total_rm for o in orders), 2),
         forecast=ForecastOut(days=days, dishes=dishes, history=history), orders=orders,
+        data_changed_since=_older(run.created_at, _sales_changed_at(db, user.tenant_id)),
         discard=summary.get("discard", []), covered=summary.get("covered", []), exceptions=summary.get("exceptions", []),
         forecast_quality=QualityOut(
             horizon_days=q.horizon_days, wape_total=q.wape_total, baseline_naive_wape=q.baseline_naive_wape,
@@ -312,7 +326,8 @@ def approve(db: Session, user: User, order_id: int) -> OrderOut:
     po = _order(db, user, order_id)
     _require_status(po, "pending_approval")
     po.status, po.approved_by, po.approved_at = "approved", user.id, now_kl()
-    log_action(db, user, "po_approved", "purchase_order", po.id, {"total_rm": po.total_rm})
+    po.note_text = _note_for_order(db, user, po)  # written now, so what was approved is exactly what gets sent
+    log_action(db, user, "po_approved", "purchase_order", po.id, {"total_rm": po.total_rm, "note_prepared": True})
     db.commit()
     return get_order(db, user, order_id)
 
@@ -326,16 +341,22 @@ def reject(db: Session, user: User, order_id: int, reason: str) -> OrderOut:
     return get_order(db, user, order_id)
 
 
-def _message_for_order(db: Session, user: User, po: PurchaseOrder) -> tuple[str, str | None, str | None]:
+def _note_for_order(db: Session, user: User, po: PurchaseOrder) -> str:
+    """The order note: reference, dates, every line with its price, and the total."""
     sup = db.get(Supplier, po.supplier_id)
     tenant = db.get(Tenant, user.tenant_id)
     items = []
     for l in _lines(db, po):
         if l.final_packs > 0:
             ing = db.get(Ingredient, l.ingredient_id)
-            items.append({"name": ing.name, "pack_uom": ing.pack_uom,
+            items.append({"name": ing.name, "pack_uom": ing.pack_uom, "pack_price_rm": l.pack_price_rm,
                           "schedule": effective_schedule(l.buy_schedule or [], l.suggested_packs, l.final_packs)})
-    text = build_order_message(sup.name, tenant.name, items, po.total_rm)
+    return build_order_note(po.id, sup.name, tenant.name, (po.approved_at or now_kl()).date(), items, po.total_rm)
+
+
+def _message_for_order(db: Session, user: User, po: PurchaseOrder) -> tuple[str, str | None, str | None]:
+    sup = db.get(Supplier, po.supplier_id)
+    text = po.note_text or _note_for_order(db, user, po)  # an order approved before notes were saved gets one built now
     number = whatsapp_number(sup.whatsapp)
     return text, whatsapp_url(number, text), call_url(number)
 

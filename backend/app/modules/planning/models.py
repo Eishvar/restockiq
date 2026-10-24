@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import JSON, Date, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import JSON, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -80,6 +80,8 @@ class PurchaseOrder(Base):
     approved_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     received_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    # The order note (text for the supplier), written when the owner approves, so what was approved is what is sent.
+    note_text: Mapped[str | None] = mapped_column(Text, default=None)
 
 
 class POLine(Base):

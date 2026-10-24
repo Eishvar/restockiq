@@ -1,7 +1,8 @@
-﻿"""The only door to the LLM. Everything else in the app calls complete_json().
+﻿"""The only door to the LLM. Everything else in the app calls complete_json() (or complete_json_with_pdf()).
 
 Rules this module enforces:
-- The LLM only reads messy human text and returns structured JSON. It never decides purchase quantities.
+- The LLM only reads messy human text, or a PDF sales report, and returns structured JSON. It never decides
+  purchase quantities, and what it returns is a proposal that a person checks before anything is saved.
 - Output is validated against a pydantic model; anything invalid is treated as "no answer" (None).
 - If no model is reachable (no key, timeout, bad answer) callers get None and fall back to manual entry.
 
@@ -11,6 +12,7 @@ Provider chain (isolated in _get_client), first one that is configured wins:
   3. OPENROUTER_API_KEY                     (any model through OpenRouter; model from OPENROUTER_MODEL)
   4. none -> callers fall back to manual entry
 """
+import base64
 import json
 import logging
 import os
@@ -163,6 +165,65 @@ def _extract_json(text: str) -> str:
     """Tolerate a ```json fence or a sentence around the object."""
     start, end = text.find("{"), text.rfind("}")
     return text[start : end + 1] if start != -1 and end > start else text
+
+
+PDF_TIMEOUT_SECONDS = 90  # reading a scanned page takes much longer than a chat answer
+PDF_MAX_TOKENS = 8000
+PDF_ENGINE = "mistral-ocr"  # OpenRouter's own OCR reads scanned pages; the chat model then turns the text into rows
+
+
+def pdf_ai_available() -> bool:
+    """Reading a PDF goes through OpenRouter (its PDF reader works with any model), so it needs that key."""
+    return bool(os.getenv("OPENROUTER_API_KEY"))
+
+
+def complete_json_with_pdf(prompt_name: str, variables: dict, schema: type[BaseModel], pdf_bytes: bytes,
+                           filename: str) -> dict | None:
+    """Like complete_json, but the user turn also carries a PDF.
+
+    OpenRouter reads the PDF first (OCR for scanned pages) and passes the text to the same model the Help chat uses
+    (OPENROUTER_MODEL), so no second model is needed. Returns None when there is no key, the model declined, the
+    answer was cut off or does not fit the schema; the caller then asks for a CSV or Excel file instead.
+    """
+    key = os.getenv("OPENROUTER_API_KEY")
+    if not key:
+        return None
+    system, user = load_prompt(prompt_name, variables)
+    client = openai.OpenAI(
+        api_key=key, base_url=OPENROUTER_URL, timeout=PDF_TIMEOUT_SECONDS, max_retries=1,
+        default_headers={"X-Title": "RestockAI"},
+    )
+    model = model_name("openrouter")
+    safe_name = re.sub(r"[^A-Za-z0-9._-]", "_", filename)[:80] or "sales.pdf"
+    data_url = "data:application/pdf;base64," + base64.b64encode(pdf_bytes).decode("ascii")
+    request = dict(
+        model=model, max_tokens=PDF_MAX_TOKENS,
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": [
+                {"type": "text", "text": user},
+                {"type": "file", "file": {"filename": safe_name, "file_data": data_url}},
+            ]},
+        ],
+        extra_body={"plugins": [{"id": "file-parser", "pdf": {"engine": PDF_ENGINE}}]},
+    )
+    try:
+        try:
+            response = client.chat.completions.create(
+                **request,
+                response_format={"type": "json_schema", "json_schema": {"name": "answer", "strict": True,
+                                                                         "schema": strict_schema(schema)}},
+            )
+        except openai.BadRequestError:  # this model does not take structured output: the prompt also asks for plain JSON
+            response = client.chat.completions.create(**request)
+        choice = response.choices[0]
+        log.info("llm pdf call prompt=%s model=%s finish=%s", prompt_name, model, choice.finish_reason)
+        if choice.finish_reason in ("length", "content_filter") or not choice.message.content:
+            return None
+        return schema.model_validate_json(_extract_json(choice.message.content)).model_dump(mode="json")
+    except (openai.OpenAIError, ValueError) as exc:
+        log.warning("llm pdf call failed prompt=%s error=%s: %s", prompt_name, type(exc).__name__, exc)
+        return None
 
 
 def complete_json(prompt_name: str, variables: dict, schema: type[BaseModel]) -> dict | None:

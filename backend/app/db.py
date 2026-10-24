@@ -18,6 +18,7 @@ MODEL_MODULES = [
     "assistant",  # ai_suggestions
     "activity",  # activity_log
     "setup",  # tenant_setup (first-time wizard progress)
+    "sales_data",  # sales_imports, sales_removals, sales_daily_removed, sales_drafts (uploaded sales files)
 ]
 
 
@@ -56,6 +57,10 @@ def import_all_models() -> None:
 ADDED_COLUMNS = [
     ("suppliers", "active", {"postgresql": "BOOLEAN NOT NULL DEFAULT TRUE", "default": "BOOLEAN NOT NULL DEFAULT 1"}),
     ("tenant_setup", "recipes_confirmed_at", {"default": "TIMESTAMP"}),
+    ("tenant_setup", "sales_confirmed_at", {"default": "TIMESTAMP"}),
+    ("tenant_setup", "sales_changed_at", {"default": "TIMESTAMP"}),
+    ("sales_daily", "import_id", {"default": "INTEGER"}),
+    ("purchase_orders", "note_text", {"default": "TEXT"}),
 ]
 
 

@@ -153,10 +153,12 @@ def test_full_journey_with_roles_inventory_and_activity_log(client, db, users, l
     assert sent["order"]["status"] == "sent" and sent["order"]["sent_at"]
     assert sent["whatsapp_url"].startswith("https://wa.me/601000000")
     assert unquote(sent["whatsapp_url"].split("?text=")[1]) == sent["whatsapp_text"]
-    prefix = f"- {line['name']} – "  # trips for one item may be listed under several delivery dates
-    in_message = [int(t[len(prefix):].split()[0]) for t in sent["whatsapp_text"].splitlines() if t.startswith(prefix)]
+    # the order note was written when the owner approved, and sending uses that same text
+    assert sent["whatsapp_text"] == appr["note_text"] and appr["note_text"].startswith(f"PURCHASE ORDER PO-{oid:04d}")
+    marker = f". {line['name']} - "  # trips for one item may be listed under several delivery dates
+    in_message = [int(t.split(marker)[1].split()[0]) for t in sent["whatsapp_text"].splitlines() if marker in t]
     assert sum(in_message) == packs  # the edited pack count, not the suggested one
-    assert f"Total: RM {sent['order']['total_rm']:,.2f}" in sent["whatsapp_text"]
+    assert f"ORDER TOTAL: RM {sent['order']['total_rm']:,.2f}" in sent["whatsapp_text"]
 
     # 5. staff cannot receive; manager can, and stock goes up
     ing_id = line["ingredient_id"]
@@ -279,7 +281,8 @@ def test_message_preview_keeps_the_order_in_draft_until_confirmed(client, db, us
     assert result["order"]["status"] == "draft"
     assert result["order"]["id"] == order["id"]
     assert order["supplier_name"] in result["whatsapp_text"]
-    assert f"Total: RM {order['total_rm']:,.2f}" in result["whatsapp_text"]
+    assert f"ORDER TOTAL: RM {order['total_rm']:,.2f}" in result["whatsapp_text"]
+    assert result["order"]["note_text"] is None  # only an approval saves the note; a preview just shows it
     assert client.get(f"/api/planning/orders/{order['id']}", headers=as_user(users["manager"])).json()["status"] == "draft"
     assert not db.scalars(select(ActivityLog).where(ActivityLog.action == "po_sent")).all()
     assert client.get(f"/api/planning/orders/{order['id']}/message", headers=as_user(users["manager"])).status_code == 403
