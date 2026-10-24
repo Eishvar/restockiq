@@ -18,7 +18,7 @@ export function driverChips(date: string, d: Drivers): { text: string; hint: str
   return chips
 }
 
-export default function ForecastCard({ plan }: { plan: Plan }) {
+export default function ForecastCard({ plan, accuracy }: { plan: Plan; accuracy?: number | null }) {
   const [showAll, setShowAll] = useState(false)
   const { days, dishes, history } = plan.forecast
   const chart = bridgeForecastHistory(history, days)
@@ -43,7 +43,14 @@ export default function ForecastCard({ plan }: { plan: Plan }) {
         ))}
       </div>
 
-      <div className="mt-4 h-56 w-full" aria-label="Dishes sold per day: last 4 weeks and forecast">
+      <div className="mt-4 flex items-center justify-between gap-4">
+        <h3 className="text-sm font-semibold text-slate-800">Sold vs forecast</h3>
+        <div className="flex items-baseline gap-2 rounded-xl bg-brand-surface px-3 py-1.5" title="How close past forecasts were to actual sales on a typical day">
+          <span className="text-xs text-slate-600">Forecast accuracy</span>
+          <span aria-label={accuracy == null ? 'Accuracy unavailable' : 'Accuracy on a typical day'} className="text-2xl font-extrabold tracking-tight text-brand-navy">{accuracy == null ? '—' : `${accuracy}%`}</span>
+        </div>
+      </div>
+      <div className="mt-2 h-56 w-full" aria-label="Dishes sold per day: last 4 weeks and forecast">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chart} margin={{ top: 8, right: 12, bottom: 0, left: -16 }}>
             <defs>

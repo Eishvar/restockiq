@@ -8,7 +8,6 @@ import { useMe } from '../features/auth/api'
 import type { ReactNode } from 'react'
 
 export const NAV = [
-  { path: '/dashboard', label: 'Dashboard', group: 'Overview', icon: 'grid' },
   { path: '/plan', label: 'Plan purchases', group: 'Operations', icon: 'cart' },
   { path: '/inventory', label: 'Inventory', group: 'Operations', icon: 'box' },
   { path: '/recipes', label: 'Recipes', group: 'Operations', icon: 'book' },
@@ -43,7 +42,7 @@ export default function AppShell() {
 
   const sidebar = (
     <nav className="flex flex-col gap-5 p-3">
-      {['Overview', 'Operations', 'Business'].map((group) => <div key={group}>
+      {['Operations', 'Business'].map((group) => <div key={group}>
         <div className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[.16em] text-slate-400">{group}</div>
         <div className="flex flex-col gap-1">{NAV.filter((n) => n.group === group).map((n) => (
         <NavLink

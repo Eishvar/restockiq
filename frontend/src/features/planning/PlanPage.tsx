@@ -4,6 +4,9 @@ import { Card, EmptyState, PageSkeleton, SegmentedControl, Table, useToast } fro
 import { ApiError } from '../../api/client'
 import { useGeneratePlan, usePlan, usePlanContext, type Plan } from './api'
 import ForecastCard from './ForecastCard'
+import PlanOverview from './PlanOverview'
+import { useDashboard } from '../dashboard/api'
+import { forecastAccuracyPercent } from '../dashboard/accuracy'
 import { fmtDay, fmtDayYear, formatQty, rm } from './format'
 import GatedButton, { useRole } from './GatedButton'
 import SupplierOrdersBoard from './SupplierOrdersBoard'
@@ -37,6 +40,9 @@ export default function PlanPage() {
   const [justMade, setJustMade] = useState<number | null>(null)
   const planId = justMade ?? ctx.data?.last_plan_id ?? null
   const plan = usePlan(planId)
+  const dash = useDashboard()
+  const wape = dash.data?.accuracy?.wape_total
+  const accuracy = typeof wape === 'number' && Number.isFinite(wape) && wape >= 0 ? forecastAccuracyPercent(wape) : null
 
   async function onGenerate() {
     try {
@@ -89,7 +95,8 @@ export default function PlanPage() {
           <p className="text-sm text-slate-600">
             Plan #{p.id} · {p.horizon_days} day{p.horizon_days === 1 ? '' : 's'} from tomorrow · {p.risk_profile.replace(/_/g, ' ')} stock setting
           </p>
-          <ForecastCard plan={p} />
+          <ForecastCard plan={p} accuracy={accuracy} />
+          {dash.data && <PlanOverview d={dash.data} />}
           <DiscardList plan={p} />
           {p.orders.length === 0 && <EmptyState title="Nothing to buy" hint="Your current stock covers everything for these days." />}
           {p.covered.length > 0 && (

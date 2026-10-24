@@ -17,7 +17,6 @@ const PAGES: Record<string, React.ReactNode> = {
   '/inventory': page(() => import('./features/inventory/InventoryPage')),
   '/recipes': page(() => import('./features/recipes/RecipesPage')),
   '/orders': page(() => import('./features/orders/OrdersPage')),
-  '/dashboard': page(() => import('./features/dashboard/DashboardPage')),
   '/calendar': page(() => import('./features/calendar/CalendarPage')),
   '/activity': page(() => import('./features/activity/ActivityPage')),
   '/settings': page(() => import('./features/settings/SettingsPage')),
@@ -36,6 +35,7 @@ export default function App() {
           <Route element={<RequireSetup />}>
             <Route element={<AppShell />}>
               <Route index element={<Navigate to="/plan" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/plan" replace />} />
               {NAV.map((n) => (
                 <Route key={n.path} path={n.path} element={PAGES[n.path] ?? <Placeholder title={n.label} />} />
               ))}
