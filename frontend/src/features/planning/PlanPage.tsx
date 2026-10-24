@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Card, EmptyState, PageSkeleton, SegmentedControl, Table, useToast } from '../../components/ui'
 import { ApiError } from '../../api/client'
 import { useGeneratePlan, usePlan, usePlanContext, type Plan } from './api'
@@ -99,7 +100,7 @@ export default function PlanPage() {
   const total = active.reduce((sum, o) => sum + o.total_rm, 0)
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4 pb-24">
+    <div className="mx-auto max-w-6xl space-y-4 pb-36 md:pb-24">
       <div>
         <h1 className="text-xl font-semibold">Plan purchases</h1>
         <p className="text-sm text-slate-600">Pick how many days to buy for. We work out what to buy, how much and when.</p>
@@ -154,15 +155,20 @@ export default function PlanPage() {
       )}
 
       {p && p.orders.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:left-60">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
-            <div className="text-sm text-slate-600">
-              {active.length} order{active.length === 1 ? '' : 's'} · {active.filter((o) => ['approved', 'sent', 'received'].includes(o.status)).length} approved
+        createPortal(
+          <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:left-60">
+            <div className="mx-auto flex max-w-6xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-slate-600">
+                {active.length} order{active.length === 1 ? '' : 's'} · {active.filter((o) => ['approved', 'sent', 'received'].includes(o.status)).length} approved
+              </div>
+              <div className="flex flex-col items-end gap-1 sm:flex-row sm:justify-end sm:gap-6">
+                <button type="button" onClick={() => document.getElementById('supplier-orders')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="inline-flex min-h-9 items-center gap-1 text-sm font-semibold text-brand-royal underline underline-offset-2">Review supplier orders <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 4v16m-7-7 7 7 7-7"/></svg></button>
+                <div className="whitespace-nowrap text-right text-lg font-semibold">Grand total {rm(total)}</div>
+              </div>
             </div>
-            <button type="button" onClick={() => document.getElementById('supplier-orders')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="inline-flex min-h-9 items-center gap-1 text-sm font-semibold text-brand-royal underline underline-offset-2">Review supplier orders <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 4v16m-7-7 7 7 7-7"/></svg></button>
-            <div className="text-lg font-semibold">Grand total {rm(total)}</div>
-          </div>
-        </div>
+          </div>,
+          document.body,
+        )
       )}
     </div>
   )

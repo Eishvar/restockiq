@@ -64,7 +64,7 @@ export default function HelpChat() {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Open help"
-          className="fixed bottom-4 right-4 z-40 flex min-h-11 items-center gap-2 rounded-full bg-brand-royal px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-brand-hover"
+          className={`fixed ${page === '/plan' ? 'bottom-36 md:bottom-20' : 'bottom-4'} right-4 z-40 flex min-h-11 items-center gap-2 rounded-full bg-brand-royal px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-brand-hover`}
         >
           <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01" /></svg>
           Help

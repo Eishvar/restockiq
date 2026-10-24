@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Badge, Card, EmptyState, PageSkeleton, Stat } from '../../components/ui'
 import { fmtDay, rm } from '../planning/format'
 import { useDashboard, type Dashboard } from './api'
-import { accuracyBars, compareFourWeekBaseline, forecastAccuracyPercent } from './accuracy'
+import { forecastAccuracyPercent } from './accuracy'
 
 const STATUS: Record<string, { label: string; tone: 'neutral' | 'good' | 'warn' | 'bad' }> = {
   draft: { label: 'Draft', tone: 'neutral' },
@@ -13,33 +13,20 @@ const STATUS: Record<string, { label: string; tone: 'neutral' | 'good' | 'warn' 
   rejected: { label: 'Rejected', tone: 'bad' },
 }
 
-const pct = (x: number) => `${Math.round(x * 100)}%`
-
 function Accuracy({ d }: { d: Dashboard }) {
-  const a = d.accuracy
-  if (!a || !Number.isFinite(a.wape_total)) return <EmptyState title="Forecast accuracy is not measured yet" hint="It is worked out from your own sales history." />
-  const bars = accuracyBars(a)
-  const comparison = compareFourWeekBaseline(a.wape_total, a.baseline_flat_wape)
+  const wape = d.accuracy?.wape_total
+  const percentage = typeof wape === 'number' && Number.isFinite(wape) && wape >= 0
+    ? forecastAccuracyPercent(wape)
+    : null
+
   return (
-    <>
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-3 rounded-xl bg-brand-surface p-4">
-        <div><div className="text-xs font-bold uppercase tracking-wider text-brand-navy">Accuracy on a typical day</div><div className="mt-1 text-4xl font-extrabold tracking-tight text-brand-navy">{forecastAccuracyPercent(a.wape_total)}%</div></div>
-        <div className="max-w-52 rounded-lg bg-white/75 px-3 py-2 text-sm font-semibold text-brand-navy">{comparison.text}</div>
-      </div>
-      <p className="text-xs text-slate-500">Based on past sales: 100% minus forecast error. This is a guide, not a guarantee.</p>
-      <p className="mt-4 text-xs font-bold uppercase tracking-wide text-slate-500">Forecast Error — Lower is better ↓</p>
-      <ul className="mt-3 space-y-2">
-        {bars.map((b) => (
-          <li key={b.label} className="text-sm">
-            <div className="flex items-center justify-between gap-2"><span className="flex items-center gap-2">{b.label}{b.best && <Badge tone="good">Best</Badge>}</span><span className="font-medium">{pct(b.value)} off</span></div>
-            <div className="mt-1 h-2 rounded-full bg-slate-100">
-              <div className={`h-2 rounded-full ${b.color}`} style={{ width: `${b.width}%` }} />
-            </div>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-2 text-xs text-slate-500">Checked on your past sales, looking {a.horizon_days} days ahead. Lower is better.</p>
-    </>
+    <div className="flex min-h-28 items-center rounded-xl bg-brand-surface p-4">
+      {percentage === null ? (
+        <span aria-label="Accuracy unavailable" className="text-4xl font-extrabold tracking-tight text-brand-navy">—</span>
+      ) : (
+        <span aria-label="Accuracy on a typical day" className="text-4xl font-extrabold tracking-tight text-brand-navy">{percentage}%</span>
+      )}
+    </div>
   )
 }
 
