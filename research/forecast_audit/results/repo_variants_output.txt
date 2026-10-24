@@ -1,0 +1,11 @@
+﻿variant                            total WAPE ingr 3-day ingr 7-day
+engine (today)                         13.76%     17.66%     14.15%
+robust                                 13.76%     17.66%     14.15%
+fixed engine                           13.76%     17.66%     14.15%
+fixed + level 21d                      13.87%     17.60%     14.18%
+fixed + level 28d                      13.92%     17.69%     14.17%
+fixed + level trimmed                  13.75%     17.44%     14.07%
+fixed + level 21d trimmed              13.88%     17.67%     14.09%
+fixed + dish share 100% recent         13.76%     17.89%     14.50%
+fixed + dish share 85% recent          13.76%     17.77%     14.31%
+fixed + holiday before/on/after        14.01%     18.01%     14.48%

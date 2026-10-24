@@ -1,0 +1,8 @@
+﻿History the model can see  |  daily-total error, app model   |  plain 4-week average   |  3-day ingredient-need error
+  14 days (~ 0.5 months) |                    21.4%                  22.4%                    21.4%
+  28 days (~ 0.9 months) |                    18.8%                  22.0%                    20.2%
+  56 days (~ 1.8 months) |                    17.3%                  22.0%                    19.6%
+  90 days (~ 3.0 months) |                    16.9%                  22.0%                    19.3%
+ 180 days (~ 5.9 months) |                    16.7%                  22.0%                    19.2%
+ 365 days (~12.0 months) |                    16.5%                  22.0%                    19.3%
+ 540 days (~17.8 months) |                    16.4%                  22.0%                    19.4%

@@ -1,0 +1,10 @@
+﻿seconds 126.3, planning days evaluated 101
+app              WAPE  13.9%   bias  -0.4%   holiday/event days  27.3%   normal days  12.1%
+naive_last_week  WAPE  20.6%   bias  +0.8%   holiday/event days  31.9%   normal days  19.2%
+flat_4w          WAPE  26.8%   bias  +2.4%   holiday/event days  35.8%   normal days  25.6%
+sma4_weekday     WAPE  24.2%   bias  +2.4%   holiday/event days  35.8%   normal days  22.7%
+holt_winters     WAPE  17.8%   bias  +1.0%   holiday/event days  30.4%   normal days  16.2%
+ridge_calendar   WAPE  16.2%   bias  -3.7%   holiday/event days  31.1%   normal days  14.2%
+gbm_lags         WAPE  19.7%   bias  -1.1%   holiday/event days  30.8%   normal days  18.3%
+buffer coverage on unseen days: {'sl0.80': 0.752, 'sl0.90': 0.835, 'sl0.95': 0.848} overall target/actual 0.917 0.829
+shortage / leftover (% of need): 2.0 28.9
