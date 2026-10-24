@@ -29,7 +29,11 @@ The forecast predicts how many dishes you will sell on each future day, using on
    28 days and partly all history. A brand-new dish (launched in the last 60 days) uses only the recent weeks.
    Each menu category's own weekday pattern is also used, for example breakfast dishes can sell more on weekdays.
 If there is little history (under about 8 weeks) the app uses a simpler method, a 4-week average with the weekday
-pattern, and says so.
+pattern, and says so. It needs about 3 months of sales to reach most of its accuracy.
+Closed days: a weekday the shop is always closed on is forecast as zero, and an ordinary day with no sales at all
+is treated as a closure, not as "demand was zero", so it does not pull the forecast down. Closing on a public
+holiday is still learned, as part of the holiday effect. A dish that has sold nothing for four weeks, although it
+normally would have, is treated as gone from the menu and gets no forecast.
 Accuracy: the Dashboard shows how far off the forecast was when replayed on your past sales. On the demo data it
 is off by about 13% on a typical day, against about 21% for "same weekday last week" and 28% for a plain 4-week
 average. Single dishes are harder to predict than the daily total, which is why the plan works with ingredients,
