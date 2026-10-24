@@ -51,7 +51,7 @@ FAQ: list[dict[str, str]] = [
         "question": "Who can do what?",
         "answer": (
             "- Owner: everything, including setup, placing or rejecting orders, removing suppliers and Settings.\n"
-            "- Manager: plan, edit and submit orders, mark received, update stock, calendar, import sales.\n"
+            "- Manager: plan, edit and submit orders, mark received, update stock, recipes, calendar, import sales.\n"
             "- Staff: view stock and update quantities only.\n"
             "- A greyed-out button tells you which role you need."
         ),
@@ -111,6 +111,18 @@ FAQ: list[dict[str, str]] = [
             "3. Say how it is sold, its price and how many days it stays good.\n"
             "4. Enter how much you have and the date you bought it.\n"
             "5. Press Add item."
+        ),
+    },
+    {
+        "id": "recipes",
+        "topic": "Inventory",
+        "question": "How do I set or change what goes into a dish?",
+        "answer": (
+            "1. Open Recipes and find the dish (use the search box).\n"
+            "2. Press Edit. Choose each ingredient and type the amount in one serving (g, ml or pcs).\n"
+            "3. Press Save recipe. The next plan you generate uses it.\n"
+            "- + Add a dish creates a new dish with its recipe. Use the name your till prints.\n"
+            "- Every dish needs a recipe. Managers and the owner can edit."
         ),
     },
     {
@@ -217,6 +229,7 @@ PAGES = (
     "Dashboard: forecast accuracy, latest plan, sales from your POS (Import sales), stock health. "
     "Plan purchases: pick days, Generate plan, Supplier orders, Supplier details. "
     "Inventory: stock by batch, + Add item / supplier / place, + Add stock, Remove expired. "
+    "Recipes: what goes into one serving of each dish, + Add a dish. "
     "Order history: past orders. Calendar: holidays, periods, events. Activity: record of every action. "
     "Settings (owner): risk setting, demo date, reset."
 )

@@ -42,7 +42,11 @@ where the errors partly cancel out.
 == FROM DISHES TO INGREDIENTS ==
 Each dish has a recipe. The amount of an ingredient needed on a day is the sum, over all dishes, of dishes expected
 x the amount of that ingredient in one serving. A dish with no recipe cannot be turned into ingredients and is
-flagged for a person to fix.
+flagged for a person to fix. Recipes are kept on the Recipes page: Edit a dish to choose its ingredients and the
+amount in one serving (grams, millilitres or pieces), or press + Add a dish for a new one (use the name the till
+prints, because sales files are matched by name). First-time setup has a Recipes step that cannot be skipped: every
+dish must have a recipe before setup can finish, and an example recipe is filled in for each dish. A recipe change is
+used the next time a plan is generated, and the safety buffers are measured again afterwards.
 
 == THE SAFETY BUFFER (extra on top of the forecast) ==
 A forecast is never exact, so a little extra is added. The extra is not one fixed percentage, because it depends on
@@ -92,7 +96,7 @@ file replaces that day in the app. The app's "today" is the day after your lates
 == WHO CAN DO WHAT ==
 Owner: everything, including setup, placing and rejecting orders, removing suppliers and places, and Settings.
 Manager: plan purchases, edit and submit orders, mark received, update stock, add or rename suppliers and places,
-calendar, import sales, Activity. Staff: view stock and update quantities only.
+edit recipes and add dishes, calendar, import sales, Activity. Staff: view stock and update quantities only.
 
 == LIMITS OF THIS HELP CHAT ==
 It explains how the app works. It cannot see your stock, sales, plans or orders, cannot change anything, and cannot
