@@ -34,7 +34,7 @@ Closed days: a weekday the shop is always closed on is forecast as zero, and an 
 is treated as a closure, not as "demand was zero", so it does not pull the forecast down. Closing on a public
 holiday is still learned, as part of the holiday effect. A dish that has sold nothing for four weeks, although it
 normally would have, is treated as gone from the menu and gets no forecast.
-Accuracy: the Dashboard shows how far off the forecast was when replayed on your past sales. On the demo data it
+Accuracy: Plan purchases shows how far off the forecast was when replayed on your past sales. On the demo data it
 is off by about 13% on a typical day, against about 21% for "same weekday last week" and 28% for a plain 4-week
 average. Single dishes are harder to predict than the daily total, which is why the plan works with ingredients,
 where the errors partly cancel out.

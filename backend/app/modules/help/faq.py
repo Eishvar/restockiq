@@ -163,7 +163,7 @@ FAQ: list[dict[str, str]] = [
         "topic": "Planning",
         "question": "How accurate is the forecast?",
         "answer": (
-            "- The Dashboard shows it.\n"
+            "- Plan purchases shows it, on the forecast card.\n"
             "- On the demo data we are off by about 13% on a typical day, against about 28% for a simple 4-week average.\n"
             "- It is checked on your own past sales, so it improves as your history grows.\n"
             "- Holidays and events you add to the Calendar help."
@@ -223,8 +223,7 @@ FAQ: list[dict[str, str]] = [
 ]
 
 PAGES = (
-    "Dashboard: forecast accuracy, latest plan and stock health. "
-    "Plan purchases: pick days, Generate plan, Supplier orders, Supplier details. "
+    "Plan purchases: pick days, Generate plan, forecast accuracy, stock health, biggest spend, Supplier orders, Supplier details. "
     "Inventory: stock by batch, + Add item / supplier / place, + Add stock, Remove expired. "
     "Recipes: what goes into one serving of each dish, + Add a dish. "
     "Order history: past orders. Calendar: holidays, periods, events. Activity: record of every action. "
