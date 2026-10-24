@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip as ChartTooltip, XAxis, YAxis } from 'recharts'
-import { Button, Card, Chip, Table } from '../../components/ui'
+import { Button, Card, Chip } from '../../components/ui'
 import type { Drivers, Plan } from './api'
 import { fmtDay, num, prettyState, weekdayLong } from './format'
 import { bridgeForecastHistory } from './forecast-data'
@@ -16,6 +16,12 @@ export function driverChips(date: string, d: Drivers): { text: string; hint: str
   if (d.event_effect !== 1) chips.push({ text: `Event ${signed(d.event_effect)}`, hint: 'How local events changed your sales in the past' })
   if (d.cold_start) chips.push({ text: 'Rough estimate', hint: 'Not enough sales history yet, so this is a simple average' })
   return chips
+}
+
+/** Splits "Nasi Goreng 炒饭" into the English name and its Chinese name. */
+const splitName = (name: string): [string, string] => {
+  const i = name.search(/[\u3400-\u9fff]/)
+  return i <= 0 ? [name, ''] : [name.slice(0, i).trim(), name.slice(i).trim()]
 }
 
 export default function ForecastCard({ plan, accuracy }: { plan: Plan; accuracy?: number | null }) {
@@ -74,17 +80,42 @@ export default function ForecastCard({ plan, accuracy }: { plan: Plan; accuracy?
       <div className="mt-4">
         <h3 className="mb-2 text-sm font-semibold text-slate-800">Forecast for each dish</h3>
         <div>
-          <Table head={['Dish', ...days.map((d) => (d.is_today ? 'Today' : fmtDay(d.date))), 'Total']}>
-            {shown.map((dish) => (
-              <tr key={dish.menu_item_id}>
-                <td className="font-medium">{dish.name}</td>
-                {dish.qty.map((q, i) => (
-                  <td key={i} className="tabular-nums">{num(q, 0)}</td>
-                ))}
-                <td className="font-medium tabular-nums">{num(dish.total, 0)}</td>
-              </tr>
-            ))}
-          </Table>
+          <div className="overflow-x-auto rounded-xl border border-slate-200">
+            <table className="w-full min-w-[34rem] border-collapse text-sm">
+              <thead>
+                <tr className="bg-brand-surface text-slate-600">
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide">Dish</th>
+                  {days.map((d) => {
+                    const [weekday, ...rest] = fmtDay(d.date).split(' ')
+                    return (
+                      <th key={d.date} scope="col" className="whitespace-nowrap px-3 py-2 text-right font-semibold">
+                        <span className="block text-xs uppercase tracking-wide">{d.is_today ? 'Today' : weekday}</span>
+                        <span className="block text-[11px] font-normal text-slate-500">{rest.join(' ')}</span>
+                      </th>
+                    )
+                  })}
+                  <th scope="col" className="whitespace-nowrap bg-brand-royal/10 px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-brand-navy">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shown.map((dish) => {
+                  const [english, chinese] = splitName(dish.name)
+                  return (
+                    <tr key={dish.menu_item_id} className="border-t border-slate-100 odd:bg-white even:bg-slate-50/60">
+                      <th scope="row" className="px-4 py-2.5 text-left font-medium text-slate-900">
+                        {english}
+                        {chinese && <span className="ml-2 text-xs font-normal text-slate-500">{chinese}</span>}
+                      </th>
+                      {dish.qty.map((q, i) => (
+                        <td key={i} className="px-3 py-2.5 text-right tabular-nums text-slate-700">{num(q, 0)}</td>
+                      ))}
+                      <td className="bg-brand-royal/5 px-4 py-2.5 text-right text-base font-bold tabular-nums text-brand-navy">{num(dish.total, 0)}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
           {dishes.length > 12 && (
             <Button variant="ghost" className="mt-2" onClick={() => setShowAll((v) => !v)}>
               {showAll ? 'Show fewer' : `Show all ${dishes.length} dishes`}
