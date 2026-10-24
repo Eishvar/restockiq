@@ -1,0 +1,37 @@
+finished 30 worlds x 10 variants in 387s
+
+== All 10 kinds of restaurant averaged: error of daily totals and of ingredient needs ==
+variant                    total WAPE ingr 3-day ingr 7-day    change vs robust (total / ingr3)  failed forecasts
+engine (today)                 16.27%     18.60%     14.12%           +0.08 pts /  +0.26 pts               360
+robust                         16.19%     18.63%     14.14%           -0.00 pts /  +0.29 pts                 0
+fixed engine                   16.19%     18.34%     13.78%           +0.00 pts /  +0.00 pts                 0
+fixed + level 21d              15.99%     18.20%     13.60%           -0.19 pts /  -0.14 pts                 0
+fixed + level 28d              15.93%     18.14%     13.51%           -0.26 pts /  -0.20 pts                 0
+fixed + level trimmed          16.07%     18.25%     13.65%           -0.12 pts /  -0.09 pts                 0
+fixed + level 21d trimmed      15.89%     18.12%     13.47%           -0.30 pts /  -0.23 pts                 0
+fixed + dish share 100% recent     16.19%     18.12%     13.52%           -0.00 pts /  -0.23 pts                 0
+fixed + dish share 85% recent     16.19%     18.13%     13.52%           -0.00 pts /  -0.21 pts                 0
+fixed + holiday before/on/after     15.94%     18.25%     13.73%           -0.25 pts /  -0.09 pts                 0
+
+== Per kind of restaurant: daily-total WAPE, today's engine vs the robust version vs 'fixed engine' ==
+typical              engine  14.98%   robust  14.96%   fixed engine  14.96% | ingr3 engine  16.72%  robust  16.72%  fixed engine  16.57%  | failed forecasts (engine): 0
+small_cafe           engine  19.42%   robust  19.41%   fixed engine  19.41% | ingr3 engine  24.65%  robust  24.64%  fixed engine  24.48%  | failed forecasts (engine): 0
+closed_monday        engine    nan%   robust  15.43%   fixed engine  15.43% | ingr3 engine    nan%  robust  18.84%  fixed engine  18.56%  | failed forecasts (engine): 360
+stockouts_gaps       engine  17.94%   robust  17.98%   fixed engine  17.98% | ingr3 engine  19.63%  robust  19.73%  fixed engine  19.47%  | failed forecasts (engine): 0
+volatile             engine  21.18%   robust  21.18%   fixed engine  21.18% | ingr3 engine  21.74%  robust  21.75%  fixed engine  21.62%  | failed forecasts (engine): 0
+owner_adds_periods   engine  14.82%   robust  14.85%   fixed engine  14.85% | ingr3 engine  17.60%  robust  17.62%  fixed engine  17.16%  | failed forecasts (engine): 0
+fast_growth          engine  14.46%   robust  14.46%   fixed engine  14.46% | ingr3 engine  15.74%  robust  15.73%  fixed engine  15.62%  | failed forecasts (engine): 0
+calm                 engine  11.59%   robust  11.58%   fixed engine  11.58% | ingr3 engine  14.89%  robust  14.89%  fixed engine  14.59%  | failed forecasts (engine): 0
+closing_holidays     engine  16.66%   robust  16.65%   fixed engine  16.65% | ingr3 engine  17.94%  robust  17.95%  fixed engine  17.68%  | failed forecasts (engine): 0
+menu_churn           engine  15.38%   robust  15.38%   fixed engine  15.38% | ingr3 engine  18.46%  robust  18.47%  fixed engine  17.69%  | failed forecasts (engine): 0
+
+== Where do the switches matter most? change in daily-total WAPE vs 'robust', by restaurant type (points) ==
+variant                       typical small_cafe closed_mon stockouts_   volatile owner_adds fast_growt       calm closing_ho menu_churn
+fixed engine                   +0.00      +0.00      +0.00      +0.00      +0.00      +0.00      +0.00      +0.00      +0.00      +0.00 
+fixed + level 21d              -0.22      -0.38      -0.26      -0.30      +0.08      -0.31      -0.17      -0.04      -0.18      -0.16 
+fixed + level 28d              -0.29      -0.57      -0.41      -0.30      -0.15      -0.34      -0.09      -0.07      -0.22      -0.17 
+fixed + level trimmed          -0.17      -0.06      -0.32      -0.08      -0.03      -0.08      -0.14      -0.12      -0.17      -0.01 
+fixed + level 21d trimmed      -0.39      -0.50      -0.41      -0.36      -0.15      -0.37      -0.20      -0.14      -0.34      -0.16 
+fixed + dish share 100% recent     +0.00      +0.00      +0.00      +0.00      +0.00      -0.00      +0.00      +0.00      +0.00      +0.00 
+fixed + dish share 85% recent     -0.00      +0.00      +0.00      +0.00      +0.00      +0.00      +0.00      +0.00      +0.00      +0.00 
+fixed + holiday before/on/after     -0.18      -0.22      +0.01      -0.18      -0.05      -0.13      -0.09      -0.32      -1.18      -0.12 

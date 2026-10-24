@@ -1,1 +1,5 @@
-﻿auditenv packages used: numpy pandas statsmodels scikit-learn scipy
+﻿numpy
+pandas
+statsmodels
+scikit-learn
+scipy

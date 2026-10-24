@@ -159,11 +159,12 @@ def main():
         dt, di = t - mean("total", base), i3 - mean("ing3", base)
         print(f"{v:26s}{t * 100:10.2f}%{i3 * 100:10.2f}%{i7 * 100:10.2f}%{dt * 100:+16.2f} pts /{di * 100:+7.2f} pts{fails:18d}")
 
-    print("\n== Per kind of restaurant: daily-total WAPE, today's engine vs the robust version ==")
+    fixed = "fixed engine" if "fixed engine" in VARIANTS else "robust+drop_dead"  # the engine after the two fixes
+    print(f"\n== Per kind of restaurant: daily-total WAPE, today's engine vs the robust version vs '{fixed}' ==")
     for n in names:
         print(f"{n:20s} engine {mean('total', 'engine (today)', n) * 100:6.2f}%   robust {mean('total', 'robust', n) * 100:6.2f}%   "
-              f"+drop_dead {mean('total', 'robust+drop_dead', n) * 100:6.2f}% | ingr3 engine {mean('ing3', 'engine (today)', n) * 100:6.2f}%  "
-              f"robust {mean('ing3', 'robust', n) * 100:6.2f}%  +drop_dead {mean('ing3', 'robust+drop_dead', n) * 100:6.2f}%  "
+              f"{fixed} {mean('total', fixed, n) * 100:6.2f}% | ingr3 engine {mean('ing3', 'engine (today)', n) * 100:6.2f}%  "
+              f"robust {mean('ing3', 'robust', n) * 100:6.2f}%  {fixed} {mean('ing3', fixed, n) * 100:6.2f}%  "
               f"| failed forecasts (engine): {sum(r['v']['engine (today)']['failed'] for r in results if r['name'] == n)}")
 
     print("\n== Where do the switches matter most? change in daily-total WAPE vs 'robust', by restaurant type (points) ==")
