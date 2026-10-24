@@ -1,6 +1,6 @@
 import { fmtShort } from './format'
 
-/** Share the last observed value between both series so the forecast has an anchor. */
+/** `bridge` draws a faint connector from the last sold day to the first forecast day; it is not a forecast. */
 export function bridgeForecastHistory(
   history: { date: string; total: number }[],
   days: { date: string; total: number }[],
@@ -14,8 +14,12 @@ export function bridgeForecastHistory(
     ...history.map((h, i) => ({
       label: fmtShort(h.date),
       actual: h.total,
-      ...(i === anchorIndex ? { forecast: h.total } : {}),
+      ...(i === anchorIndex ? { bridge: h.total } : {}),
     })),
-    ...days.map((d) => ({ label: fmtShort(d.date), forecast: Math.round(d.total) })),
+    ...days.map((d, i) => ({
+      label: fmtShort(d.date),
+      forecast: Math.round(d.total),
+      ...(i === 0 && anchorIndex >= 0 ? { bridge: Math.round(d.total) } : {}),
+    })),
   ]
 }
