@@ -8,7 +8,7 @@ RestockAI works out what a kitchen should buy for the next 1 to 7 days. It learn
 the expected dishes into ingredients, adds a safety margin, subtracts the stock you already have, rounds up to
 whole supplier packs and prices the result. It makes one list per supplier. People stay in control: a manager
 prepares the order and the owner places it. The app never pays or sends anything by itself. It is statistics and
-arithmetic, not AI. The AI is only this help chat.
+arithmetic, not AI. AI is used in only two places: this help chat, and reading PDF sales reports that people upload.
 
 == HOW THE FORECAST WORKS (step by step) ==
 The forecast predicts how many dishes you will sell on each future day, using only your own past sales.
@@ -81,6 +81,9 @@ Every purchase line shows its buffer percentage.
   sends the message by WhatsApp or phone, then presses I have placed the order. The owner can also Reject with a
   reason. When the delivery arrives the manager presses Mark received and stock updates. Everything is saved in
   Activity.
+- When the owner approves, RestockAI writes the order note for the supplier: order number, delivery days, every item
+  with quantity, price and line total, and the order total. It is saved with the order and sent exactly as approved
+  (by WhatsApp, or copied), and can be read again under Order history. It is a purchase order note, not a tax invoice.
 
 == THE CALENDAR ==
 Managers and the owner can add periods (such as school holidays or Ramadan), public holidays and local events. The
@@ -89,8 +92,16 @@ new kind of period with no history cannot change the forecast yet, but it is rec
 happened before. Malaysian public holidays are added when you choose Malaysia in setup.
 
 == SALES HISTORY ==
-Forecasts use the sales history already stored in the app. The demo includes synthetic sales for its sample
-menu. There is no sales-system connection or sales upload feature. The app's "today" is the day after its latest sales.
+Forecasts learn from the sales stored in the app. The demo has a year of synthetic sales. Managers and the owner add
+more on the Sales data page by uploading a CSV, Excel or PDF file (columns: Date, Item Code or Item Name, Qty Sold, and
+optionally Net Sales). The file is read into a preview that a person checks: dates, quantities and dishes can be fixed,
+dishes that are not on the menu can be matched or left out, and nothing is guessed or saved until the person presses
+Save. A PDF is read by AI (the same model as this chat, with OpenRouter's PDF reader), so the preview says so and its
+numbers must be checked. A day in the file replaces that day's sales; what it replaces is kept aside.
+Wrong sales can be removed (a whole file, or certain days). Removed sales wait under Recently removed and can be
+restored, unless the owner chooses Delete forever. Removing the latest days moves the app's "today" back, because
+today is the day after the latest sales. After any change, plans made earlier show a warning to generate a new one;
+approved orders are not changed. First-time setup has a Sales history step that cannot be skipped (at least 28 days).
 
 == WHO CAN DO WHAT ==
 Owner: everything, including setup, placing and rejecting orders, removing suppliers and places, and Settings.

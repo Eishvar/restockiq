@@ -1,9 +1,9 @@
 ---
-name: Sales-system scope
-description: User decision to exclude POS connections and sales-import features from the product.
+name: Sales data upload
+description: User decision (24 Oct 2026): sales come in by uploading CSV, Excel or PDF files in the app; there is no POS connection.
 ---
-The product should not include a POS system, simulated FeedMe screens, sales-system connection setup, or sales upload/import features.
+RestockAI has no POS connection and no simulated FeedMe screens. Sales data comes in through the **Sales data** page (and the **Sales history** setup step) by uploading CSV, Excel or PDF files. A PDF is read by AI (OpenRouter, the same OPENROUTER_MODEL as the help chat), and a person checks and can fix the preview before anything is saved. Wrong data can be removed, restored from "Recently removed", or deleted forever by the owner.
 
-**Why:** After requesting removal of the dashboard card, the user explicitly clarified: “remove pos system completely,” not just its dashboard presentation.
+**Why:** The user first asked to remove the POS system completely, then asked for this upload feature as its replacement: "the data feeding should be from sales data via pdf/csv/excel in an interface instead of directly from the pos system".
 
-**How to apply:** Do not reintroduce POS features or a POS prerequisite in onboarding without a new explicit request. Forecasting can continue to use stored sales history. Removing a feature does not authorize deleting historical business data or dropping existing database tables.
+**How to apply:** Do not remove or hide the Sales data page, the preview/fix step, removal, restore or the Sales history setup step. Do not reintroduce a POS connection or FeedMe screens. Never erase sales history without the person confirming; removal moves sales aside so it can be restored.

@@ -106,7 +106,7 @@ def test_the_faq_no_longer_mentions_the_removed_ai_features():
     text = " ".join(f["question"] + " " + f["answer"] for f in FAQ).lower()
     assert "quick add" not in text and "suggest" not in text and "from a note" not in text
     ai = next(f for f in FAQ if f["id"] == "ai")["answer"].lower()
-    assert "only ai is this help chat" in ai
+    assert "two places" in ai and "help chat" in ai and "pdf sales reports" in ai
 
 
 def test_a_markdown_heavy_model_answer_is_shown_as_clean_plain_text(client, users, monkeypatch):

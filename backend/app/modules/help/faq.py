@@ -142,8 +142,9 @@ FAQ: list[dict[str, str]] = [
         "topic": "AI",
         "question": "What does the AI do in this app?",
         "answer": (
-            "- The only AI is this help chat. It explains how to use the app.\n"
-            "- It cannot see your stock or sales, and it cannot change anything.\n"
+            "- AI is used in two places: this help chat, and reading PDF sales reports you upload.\n"
+            "- The help chat explains how to use the app. It cannot see your stock or sales, and it cannot change anything.\n"
+            "- The PDF reader only sees the file you upload. You check what it read before anything is saved.\n"
             "- Forecasts, buffers and quantities come from your own sales and plain maths.\n"
             "- A person always approves orders."
         ),
@@ -153,9 +154,44 @@ FAQ: list[dict[str, str]] = [
         "topic": "Sales",
         "question": "Where do the sales used for forecasts come from?",
         "answer": (
-            "- Forecasts use the sales history already stored in the app.\n"
-            "- This demo includes made-up sales for the sample menu.\n"
-            "- There is no sales-system connection or sales upload feature."
+            "- From the sales reports you upload on Sales data (CSV, Excel or PDF). This demo already has a year of made-up sales.\n"
+            "- A day in a new file replaces that day. Adding newer days moves today forward.\n"
+            "- Managers and the owner can add or remove sales."
+        ),
+    },
+    {
+        "id": "sales-upload",
+        "topic": "Sales",
+        "question": "How do I add sales from a file?",
+        "answer": (
+            "1. Open Sales data and press Choose a file (CSV, Excel or PDF).\n"
+            "2. Check the preview. Fix a date, number or dish, match dishes that are not on your menu, or tick Leave out.\n"
+            "3. Press Save these sales.\n"
+            "- A PDF is read by AI, so check its numbers carefully.\n"
+            "- The file needs these columns: Date, Item Code or Item Name, and Qty Sold."
+        ),
+    },
+    {
+        "id": "sales-fix",
+        "topic": "Sales",
+        "question": "I added the wrong sales. How do I fix it?",
+        "answer": (
+            "- On Sales data, press Remove next to the file, or remove certain days. Check the summary, then confirm.\n"
+            "- Removed sales wait under Recently removed. Press Restore to bring them back.\n"
+            "- Then add the right file. A new file replaces its days, and what it replaced can be restored too.\n"
+            "- Only the owner can Delete forever. That cannot be undone.\n"
+            "- Plans made before the change show a warning. Generate a new plan."
+        ),
+    },
+    {
+        "id": "order-note",
+        "topic": "Orders",
+        "question": "What is the order note?",
+        "answer": (
+            "- When the owner approves an order, RestockAI writes a note for the supplier: order number, items, quantities, prices and total.\n"
+            "- It is saved with the order and sent exactly as approved, by WhatsApp. You can copy it too.\n"
+            "- See it again under Order history.\n"
+            "- It is a purchase order note, not a tax invoice. RestockAI never pays anyone."
         ),
     },
     {
@@ -226,6 +262,7 @@ PAGES = (
     "Plan purchases: pick days, Generate plan, forecast accuracy, stock health, biggest spend, Supplier orders, Supplier details. "
     "Inventory: stock by batch, + Add item / supplier / place, + Add stock, Remove expired. "
     "Recipes: what goes into one serving of each dish, + Add a dish. "
+    "Sales data: add a CSV, Excel or PDF sales file, fix it in the preview, remove wrong sales, restore them. "
     "Order history: past orders. Calendar: holidays, periods, events. Activity: record of every action. "
     "Settings (owner): risk setting, demo date, reset."
 )
