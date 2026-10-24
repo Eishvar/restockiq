@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Card, EmptyState, PageSkeleton, SegmentedControl, Table, useToast } from '../../components/ui'
+import { Link } from 'react-router-dom'
+import { Card, EmptyState, PageSkeleton, SegmentedControl, useToast } from '../../components/ui'
 import { ApiError } from '../../api/client'
 import { useGeneratePlan, usePlan, usePlanContext, type Plan } from './api'
 import ForecastCard from './ForecastCard'
@@ -15,19 +16,32 @@ const HORIZONS = [1, 2, 3, 4, 5, 6, 7].map((n) => ({ value: n, label: String(n) 
 
 function DiscardList({ plan }: { plan: Plan }) {
   if (!plan.discard.length) return null
+  const n = plan.discard.length
   return (
-    <Card title={`Expired stock (${plan.discard.length})`}>
-      <p className="mb-2 text-sm text-slate-600">Excluded from this plan. Remove expired batches in Inventory.</p>
-      <Table head={['Item', 'How much', 'Expired']}>
+    <section role="alert" className="overflow-hidden rounded-2xl border border-red-300 bg-red-50 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 border-b border-red-200 bg-red-100 px-4 py-3">
+        <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-600 text-white">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v5M12 18h.01"/></svg>
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-base font-bold text-red-900">{n} expired item{n === 1 ? '' : 's'}</h2>
+          <p className="text-sm text-red-800">Excluded from this plan. Remove them from stock so they are not used.</p>
+        </div>
+        <Link to="/inventory" className="inline-flex min-h-9 items-center rounded-lg bg-red-600 px-3 text-sm font-semibold text-white hover:bg-red-700">Open Inventory</Link>
+      </div>
+      <ul className="divide-y divide-red-200">
         {plan.discard.map((d, i) => (
-          <tr key={`${d.ingredient_id}-${i}`}>
-            <td className="font-medium">{d.name}</td>
-            <td>{formatQty(d.qty_base, d.base_uom)}</td>
-            <td>{fmtDay(d.expired_on)} ({d.days_ago} day{d.days_ago === 1 ? '' : 's'} ago)</td>
-          </tr>
+          <li key={`${d.ingredient_id}-${i}`} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-3">
+            <span className="font-semibold text-red-950">{d.name}</span>
+            <span className="flex flex-wrap items-center gap-3 text-sm">
+              <span className="tabular-nums text-red-900">{formatQty(d.qty_base, d.base_uom)}</span>
+              <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-xs font-semibold text-white">Expired {d.days_ago} day{d.days_ago === 1 ? '' : 's'} ago</span>
+              <span className="text-red-800">{fmtDay(d.expired_on)}</span>
+            </span>
+          </li>
         ))}
-      </Table>
-    </Card>
+      </ul>
+    </section>
   )
 }
 
@@ -97,7 +111,6 @@ export default function PlanPage() {
           </p>
           <ForecastCard plan={p} accuracy={accuracy} />
           {dash.data && <PlanOverview d={dash.data} />}
-          <DiscardList plan={p} />
           {p.orders.length === 0 && <EmptyState title="Nothing to buy" hint="Your current stock covers everything for these days." />}
           {p.covered.length > 0 && (
             <details className="rounded-xl border border-slate-200 bg-white p-4 text-sm">
@@ -107,6 +120,7 @@ export default function PlanPage() {
               </ul>
             </details>
           )}
+          <DiscardList plan={p} />
           <div id="supplier-orders" className="scroll-mt-24"><SupplierOrdersBoard planId={p.id} /></div>
         </>
       )}
