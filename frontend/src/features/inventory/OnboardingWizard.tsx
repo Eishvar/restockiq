@@ -88,7 +88,7 @@ export default function OnboardingWizard({ data }: { data: InventoryList }) {
         )
       })}
 
-      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
+      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 pr-32 backdrop-blur md:-mx-6 md:px-6 md:pr-32">
         <div className="flex items-center gap-3 text-sm text-slate-600">
           <Button variant="secondary" onClick={() => setAdding(true)}>
             + Add item / supplier / place

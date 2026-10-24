@@ -8,12 +8,15 @@ import { useInventory } from '../inventory/api'
 import OnboardingWizard from '../inventory/OnboardingWizard'
 import { inputCls } from '../inventory/QtyInput'
 import { useConnectPos } from '../pos/api'
-import { useChooseCountry, useCompleteSetup, useSetupStatus, type SetupStep } from './api'
+import RecipeBook from '../recipes/RecipeBook'
+import { useRecipeBook } from '../recipes/api'
+import { useChooseCountry, useCompleteSetup, useConfirmRecipes, useSetupStatus, type SetupStep } from './api'
 
 const STEPS: { key: SetupStep; label: string; optional?: boolean }[] = [
   { key: 'country', label: 'Country' },
   { key: 'pos', label: 'Sales system' },
   { key: 'inventory', label: 'Your stock' },
+  { key: 'recipes', label: 'Recipes' },
   { key: 'calendar', label: 'Calendar', optional: true },
 ]
 
@@ -154,6 +157,46 @@ function InventoryStep() {
 }
 
 // ---------- Step 4 ----------
+function RecipesStep() {
+  const book = useRecipeBook()
+  const confirm = useConfirmRecipes()
+  const toast = useToast()
+  const missing = (book.data ?? []).filter((d) => !d.has_recipe).length
+
+  async function next() {
+    try {
+      await confirm.mutateAsync()
+      toast('Recipes saved.', 'success')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not save the recipes', 'error')
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card title="What goes into each dish?">
+        <p className="text-sm text-slate-600">
+          RestockAI turns the dishes you expect to sell into the ingredients you need to buy. For that it must know what goes into one
+          serving of every dish. We have filled in an example recipe for each dish. Look through them, change any amount that is wrong,
+          or add a dish that is missing. This step cannot be skipped, because a dish without a recipe cannot be planned. You can change
+          recipes any time later on the Recipes page.
+        </p>
+      </Card>
+      <RecipeBook />
+      {/* pr-32 keeps the button clear of the floating Help button */}
+      <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 pr-32 backdrop-blur md:-mx-6 md:px-6 md:pr-32">
+        <span className="text-sm text-slate-600">
+          {book.isLoading ? 'Loading…' : missing > 0 ? `${missing} dish${missing === 1 ? ' still needs' : 'es still need'} a recipe.` : 'Every dish has a recipe.'}
+        </span>
+        <Button onClick={next} disabled={book.isLoading || missing > 0 || confirm.isPending}>
+          {confirm.isPending ? 'Saving…' : 'Confirm recipes'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// ---------- Step 5 ----------
 const KINDS = {
   busy: { label: 'Busy period', hint: 'More customers than usual, e.g. school holidays or a festival week.' },
   slow: { label: 'Slow period', hint: 'Fewer customers than usual, e.g. exam week or the fasting month.' },
@@ -273,12 +316,13 @@ export default function SetupWizard() {
       <main className="mx-auto max-w-5xl space-y-5 p-4 md:p-6">
         <div>
           <h1 className="text-xl font-semibold">Let&apos;s set up {me.data?.tenant_name}</h1>
-          <p className="mt-1 text-sm text-slate-600">Four short steps. It takes a few minutes, and you only do it once.</p>
+          <p className="mt-1 text-sm text-slate-600">Five short steps. It takes a few minutes, and you only do it once.</p>
         </div>
         <Stepper current={data.step} />
         {data.step === 'country' && <CountryStep />}
         {data.step === 'pos' && <PosStep />}
         {data.step === 'inventory' && <InventoryStep />}
+        {data.step === 'recipes' && <RecipesStep />}
         {data.step === 'calendar' && <CalendarStep />}
       </main>
       <HelpChat />

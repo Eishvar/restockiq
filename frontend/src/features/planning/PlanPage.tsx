@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Card, EmptyState, PageSkeleton, SegmentedControl, Table, useToast } from '../../components/ui'
 import { ApiError } from '../../api/client'
 import { useGeneratePlan, usePlan, usePlanContext, type Plan } from './api'
@@ -44,6 +45,11 @@ function Attention({ plan }: { plan: Plan }) {
           <summary className="cursor-pointer font-medium text-slate-700">Show {remainingItems.length} more checks</summary>
           <ul className="mt-1 divide-y divide-slate-100">{renderItems(remainingItems)}</ul>
         </details>
+      )}
+      {plan.exceptions.some((e) => e.type === 'dish_without_recipe') && (
+        <p className="mt-2 border-t border-slate-100 pt-2 text-sm text-slate-600">
+          A dish with no recipe is left out of the shopping list. <Link to="/recipes" className="font-medium text-emerald-700 underline">Add its recipe</Link> and generate the plan again.
+        </p>
       )}
       {unused.length > 0 && (
         <details className={`${items.length ? 'mt-2 border-t border-slate-100 pt-2' : ''} text-sm`}>
