@@ -256,6 +256,8 @@ export default function InventoryPage() {
 
   const expiredBatches = data.items.flatMap((i) => i.batches.filter((b) => b.status === 'expired').map((b) => ({ item: i, batch: b })))
   const soonBatches = data.items.flatMap((i) => i.batches.filter((b) => b.status === 'expiring_soon').map((b) => ({ item: i, batch: b })))
+  // ISO dates compare as text. A purchase after the app's date happens when a demo date earlier than the stock count is set.
+  const latestPurchase = data.items.flatMap((i) => i.batches.map((b) => b.procured_on)).reduce<string>((a, b) => (b > a ? b : a), '')
   const rows = data.items.filter(
     (i) =>
       (filter === 'all' || i.status === filter) &&
@@ -296,6 +298,13 @@ export default function InventoryPage() {
       {!data.onboarded && (
         <div className="rounded-xl border border-brand-sky bg-sky-50 p-3 text-sm text-sky-900">
           The owner has not confirmed the opening stock yet. These numbers are an example until they do.
+        </div>
+      )}
+
+      {latestPurchase && latestPurchase > data.today && (
+        <div className="rounded-xl border border-brand-sky bg-sky-50 p-3 text-sm text-sky-900">
+          The app&apos;s date is {fmtDate(data.today)}, but some stock was bought up to {fmtDate(latestPurchase)}. Stock is a snapshot
+          and is shown as it is, so for an earlier demo date it can include purchases made after that date.
         </div>
       )}
 

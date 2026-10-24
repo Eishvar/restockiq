@@ -101,6 +101,10 @@ function Baseline({ s }: { s: Settings }) {
         <p className="mb-2 text-sm text-slate-600">
           Today is <strong>{fmtDayYear(s.today)}</strong>{s.today_override ? ' (demo date)' : ''}. Set another date for the demo.
         </p>
+        <p className="mb-3 text-xs text-slate-500">
+          Without a demo date, today is the day after your latest sales. Forecasts only use sales before the date you choose.
+          Stock is a snapshot and is shown as it is, so for an earlier date it can include purchases made after that date.
+        </p>
         <div className="flex flex-wrap items-center gap-2">
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} aria-label="Demo date" />
           <Button onClick={() => saveDate(date)} disabled={!date || date === s.today_override || save.isPending}>Use this date</Button>
