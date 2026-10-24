@@ -1,0 +1,86 @@
+Date,Item Code,Item Name,Qty Sold,Net Sales (RM)
+2026-10-22,M001,White rice,1,1.20
+2026-10-22,M002,Telur Dadar,1,1.50
+2026-10-22,M004,Tomyam Soup Ayam,1,6.50
+2026-10-22,M006,Sambal Chicken 香辣鸡丁,1,6.10
+2026-10-22,M010,Waffle,2,10.00
+2026-10-22,M011,Toast,2,6.80
+2026-10-22,M012,Waffle Premium,1,7.00
+2026-10-22,M016,Waffle Premium Ice Cream (1 Scoop),1,10.00
+2026-10-22,M017,Sambal Chicken Rice 香辣鸡丁饭,9,70.20
+2026-10-22,M018,Salted Egg Chicken Rice 咸蛋鸡丁饭,5,37.50
+2026-10-22,M019,Creamy Sauce Chicken Rice 奶油鸡丁饭,4,29.20
+2026-10-22,M020,Sweet Sour Chicken Rice 酸甜鸡丁饭,3,22.50
+2026-10-22,M021,Mushroom Sauce Chicken Rice 蘑菇汁鸡丁饭,3,21.90
+2026-10-22,M022,Sambal Prawns with Rice 香辣虾饭,2,17.20
+2026-10-22,M023,Sambal Fish Fillet Rice 香辣鱼片饭,2,17.40
+2026-10-22,M026,Chicken Porridge 鸡粥,1,6.00
+2026-10-22,M028,Thai Sauce Fish,2,16.80
+2026-10-22,M032,Fish Porridge 鱼粥,2,14.00
+2026-10-22,M034,Green Tea 绿茶 (Cold),5,17.50
+2026-10-22,M035,Watermelon Juice 西瓜汁,5,20.00
+2026-10-22,M036,Orange Juice 橙汁,3,12.00
+2026-10-22,M037,Teh O 茶乌 (Cold),5,12.50
+2026-10-22,M038,Milk Tea 奶茶 (Cold),7,24.50
+2026-10-22,M039,Milo 美禄 (Cold),2,7.00
+2026-10-22,M040,Honey Lemon 蜜糖柠檬 (Cold),3,12.00
+2026-10-22,M041,Apple Juice 苹果汁,6,24.00
+2026-10-22,M043,Carrot Milk 萝卜汁,1,4.00
+2026-10-22,M044,Lemon Tea 柠檬茶 (Cold),2,7.00
+2026-10-22,M045,Teh O Limau 酸柑茶 (Cold),1,3.00
+2026-10-22,M046,Honeydew 蜜瓜汁,3,12.00
+2026-10-22,M047,Bandung 玫瑰露加奶,5,12.50
+2026-10-22,M048,Honey Lemon 蜜糖柠檬 (Hot),1,3.50
+2026-10-22,M049,Lemon Ribena (Cold),2,8.00
+2026-10-22,M050,Mango Blended 芒果奶昔,1,6.00
+2026-10-22,M051,Chocolate Ice Blended 巧克力奶昔,3,18.00
+2026-10-22,M052,Sour Plum Juice 桔子酸梅汁,3,12.00
+2026-10-22,M053,Sirap 玫瑰露,3,6.00
+2026-10-22,M054,Kopi 咖啡 (Cold),3,9.00
+2026-10-22,M055,Ribena Lychee,2,12.00
+2026-10-22,M056,Coconut Juice (Cold),2,8.00
+2026-10-22,M059,White Coffee 白咖啡 (Hot),1,3.00
+2026-10-22,M062,Teh O 茶乌 (Hot),1,2.00
+2026-10-22,M067,Mocha Ice Blended 摩卡奶昔,3,18.00
+2026-10-22,M068,Pistachio blended,1,7.00
+2026-10-22,M071,Lemon Tea 柠檬茶 (Hot),2,6.00
+2026-10-22,M072,Teh O Limau 酸柑茶 (Hot),1,2.50
+2026-10-22,M077,Coconut Blended,1,6.00
+2026-10-22,M083,Nasi Goreng Tomyam 东炎炒饭,7,53.20
+2026-10-22,M084,Nasi Goreng Kampung 马来家乡炒饭,12,90.00
+2026-10-22,M085,Nasi Goreng Pattaya 蛋包饭,6,48.00
+2026-10-22,M086,Tomyam Ayam Soup,16,144.00
+2026-10-22,M087,Nasi Goreng Cina 扬州炒饭,3,22.20
+2026-10-22,M088,Nasi Paprik Ayam 甜辣鸡丁饭,3,22.20
+2026-10-22,M089,Nasi Goreng Thai 泰式炒饭,4,28.40
+2026-10-22,M091,Teriyaki Fried Rice 照烧酱炒饭,2,17.00
+2026-10-22,M093,Nasi Goreng Nenas 黄梨炒饭,1,7.30
+2026-10-22,M097,JAMBU,2,6.00
+2026-10-22,M101,Noodle Goreng,3,22.20
+2026-10-22,M106,Tomyam Spaghetti,5,50.50
+2026-10-22,M107,Aglio-Olio Spaghetti,3,30.00
+2026-10-22,M108,Bolognese Spaghetti,3,30.00
+2026-10-22,M110,Salted Egg Spaghetti,2,20.00
+2026-10-22,M111,Chicken Chop with Bolognese Spaghetti,2,34.00
+2026-10-22,M115,Chicken Nugget,1,7.00
+2026-10-22,M116,French Fries 炸薯条,3,21.00
+2026-10-22,M117,Curly Fries 卷卷薯条,5,35.00
+2026-10-22,M118,Chicken Popcorn,2,14.00
+2026-10-22,M119,Onion Ring,1,7.00
+2026-10-22,M120,Fried Sausage 炸热肠 (6pcs),2,14.00
+2026-10-22,M121,Pandan Chicken 炸香兰叶鸡 (6pcs),1,7.00
+2026-10-22,M124,Fish Finger (6pcs),2,16.00
+2026-10-22,M126,Prawn Roll (6pcs),1,8.00
+2026-10-22,M127,Ayam Gepuk,15,180.00
+2026-10-22,M128,Ayam Penyet,1,12.00
+2026-10-22,M129,Nasi Tomato Ayam Masak Merah,1,10.00
+2026-10-22,M130,Vege Nasi Goreng,6,42.00
+2026-10-22,M131,Vege Noodle Goreng,1,7.00
+2026-10-22,M135,Fried Chicken Chop with Rice 炸鸡扒饭,5,50.50
+2026-10-22,M136,Fried Chicken Chop 炸鸡扒,2,24.00
+2026-10-22,M137,Grilled Chicken Chop with Rice 烤鸡扒饭,2,22.20
+2026-10-22,M138,Thai Style Chicken Chop with Rice 泰式鸡扒饭,1,10.30
+2026-10-22,M139,Fish & Chips 鱼扒,3,42.00
+2026-10-22,M140,Salted Egg Chicken Chop with Rice 咸蛋鸡扒饭,1,10.20
+2026-10-22,M141,Teriyaki Chicken Chop + Egg Rice 照烧汁鸡扒饭,1,12.00
+2026-10-22,M143,Mushroom Soup 蘑菇汤,1,6.50

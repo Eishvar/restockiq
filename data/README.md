@@ -18,6 +18,7 @@ Period: **2025-10-22 → 2026-10-21 (365 days)**. The app's planning date defaul
 | `reference_forecast.py` | | Validated prototype of the forecaster, backtest and safety-buffer maths. `python reference_forecast.py` prints accuracy (≈13% daily-total WAPE) and buffers. |
 | `menu_profile.csv` | 143 | generator input (perturbed popularity shares) |
 | `daily_totals.png` | | chart of items sold per day |
+| `demo_reports/` | | **Pre-made sales report for Thu 22 Oct 2026** to upload during the demo: `sales_report_2026-10-22.pdf` (253 items, RM 1,779.50) and the same lines as `.csv` (use it if the PDF reader is unavailable). Made by `make_demo_report.py` (own fixed seed, same demand rules as `generate.py`); no other data file changes. Not loaded by the seed. |
 
 Units: quantities are in base units; buy quantities = ceil(need / pack_size_base) packs × pack_price_rm.
 

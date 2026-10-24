@@ -41,6 +41,11 @@ def _key(text: str) -> str:
     return " ".join(str(text).split()).lower()
 
 
+def _english(text: str) -> str:
+    """The Latin-letters part of a dish name, in lower case ("Sambal Chicken 香辣鸡丁" -> "sambal chicken")."""
+    return _key("".join(c for c in str(text) if ord(c) < 128))
+
+
 def _setup_row(db: Session, tenant_id: int) -> TenantSetup:
     row = db.get(TenantSetup, tenant_id)
     if row is None:
@@ -105,6 +110,11 @@ def _resolve(db: Session, user: User, raw: list[dict]) -> list[dict]:
     by_code = {_key(m.code): m for m in menu}
     by_name = {_key(m.name): m for m in menu}
     menu_ids = {m.id for m in menu}
+    # A report printed in a plain font cannot show Chinese, so "Teriyaki Chicken Chop" must still find
+    # "Teriyaki Chicken Chop 照烧鸡扒". Only used when exactly one dish has that English part; otherwise it stays unmatched.
+    by_english: dict[str, list[MenuItem]] = defaultdict(list)
+    for m in menu:
+        by_english[_english(m.name)].append(m)
     today = get_today(db, user.tenant_id)
     out = []
     for i, r in enumerate(raw):
@@ -121,6 +131,13 @@ def _resolve(db: Session, user: User, raw: list[dict]) -> list[dict]:
         item = by_code.get(_key(r.get("code", ""))) if r.get("code") else None
         if item is None and r.get("dish"):
             item = by_name.get(_key(r["dish"]))
+            if item is None:
+                first = r["dish"].strip().partition(" ")[0]
+                if first and _key(first) in by_code:  # "M017 Sambal Chicken Rice": the code printed before the name
+                    item = by_code[_key(first)]
+                else:
+                    same = by_english.get(_english(r["dish"]), [])
+                    item = same[0] if len(same) == 1 and _english(r["dish"]) else None
         net = None
         text = str(r.get("net", "")).replace(",", "").replace("RM", "").replace("rm", "").strip()
         if text:

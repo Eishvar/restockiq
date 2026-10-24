@@ -93,6 +93,10 @@ From a shell: `cd backend && python -m app.seed.load --reset`.
 - To show the daily routine: **Sales data** -> **Choose a file** (CSV, Excel or PDF) -> check the preview -> **Save these sales**.
   The new days appear under "Covers" and the app's "today" moves forward. A wrong file can be removed and restored.
   If a recording needs a fixed date, set **Settings -> Demo date** first (it wins over the uploaded sales).
+- **Demo of "one more day":** the sales end on Wed 21 Oct, so the app starts on Thu 22 Oct. On **Sales data** upload
+  `data/demo_reports/sales_report_2026-10-22.pdf` (read by AI, so check the preview) or the `.csv` next to it. Save it, and the app
+  moves to Fri 23 Oct; then **Plan purchases** -> **Generate plan** uses the new day. To repeat the demo, remove that day on Sales
+  data (it can be restored) or use **Settings -> Reset demo data**. The PDF is simulated and synthetic, not a real till report.
 - New tables and columns (`sales_imports`, `sales_removals`, `sales_daily_removed`, `sales_drafts`, `sales_daily.import_id`,
   `tenant_setup.sales_*`, `purchase_orders.note_text`) are added automatically on start; no manual migration.
 - New Python packages for uploads: `openpyxl` (Excel) and `python-multipart` (file upload); the build installs them from `requirements.txt`.
