@@ -97,7 +97,10 @@ export type Supplier = {
   lead_time_days: number
   min_order_rm: number
   whatsapp: string
+  items: number
 }
+
+export type Removed = { removed: string; moved_items: number; moved_to: string | null }
 
 export type StorageArea = { key: string; name: string; items: number }
 
@@ -154,6 +157,15 @@ function useListWrite<TVars, TOut>(fn: (v: TVars) => Promise<TOut>) {
 export const useAddSupplier = () => useListWrite((name: string) => api<Supplier>('/catalog/suppliers', send('POST', { name })))
 export const useRenameSupplier = () =>
   useListWrite(({ id, name }: { id: number; name: string }) => api<Supplier>(`/catalog/suppliers/${id}`, send('PATCH', { name })))
+const moveQuery = (moveTo: string | null) => (moveTo ? `?move_to=${encodeURIComponent(moveTo)}` : '')
+export const useRemoveSupplier = () =>
+  useListWrite(({ id, moveTo }: { id: number; moveTo: string | null }) =>
+    api<Removed>(`/catalog/suppliers/${id}${moveQuery(moveTo)}`, send('DELETE')),
+  )
+export const useRemoveStorageArea = () =>
+  useListWrite(({ key, moveTo }: { key: string; moveTo: string | null }) =>
+    api<Removed>(`/catalog/storage-areas/${key}${moveQuery(moveTo)}`, send('DELETE')),
+  )
 export const useAddStorageArea = () => useListWrite((name: string) => api<StorageArea>('/catalog/storage-areas', send('POST', { name })))
 export const useRenameStorageArea = () =>
   useListWrite(({ key, name }: { key: string; name: string }) => api<StorageArea>(`/catalog/storage-areas/${key}`, send('PATCH', { name })))

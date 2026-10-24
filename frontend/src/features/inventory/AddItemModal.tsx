@@ -44,6 +44,10 @@ export default function AddItemModal({ open, today, onClose }: Props) {
   const [bought, setBought] = useState(today)
   const [managing, setManaging] = useState(false)
 
+  // A supplier or place removed while this form is open must not stay selected.
+  const supplierValue = suppliers.data?.some((s) => String(s.id) === supplierId) ? supplierId : ''
+  const storageValue = areas.data?.some((a) => a.key === storage) ? storage : (areas.data?.[0]?.key ?? storage)
+
   const packUnits = plainUnits(baseUom)
   const packSizeBase = toBase(parseFloat(packSize) || 0, packUnits[Math.min(packUnitIdx, packUnits.length - 1)])
   const valid = name.trim() && packName.trim() && packSizeBase > 0 && price !== '' && parseInt(shelfLife) >= 1
@@ -64,9 +68,9 @@ export default function AddItemModal({ open, today, onClose }: Props) {
     try {
       await add.mutateAsync({
         name: name.trim(),
-        storage,
+        storage: storageValue,
         base_uom: baseUom,
-        supplier_id: supplierId ? Number(supplierId) : null,
+        supplier_id: supplierValue ? Number(supplierValue) : null,
         pack_uom: packName.trim(),
         pack_size_base: packSizeBase,
         pack_price_rm: parseFloat(price),
@@ -97,7 +101,7 @@ export default function AddItemModal({ open, today, onClose }: Props) {
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Where is it kept?" action={manageLink}>
-              <select aria-label="Where is it kept?" value={storage} onChange={(e) => setStorage(e.target.value)} className={`${inputCls} w-full`}>
+              <select aria-label="Where is it kept?" value={storageValue} onChange={(e) => setStorage(e.target.value)} className={`${inputCls} w-full`}>
                 {(areas.data ?? [{ key: 'dry', name: 'Dry store', items: 0 }]).map((a) => (
                   <option key={a.key} value={a.key}>
                     {a.name}
@@ -124,7 +128,7 @@ export default function AddItemModal({ open, today, onClose }: Props) {
             </Field>
           </div>
           <Field label="Supplier" action={manageLink}>
-            <select aria-label="Supplier" value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className={`${inputCls} w-full`}>
+            <select aria-label="Supplier" value={supplierValue} onChange={(e) => setSupplierId(e.target.value)} className={`${inputCls} w-full`}>
               <option value="">No supplier yet</option>
               {suppliers.data?.map((s) => (
                 <option key={s.id} value={s.id}>
