@@ -13,9 +13,9 @@ export const NAV = [
   { path: '/inventory', label: 'Inventory', group: 'Operations', icon: 'box' },
   { path: '/recipes', label: 'Recipes', group: 'Operations', icon: 'book' },
   { path: '/orders', label: 'Order history', group: 'Operations', icon: 'list' },
-  { path: '/calendar', label: 'Calendar', group: 'Admin & Intelligence', icon: 'calendar', restricted: 'manager' },
-  { path: '/activity', label: 'Activity', group: 'Admin & Intelligence', icon: 'pulse', restricted: 'manager' },
-  { path: '/settings', label: 'Settings', group: 'Admin & Intelligence', icon: 'settings', restricted: 'owner' },
+  { path: '/calendar', label: 'Calendar', group: 'Business', icon: 'calendar', restricted: 'manager' },
+  { path: '/activity', label: 'Activity', group: 'Business', icon: 'pulse', restricted: 'manager' },
+  { path: '/settings', label: 'Settings', group: 'Business', icon: 'settings', restricted: 'owner' },
 ]
 
 function NavIcon({ name }: { name: string }) {
@@ -43,7 +43,7 @@ export default function AppShell() {
 
   const sidebar = (
     <nav className="flex flex-col gap-5 p-3">
-      {['Overview', 'Operations', 'Admin & Intelligence'].map((group) => <div key={group}>
+      {['Overview', 'Operations', 'Business'].map((group) => <div key={group}>
         <div className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[.16em] text-slate-400">{group}</div>
         <div className="flex flex-col gap-1">{NAV.filter((n) => n.group === group).map((n) => (
         <NavLink
@@ -52,7 +52,7 @@ export default function AppShell() {
           onClick={() => setOpen(false)}
           className={({ isActive }) =>
             `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-              isActive ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-700 hover:bg-emerald-50 hover:text-emerald-900'
+              isActive ? 'bg-brand-royal text-white shadow-sm' : 'text-slate-700 hover:bg-brand-surface hover:text-brand-navy'
             }`
           }
         >
@@ -67,8 +67,8 @@ export default function AppShell() {
   return (
     <div className="flex min-h-[100dvh]">
       {/* Desktop sidebar */}
-      <aside className="hidden w-60 shrink-0 border-r border-emerald-100 bg-[#fbfcf8] md:block">
-        <div className="px-5 py-5 text-lg font-extrabold tracking-tight text-emerald-800">Restock<span className="text-slate-700">AI</span><span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[.18em] text-slate-400">Kitchen purchasing</span></div>
+      <aside className="hidden w-60 shrink-0 border-r border-brand-border bg-brand-paper md:block">
+        <div className="px-5 py-5 text-lg font-extrabold tracking-tight text-brand-navy">Restock<span className="text-slate-700">AI</span><span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[.18em] text-slate-400">Kitchen purchasing</span></div>
         {sidebar}
       </aside>
 
@@ -77,18 +77,17 @@ export default function AppShell() {
         <div className="fixed inset-0 z-30 md:hidden" onClick={() => setOpen(false)}>
           <div className="absolute inset-0 bg-black/40" />
           <aside className="absolute left-0 top-0 h-full w-60 bg-white shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="px-5 py-5 text-lg font-extrabold text-emerald-800">RestockAI</div>
+            <div className="px-5 py-5 text-lg font-extrabold text-brand-navy">RestockAI</div>
             {sidebar}
           </aside>
         </div>
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
+        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:justify-end">
           <button className="rounded-md p-2 text-slate-700 md:hidden" aria-label="Open menu" onClick={() => setOpen(true)}>
             <svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
           </button>
-          <span className="hidden text-sm text-slate-500 md:block">Smart purchase planning for your kitchen</span>
           <div className="flex items-center gap-3">
             <RoleSwitcher />
             <span className="text-xs text-slate-500" title="Backend connection">

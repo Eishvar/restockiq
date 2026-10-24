@@ -181,7 +181,7 @@ export default function ManageListsModal({
         <NameList
           title="Suppliers"
           noun="supplier"
-          hint="Who you buy from. Their WhatsApp number and minimum order are set later under Plan purchases, Supplier details."
+          hint="Who you buy from. Add phone numbers and minimum orders under Plan purchases."
           entries={(suppliers.data ?? []).map((s) => ({ id: String(s.id), name: s.name, items: s.items }))}
           canRemove={isOwner}
           onAdd={async (name) => {
@@ -194,7 +194,7 @@ export default function ManageListsModal({
         <NameList
           title="Where it is kept"
           noun="place"
-          hint="Freezer, chiller, dry store or your own, such as a back shelf. Renaming keeps all the items in it."
+          hint="For example, freezer, chiller or dry store. Renaming keeps items in this place."
           entries={(areas.data ?? []).map((a) => ({ id: a.key, name: a.name, items: a.items }))}
           canRemove={isOwner}
           onAdd={async (name) => {

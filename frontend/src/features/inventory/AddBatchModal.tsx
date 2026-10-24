@@ -38,8 +38,7 @@ function BatchForm({ item, today, onClose }: { item: InventoryRow; today: string
     <Modal open title={`Add stock: ${item.name}`} onClose={onClose}>
       <div className="space-y-3 text-sm">
         <p className="text-slate-600">
-          Stock bought on a different day is kept as its own batch, so each one expires on its own date. If you already have a
-          batch from the same day, this is added to it.
+          Each purchase has its own expiry date. Purchases from the same day are combined.
         </p>
         <label className="block">
           <span className="mb-1 block font-medium">How much did you buy?</span>

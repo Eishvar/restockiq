@@ -89,7 +89,7 @@ export default function AddItemModal({ open, today, onClose }: Props) {
   }
 
   const manageLink = (
-    <button type="button" onClick={() => setManaging(true)} className="text-xs font-semibold text-emerald-800 underline underline-offset-2">
+    <button type="button" onClick={() => setManaging(true)} className="text-xs font-semibold text-brand-royal underline underline-offset-2">
       {me.data?.role === 'owner' ? 'Add / rename / remove' : 'Add / rename'}
     </button>
   )

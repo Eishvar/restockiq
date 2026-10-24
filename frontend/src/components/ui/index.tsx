@@ -18,7 +18,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
 }
 const buttonStyles = {
-  primary: 'bg-emerald-600 text-white hover:bg-emerald-700',
+  primary: 'bg-brand-royal text-white hover:bg-brand-hover',
   secondary: 'bg-white text-slate-800 border border-slate-300 hover:bg-slate-50',
   danger: 'bg-red-600 text-white hover:bg-red-700',
   ghost: 'text-slate-700 hover:bg-slate-100',
@@ -64,7 +64,7 @@ export function Badge({ tone = 'neutral', children }: { tone?: keyof typeof badg
 // ---------- Chip (e.g. forecast driver tags) ----------
 export function Chip({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-block rounded-md border border-sky-200 bg-sky-50 px-2 py-0.5 text-xs text-sky-800">
+      <span className="inline-block rounded-md border border-brand-sky bg-sky-50 px-2 py-0.5 text-xs text-sky-900">
       {children}
     </span>
   )
@@ -229,7 +229,7 @@ export function SegmentedControl<T extends string | number>({
           onClick={() => onChange(o.value)}
           className={cx(
             'rounded-md px-3 py-1.5 text-sm font-medium transition',
-            o.value === value ? 'bg-emerald-600 text-white' : 'text-slate-700 hover:bg-slate-100',
+            o.value === value ? 'bg-brand-royal text-white' : 'text-slate-700 hover:bg-slate-100',
           )}
         >
           {o.label}

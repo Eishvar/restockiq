@@ -17,9 +17,9 @@ import {
 
 const TYPE_LABEL: Record<EventType, string> = { period: 'Period', public_holiday: 'Public holiday', local_event: 'Local event' }
 const TYPE_HINT: Record<EventType, string> = {
-  period: 'A stretch of days that changes how busy you are, such as semester, break, school holidays or Ramadan.',
-  public_holiday: 'A day the country or state is off.',
-  local_event: 'Something nearby that changes your sales, such as a fair, orientation or an exam week.',
+  period: 'A run of unusually busy or quiet days, such as school holidays or Ramadan.',
+  public_holiday: 'A national or state holiday.',
+  local_event: 'A nearby event that may affect sales, such as a fair or exam week.',
 }
 type Filter = 'all' | EventType
 
@@ -68,7 +68,7 @@ function EventForm({
           <input list="period-labels" value={label} onChange={(e) => setLabel(e.target.value)} className={`${inputCls} w-full`} placeholder="e.g. school_holidays" />
           <datalist id="period-labels">{labels.map((l) => <option key={l} value={l} />)}</datalist>
           <span className="mt-1 block text-xs text-slate-500">
-            Days with the same label are treated alike. Reuse a label you already have so the forecast learns from past years.
+            Reuse a label for similar periods, such as school_holidays each year.
           </span>
         </label>
       )}
@@ -145,9 +145,7 @@ export default function CalendarPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold">Calendar</h1>
-          <p className="text-sm text-slate-600">
-            Tell us about school terms, holidays and events. The forecast learns how each one affects your sales, so entries here make the next plan better.
-          </p>
+          <p className="text-sm text-slate-600">School terms, holidays and events that may affect sales.</p>
         </div>
         <Button onClick={() => setForm({ open: true, event: null })}>+ Add to calendar</Button>
       </div>
@@ -175,7 +173,7 @@ export default function CalendarPage() {
           </div>
         </div>
         <p className="mt-2 text-xs text-slate-500">
-          Changes are used by the next plan straight away. Safety buffers are re-measured in the background after each change; press Recompute to wait for it.
+          Calendar changes apply to the next plan. Recompute waits for the safety buffers to finish updating.
         </p>
 
         <div className="mt-3">

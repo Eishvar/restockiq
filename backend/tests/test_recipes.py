@@ -145,7 +145,6 @@ def test_a_new_dish_without_sales_does_not_break_the_plan(client, db, users, loa
 def reach_recipes_step(client, users):
     owner = users["owner"]
     client.post("/api/setup/country", json={"country": "MY"}, headers=as_user(owner))
-    client.post("/api/pos/connect", json={"provider": "feedme"}, headers=as_user(owner))
     client.post("/api/inventory/onboarding/confirm", headers=as_user(owner))
     return owner
 
@@ -183,7 +182,7 @@ def test_only_the_owner_confirms_and_untouched_recipes_need_no_remeasure(client,
 
 
 def test_a_business_that_finished_setup_earlier_is_not_sent_back(client, db, users, loaded):
-    db.add(TenantSetup(tenant_id=1, country="MY", currency="MYR", pos_provider="feedme", setup_done_at=datetime(2026, 10, 1)))
+    db.add(TenantSetup(tenant_id=1, country="MY", currency="MYR", setup_done_at=datetime(2026, 10, 1)))
     db.get(Tenant, 1).onboarded_at = datetime(2026, 10, 1)
     db.commit()
     status = client.get("/api/setup/status", headers=as_user(users["owner"])).json()

@@ -18,7 +18,6 @@ MODEL_MODULES = [
     "assistant",  # ai_suggestions
     "activity",  # activity_log
     "setup",  # tenant_setup (first-time wizard progress)
-    "pos",  # pos_imports (uploaded sales files)
 ]
 
 

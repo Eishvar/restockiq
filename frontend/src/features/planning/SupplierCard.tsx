@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Badge, Button, Card, Modal, Tooltip, useToast } from '../../components/ui'
 import { inputCls } from '../inventory/QtyInput'
 import {
@@ -30,7 +30,7 @@ function Stepper({ status }: { status: OrderStatus }) {
         <li key={s.status} className="flex items-center gap-1">
           <span
             aria-current={i === at ? 'step' : undefined}
-            className={`rounded-full px-2 py-0.5 ${i < at ? 'bg-emerald-100 text-emerald-800' : i === at ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'}`}
+            className={`rounded-full px-2 py-0.5 ${i < at ? 'bg-emerald-100 text-emerald-800' : i === at ? 'bg-brand-royal text-white' : 'bg-slate-100 text-slate-500'}`}
           >
             {s.label}
           </span>
@@ -287,66 +287,37 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
         <p key={w} className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900"><svg aria-hidden="true" className="mt-0.5 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3 2.7 20h18.6L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>{w}</p>
       ))}
 
-      {/* Wide screens: a table */}
-      <div className="mt-3 hidden overflow-x-auto md:block">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-slate-200 text-xs uppercase text-slate-500">
-            <tr>
-              {['Item', 'Need', 'Safety buffer', 'Usable stock', 'Buy', 'When', 'Pack price', 'Total', ''].map((h) => (
-                <th key={h} className="px-2 py-2 font-medium">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 align-top [&_td]:px-2 [&_td]:py-2">
-            {lines.map((l) => (
-              <Fragment key={l.id}>
-                <tr>
-                  <td className="font-medium">{l.name}</td>
-                  <td className="whitespace-nowrap">{l.display_need}</td>
-                  <td><Buffer line={l} /></td>
-                  <td><Stock line={l} /></td>
-                  <td><Buy line={l} order={order} editable={editable} /></td>
-                  <td><When line={l} /></td>
-                  <td className="whitespace-nowrap">{rm(l.pack_price_rm)}</td>
-                  <td className="whitespace-nowrap font-medium">{rm(l.line_total_rm)}</td>
-                  <td>
-                    <Button variant="ghost" onClick={() => setOpen(open === l.id ? null : l.id)} aria-expanded={open === l.id}>
-                      Why?
-                    </Button>
-                  </td>
-                </tr>
-                {open === l.id && (
-                  <tr>
-                    <td colSpan={9}><Why line={l} /></td>
-                  </tr>
-                )}
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Phones: one card per item */}
-      <div className="mt-3 space-y-3 md:hidden">
+      <div className="mt-3 space-y-2">
         {lines.map((l) => (
-          <div key={l.id} className="rounded-lg border border-slate-200 p-3 text-sm">
-            <div className="flex items-start justify-between gap-2">
-              <div className="font-medium">{l.name}</div>
-              <div className="font-semibold">{rm(l.line_total_rm)}</div>
+          <section key={l.id} className="rounded-lg border border-slate-200 bg-white p-3 sm:p-4" aria-label={`${l.name} order line`}>
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+              <div className="min-w-0">
+                <h4 className="font-semibold text-slate-900">{l.name}</h4>
+                <p className="mt-1 text-sm text-slate-600">Order quantity</p>
+                <div className="mt-1"><Buy line={l} order={order} editable={editable} /></div>
+              </div>
+              <div className="flex items-baseline justify-between gap-4 border-t border-slate-100 pt-2 sm:block sm:border-0 sm:pt-0 sm:text-right">
+                <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Line total</span>
+                <span className="text-lg font-semibold tabular-nums text-slate-900 sm:block">{rm(l.line_total_rm)}</span>
+              </div>
             </div>
-            <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
-              <dt className="text-slate-500">Need</dt><dd>{l.display_need}</dd>
-              <dt className="text-slate-500">Safety buffer</dt><dd><Buffer line={l} /></dd>
-              <dt className="text-slate-500">Usable stock</dt><dd><Stock line={l} /></dd>
-              <dt className="text-slate-500">Buy</dt><dd><Buy line={l} order={order} editable={editable} /></dd>
-              <dt className="text-slate-500">When</dt><dd><When line={l} /></dd>
-              <dt className="text-slate-500">Pack price</dt><dd>{rm(l.pack_price_rm)}</dd>
-            </dl>
-            <Button variant="ghost" className="mt-1 px-0" onClick={() => setOpen(open === l.id ? null : l.id)} aria-expanded={open === l.id}>
+            <details className="mt-3 border-t border-slate-100 pt-2">
+              <summary className="w-fit cursor-pointer rounded text-sm font-medium text-brand-royal underline decoration-dotted underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-royal">
+                Planning details
+              </summary>
+              <dl className="mt-3 grid grid-cols-1 gap-x-5 gap-y-3 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                <div><dt className="text-xs text-slate-500">Forecast need</dt><dd className="mt-0.5 font-medium">{l.display_need}</dd></div>
+                <div><dt className="text-xs text-slate-500">Safety buffer</dt><dd className="mt-0.5 font-medium"><Buffer line={l} /></dd></div>
+                <div><dt className="text-xs text-slate-500">Usable stock</dt><dd className="mt-0.5 font-medium"><Stock line={l} /></dd></div>
+                <div><dt className="text-xs text-slate-500">Buy schedule</dt><dd className="mt-0.5"><When line={l} /></dd></div>
+                <div><dt className="text-xs text-slate-500">Pack price</dt><dd className="mt-0.5 font-medium tabular-nums">{rm(l.pack_price_rm)}</dd></div>
+              </dl>
+            </details>
+            <Button variant="ghost" className="mt-1 px-0" onClick={() => setOpen(open === l.id ? null : l.id)} aria-expanded={open === l.id} aria-controls={`why-${order.id}-${l.id}`}>
               Why?
             </Button>
-            {open === l.id && <Why line={l} />}
-          </div>
+            {open === l.id && <div id={`why-${order.id}-${l.id}`} className="mt-1"><Why line={l} /></div>}
+          </section>
         ))}
       </div>
 
@@ -389,7 +360,7 @@ export default function SupplierCard({ order, showSupplierTitle = true }: { orde
             </a>
           )}
           {message?.whatsapp_url && (
-            <a href={message.whatsapp_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+            <a href={message.whatsapp_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center rounded-lg bg-brand-royal px-4 py-2 text-sm font-medium text-white hover:bg-brand-hover">
               Open WhatsApp
             </a>
           )}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { Card, EmptyState, PageSkeleton, SegmentedControl, Table, useToast } from '../../components/ui'
 import { ApiError } from '../../api/client'
@@ -48,7 +49,7 @@ function Attention({ plan }: { plan: Plan }) {
       )}
       {plan.exceptions.some((e) => e.type === 'dish_without_recipe') && (
         <p className="mt-2 border-t border-slate-100 pt-2 text-sm text-slate-600">
-          A dish with no recipe is left out of the shopping list. <Link to="/recipes" className="font-medium text-emerald-700 underline">Add its recipe</Link> and generate the plan again.
+          A dish with no recipe is left out of the shopping list. <Link to="/recipes" className="font-medium text-brand-royal underline">Add its recipe</Link> and generate the plan again.
         </p>
       )}
       {unused.length > 0 && (
@@ -66,8 +67,8 @@ function Attention({ plan }: { plan: Plan }) {
 function DiscardList({ plan }: { plan: Plan }) {
   if (!plan.discard.length) return null
   return (
-    <Card title={`Throw away (${plan.discard.length})`}>
-      <p className="mb-2 text-sm text-slate-600">These have passed their shelf life. They are not counted as stock. Discard them on the Inventory page.</p>
+    <Card title={`Expired stock (${plan.discard.length})`}>
+      <p className="mb-2 text-sm text-slate-600">Excluded from this plan. Remove expired batches in Inventory.</p>
       <Table head={['Item', 'How much', 'Expired']}>
         {plan.discard.map((d, i) => (
           <tr key={`${d.ingredient_id}-${i}`}>
@@ -105,10 +106,9 @@ export default function PlanPage() {
   const total = active.reduce((sum, o) => sum + o.total_rm, 0)
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4 pb-24">
+    <div className="mx-auto max-w-6xl space-y-4 pb-36 md:pb-24">
       <div>
         <h1 className="text-xl font-semibold">Plan purchases</h1>
-        <p className="text-sm text-slate-600">Pick how many days to buy for. We work out what to buy, how much and when.</p>
       </div>
 
       <Card>
@@ -128,8 +128,8 @@ export default function PlanPage() {
       </Card>
 
       {(ctx.isLoading || plan.isLoading) && <PageSkeleton rows={3} />}
-      {ctx.error && <EmptyState title="Could not load planning data" hint={ctx.error.message} action={<button type="button" onClick={() => void ctx.refetch()} className="text-sm font-semibold text-emerald-800 underline">Try again</button>} />}
-      {plan.error && <EmptyState title="Could not load the plan" hint={plan.error.message} action={<button type="button" onClick={() => void plan.refetch()} className="text-sm font-semibold text-emerald-800 underline">Try again</button>} />}
+      {ctx.error && <EmptyState title="Could not load planning data" hint={ctx.error.message} action={<button type="button" onClick={() => void ctx.refetch()} className="text-sm font-semibold text-brand-royal underline">Try again</button>} />}
+      {plan.error && <EmptyState title="Could not load the plan" hint={plan.error.message} action={<button type="button" onClick={() => void plan.refetch()} className="text-sm font-semibold text-brand-royal underline">Try again</button>} />}
 
       {!p && !ctx.isLoading && !ctx.error && !plan.isLoading && !plan.error && (
         <EmptyState
@@ -141,7 +141,7 @@ export default function PlanPage() {
       {p && (
         <>
           <p className="text-sm text-slate-600">
-            Plan #{p.id} · bought for {p.horizon_days} day{p.horizon_days === 1 ? '' : 's'} from tomorrow · {p.risk_profile.replace(/_/g, ' ')} stock setting
+            Plan #{p.id} · {p.horizon_days} day{p.horizon_days === 1 ? '' : 's'} from tomorrow · {p.risk_profile.replace(/_/g, ' ')} stock setting
           </p>
           <ForecastCard plan={p} />
           <Attention plan={p} />
@@ -160,15 +160,20 @@ export default function PlanPage() {
       )}
 
       {p && p.orders.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:left-60">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
-            <div className="text-sm text-slate-600">
-              {active.length} order{active.length === 1 ? '' : 's'} · {active.filter((o) => ['approved', 'sent', 'received'].includes(o.status)).length} approved
+        createPortal(
+          <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:left-60">
+            <div className="mx-auto flex max-w-6xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-slate-600">
+                {active.length} order{active.length === 1 ? '' : 's'} · {active.filter((o) => ['approved', 'sent', 'received'].includes(o.status)).length} approved
+              </div>
+              <div className="flex flex-col items-end gap-1 sm:flex-row sm:justify-end sm:gap-6">
+                <button type="button" onClick={() => document.getElementById('supplier-orders')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="inline-flex min-h-9 items-center gap-1 text-sm font-semibold text-brand-royal underline underline-offset-2">Review supplier orders <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 4v16m-7-7 7 7 7-7"/></svg></button>
+                <div className="whitespace-nowrap text-right text-lg font-semibold">Grand total {rm(total)}</div>
+              </div>
             </div>
-            <button type="button" onClick={() => document.getElementById('supplier-orders')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="inline-flex min-h-9 items-center gap-1 text-sm font-semibold text-emerald-800 underline underline-offset-2">Review supplier orders <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 4v16m-7-7 7 7 7-7"/></svg></button>
-            <div className="text-lg font-semibold">Grand total {rm(total)}</div>
-          </div>
-        </div>
+          </div>,
+          document.body,
+        )
       )}
     </div>
   )

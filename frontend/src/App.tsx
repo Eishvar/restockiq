@@ -24,7 +24,6 @@ const PAGES: Record<string, React.ReactNode> = {
 }
 
 const SETUP = page(() => import('./features/setup/SetupWizard'))
-const FEEDME = page(() => import('./features/pos/FeedMePage'))
 
 export default function App() {
   return (
@@ -32,9 +31,8 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route element={<RequireUser />}>
-          {/* Full-page screens: the first-time wizard and the stand-in for the FeedMe till */}
+          {/* Full-page first-time setup. */}
           <Route path="/setup" element={SETUP} />
-          <Route path="/pos/feedme" element={FEEDME} />
           <Route element={<RequireSetup />}>
             <Route element={<AppShell />}>
               <Route index element={<Navigate to="/plan" replace />} />

@@ -38,8 +38,7 @@ function Risk({ s }: { s: Settings }) {
   return (
     <Card title="How careful should we be about running out?">
       <p className="mb-3 text-sm text-slate-600">
-        On top of the forecast we add a safety buffer, measured from how wrong the forecast was for each of your items in the past.
-        This setting decides how often that buffer should be enough.
+        Each plan adds a safety buffer based on past forecast errors. Choose how often that buffer should cover demand.
       </p>
       <div className="grid gap-3 md:grid-cols-3" role="radiogroup" aria-label="Risk setting">
         {PROFILES.map((p) => (
@@ -48,7 +47,7 @@ function Risk({ s }: { s: Settings }) {
             role="radio"
             aria-checked={choice === p.value}
             onClick={() => setChoice(p.value)}
-            className={`rounded-lg border p-3 text-left text-sm transition ${choice === p.value ? 'border-emerald-600 bg-emerald-50 ring-1 ring-emerald-600' : 'border-slate-200 hover:bg-slate-50'}`}
+            className={`rounded-lg border p-3 text-left text-sm transition ${choice === p.value ? 'border-brand-royal bg-brand-surface ring-1 ring-brand-royal' : 'border-slate-200 hover:bg-slate-50'}`}
           >
             <div className="font-semibold">{p.title}{p.value === s.risk_profile && <span className="ml-2 text-xs font-normal text-slate-500">(current)</span>}</div>
             <div className="mt-1 text-slate-600">{p.text}</div>
@@ -63,7 +62,7 @@ function Risk({ s }: { s: Settings }) {
         </thead>
         <tbody>
           {PROFILES.map((p) => (
-            <tr key={p.value} className={choice === p.value ? 'font-semibold text-emerald-800' : 'text-slate-700'}>
+            <tr key={p.value} className={choice === p.value ? 'font-semibold text-brand-navy' : 'text-slate-700'}>
               <td className="py-1">{p.title}</td>
               {s.service_levels[p.value].map((x, i) => <td key={i}>{pct(x)}</td>)}
             </tr>
@@ -71,7 +70,7 @@ function Risk({ s }: { s: Settings }) {
         </tbody>
       </table>
       <p className="mt-2 text-xs text-slate-500">
-        Fresh items get a lower number because leftovers spoil. Long-life items get a higher one because leftovers keep.
+        Fresh items use a lower target to limit spoilage; long-life items use a higher target.
         {s.buffers_updated_at && ` Buffers last measured ${new Date(s.buffers_updated_at).toLocaleString('en-MY')}.`}
       </p>
       <div className="mt-3 flex items-center gap-3">
@@ -100,7 +99,7 @@ function Baseline({ s }: { s: Settings }) {
     <div className="space-y-4">
       <Card title="Demo date">
         <p className="mb-2 text-sm text-slate-600">
-          For demos: pretend it is another day. Today is <strong>{fmtDayYear(s.today)}</strong>{s.today_override ? ' (set by you)' : ''}.
+          Today is <strong>{fmtDayYear(s.today)}</strong>{s.today_override ? ' (demo date)' : ''}. Set another date for the demo.
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} aria-label="Demo date" />
@@ -159,7 +158,7 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-4xl space-y-4">
       <div>
         <h1 className="text-xl font-semibold">Settings</h1>
-        <p className="text-sm text-slate-600">{data.tenant_name}. Every change is written to the Activity record.</p>
+        <p className="text-sm text-slate-600">{data.tenant_name}</p>
       </div>
       <Risk key={data.risk_profile} s={data} />
       <Baseline key={`${data.manual_planning_hours}-${data.today_override}`} s={data} />

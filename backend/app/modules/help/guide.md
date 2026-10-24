@@ -44,7 +44,7 @@ Each dish has a recipe. The amount of an ingredient needed on a day is the sum, 
 x the amount of that ingredient in one serving. A dish with no recipe cannot be turned into ingredients and is
 flagged for a person to fix. Recipes are kept on the Recipes page: Edit a dish to choose its ingredients and the
 amount in one serving (grams, millilitres or pieces), or press + Add a dish for a new one (use the name the till
-prints, because sales files are matched by name). First-time setup has a Recipes step that cannot be skipped: every
+prints). First-time setup has a Recipes step that cannot be skipped: every
 dish must have a recipe before setup can finish, and an example recipe is filled in for each dish. A recipe change is
 used the next time a plan is generated, and the safety buffers are measured again afterwards.
 
@@ -88,15 +88,14 @@ forecast learns from how each kind of period changed past sales, so one that rep
 new kind of period with no history cannot change the forecast yet, but it is recorded and starts to help once it has
 happened before. Malaysian public holidays are added when you choose Malaysia in setup.
 
-== SALES IMPORT ==
-Sales come in by CSV file exported from the till (FeedMe in this demo, which is simulated). On the Dashboard,
-Import sales shows a summary first. Dishes not on your menu are listed and left out, never guessed. A day in the
-file replaces that day in the app. The app's "today" is the day after your latest sales.
+== SALES HISTORY ==
+Forecasts use the sales history already stored in the app. The demo includes synthetic sales for its sample
+menu. There is no sales-system connection or sales upload feature. The app's "today" is the day after its latest sales.
 
 == WHO CAN DO WHAT ==
 Owner: everything, including setup, placing and rejecting orders, removing suppliers and places, and Settings.
 Manager: plan purchases, edit and submit orders, mark received, update stock, add or rename suppliers and places,
-edit recipes and add dishes, calendar, import sales, Activity. Staff: view stock and update quantities only.
+edit recipes and add dishes, calendar, Activity. Staff: view stock and update quantities only.
 
 == LIMITS OF THIS HELP CHAT ==
 It explains how the app works. It cannot see your stock, sales, plans or orders, cannot change anything, and cannot

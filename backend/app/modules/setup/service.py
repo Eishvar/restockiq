@@ -1,6 +1,6 @@
-"""First-time setup: country (currency + public holidays), POS, stock, recipes, optional calendar.
+"""First-time setup: country (currency + public holidays), stock, recipes, optional calendar.
 
-The wizard order is country -> pos -> inventory -> recipes -> calendar. Each step stores its own result, and
+The wizard order is country -> inventory -> recipes -> calendar. Each step stores its own result, and
 `status()` derives which step is next, so a refresh or a different browser resumes in the right place.
 """
 import csv
@@ -38,8 +38,6 @@ def status(db: Session, tenant_id: int) -> SetupStatus:
     inventory_done = tenant.onboarded_at is not None
     if row.country is None:
         step = "country"
-    elif row.pos_provider is None:
-        step = "pos"
     elif not inventory_done:
         step = "inventory"
     elif row.setup_done_at is None and row.recipes_confirmed_at is None:
@@ -55,8 +53,6 @@ def status(db: Session, tenant_id: int) -> SetupStatus:
         country=row.country,
         country_name=country["name"] if country else None,
         currency=row.currency,
-        pos_provider=row.pos_provider,
-        pos_connected_at=row.pos_connected_at,
         inventory_done=inventory_done,
         recipes_done=row.recipes_confirmed_at is not None or row.setup_done_at is not None,
         calendar_skipped=row.calendar_skipped,
@@ -103,9 +99,9 @@ def choose_country(db: Session, user: User, code: str) -> CountryResult:
 
 
 def confirm_recipes(db: Session, user: User) -> SetupStatus:
-    """Step 4 (not optional): every dish on the menu must have a recipe before the wizard can go on."""
+    """Step 3 (not optional): every dish on the menu must have a recipe before the wizard can go on."""
     current = status(db, user.tenant_id)
-    if current.step in ("country", "pos", "inventory"):
+    if current.step in ("country", "inventory"):
         raise HTTPException(409, f"Finish the '{current.step}' step first")
     row = get_setup(db, user.tenant_id)
     if row.recipes_confirmed_at is None:
@@ -121,9 +117,9 @@ def confirm_recipes(db: Session, user: User) -> SetupStatus:
 
 
 def complete(db: Session, user: User, skip_calendar: bool) -> SetupStatus:
-    """Finish the wizard. Needs the first four steps done; the calendar step may be skipped."""
+    """Finish the wizard. Needs country, stock and recipes done; the calendar step may be skipped."""
     current = status(db, user.tenant_id)
-    if current.step in ("country", "pos", "inventory", "recipes"):
+    if current.step in ("country", "inventory", "recipes"):
         raise HTTPException(409, f"Finish the '{current.step}' step first")
     row = get_setup(db, user.tenant_id)
     if row.setup_done_at is None:

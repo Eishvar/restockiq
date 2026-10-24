@@ -110,7 +110,7 @@ function DishRow({ dish, options, canEdit, open, onToggle }: {
   }
 
   return (
-    <li className={open ? 'bg-emerald-50/40' : ''}>
+    <li className={open ? 'bg-brand-surface/60' : ''}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2.5">
         <div className="min-w-0 flex-1 basis-56">
           <div className="flex flex-wrap items-center gap-2">
